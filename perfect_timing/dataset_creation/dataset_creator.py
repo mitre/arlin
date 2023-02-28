@@ -1,0 +1,128 @@
+from typing import Union, Dict, Any
+import os
+import gym
+import perfect_timing.utils.dataset_creator_utils as utils
+from tqdm import tqdm
+import pickle
+
+from huggingface_sb3 import load_from_hub
+
+class DatasetCreator():
+    
+    """
+    #### Description:
+    The DatasetCreator class is used to create an XRL dataset from a given model or a
+    trained model loaded from huggingface.com. All models need to be trained using
+    stable-baselines3.
+    
+    Args:
+        - algorithm (str): Algorithm name that the model was trained with
+        - environment (str): OpenAI Gym registered env name
+        - save_dir (str): Path to the directory in which to save the XRL dataset
+        - num_episodes (int): Number of episodes to save into dataset
+        - load_path (Union[str, None]): Optional path to a trained models pkl file. If
+            None, model is loaded from huggingface.com
+
+    """
+    
+    def __init__(
+        self, 
+        algorithm: str, 
+        environment: str,
+        save_dir: str,
+        load_path: Union[str, None] = None
+        ):
+        self.algo_str = algorithm.lower()
+        self.env_str = environment
+        
+        self.algorithm = utils.get_algo(self.algo_str.lower())
+        self.environment = gym.make(self.env_str)
+        self.save_path = save_dir
+        self.load_path = load_path
+        
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        
+        if self.load_path is None:
+            self.load_path = self.load_hf_model(algorithm, environment)
+        
+        self.model = self.algorithm.load(self.load_path)
+        self.gatherer = utils.get_dataset_gatherer(self.algorithm_str)(self.model.policy)
+        
+    def load_hf_model(self, algorithm: str, environment: str) -> str:
+        """
+        Return the model path for the local model downloaded from huggingface for the
+        given algorithm and environment.
+        
+        Args:
+            - algorithm (str): Algorithm used for training
+            - environment (str): OpenAI gym environment ID used for training
+        
+        Returns:
+            - str: Path to the local model downloaded from huggingface
+        """
+        
+        repo_id = f"sb3/{algorithm}-{environment}"
+        filename = f"{algorithm}-{environment}.zip"
+        checkpoint = load_from_hub(repo_id=repo_id, filename=filename)
+        return checkpoint
+    
+    def collect_episodes(self, num_episodes: int) -> Dict[str, Any]:
+        """
+        Collect episodes needed for an XRL dataset.
+        
+        Args:
+            - num_episodes (int): Number of episodes to collect.
+        
+        Returns:
+            - Dict[str, Any]: Dictionary of datapoints after num_episodes
+        """
+        
+        datapoint_dict = utils.get_datapoint_dict(self.algo_str)()
+        
+        for _ in tqdm(range(num_episodes)):
+            obs = self.env.reset()
+            done = False
+            
+            while not done:
+                action = self.gatherer.gather_data(obs, datapoint_dict)
+                
+                obs, reward, done, _ = self.env.step(action.item())
+                datapoint_dict.add_base_data(obs, action, reward, done)
+        
+        return datapoint_dict.get_dict()
+    
+    def collect_datapoints(self, num_datapoints: int) -> Dict[str, Any]:
+        """
+        Collect datapoints needed for an XRL dataset.
+        
+        Args:
+            - num_datapoints (int): Number of datapoints to collect.
+        
+        Returns:
+            - Dict[str, Any]: Dictionary of num_datapoints datapoints
+        """
+        
+        datapoint_dict = utils.get_datapoint_dict(self.algo_str)()
+        
+        n = 0
+        while n <= num_datapoints:
+            obs = self.env.reset()
+            done = False
+            
+            while not done:
+                action = self.gatherer.gather_data(obs, datapoint_dict)
+                
+                obs, reward, done, _ = self.env.step(action.item())
+                datapoint_dict.add_base_data(obs, action, reward, done)
+                
+                n += 1
+                if n > num_datapoints:
+                    break
+        
+        return datapoint_dict.get_dict()
+    
+    def save_datapoints(self, datapoint_dict: Dict[str, Any]):
+        filename = os.path.basename(self.load_path).split('.')[0] + '.pkl'
+        with open(os.path.join(self.save_path, filename), 'wb') as handle:
+            pickle.dump(datapoint_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)

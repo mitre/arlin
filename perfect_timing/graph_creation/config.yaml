@@ -1,0 +1,3 @@
+pkl_path: /home/atapley/arlin/perfect_timing/data_zoo/ppo-CartPole-v1_1000.pkl
+n_components: 2
+perplexity: 120

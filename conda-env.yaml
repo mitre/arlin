@@ -1,0 +1,12 @@
+name: timing
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.9.*
+  - cudatoolkit=11.3
+  - pip
+  - pip:
+    - poetry
+    - setuptools==65.5.0
+    - gym==0.21

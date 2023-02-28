@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "perfect_timing"
+version = "0.1.0"
+description = "Adversarial Attack Timing Identification for Maximum Effectiveness"
+authors = ["Alex Tapley <atapley@mitre.org>"]
+readme = "README.md"
+keywords = ["python", "reinforcement learning", "adversarial", "explainable"]
+repository = "https://gitlab.mitre.org/arlin/perfect_timing"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.24.2"
+stable-baselines3 = "^1.7.0"
+huggingface-sb3 = "^2.2.4"
+pyyaml = "^6.0"
+tqdm = "^4.64.1"
+sklearn = "^0.0.post1"
