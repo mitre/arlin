@@ -4,6 +4,7 @@ import gym
 import perfect_timing.utils.dataset_creator_utils as utils
 from tqdm import tqdm
 import pickle
+import logging
 
 from huggingface_sb3 import load_from_hub
 
@@ -36,7 +37,7 @@ class DatasetCreator():
         self.env_str = environment
         
         self.algorithm = utils.get_algo(self.algo_str.lower())
-        self.environment = gym.make(self.env_str)
+        self.env = gym.make(self.env_str)
         self.save_path = save_dir
         self.load_path = load_path
         
@@ -44,12 +45,12 @@ class DatasetCreator():
             os.mkdir(save_dir)
         
         if self.load_path is None:
-            self.load_path = self.load_hf_model(algorithm, environment)
+            self.load_path = self._load_hf_model(algorithm, environment)
         
         self.model = self.algorithm.load(self.load_path)
-        self.gatherer = utils.get_dataset_gatherer(self.algorithm_str)(self.model.policy)
+        self.gatherer = utils.get_dataset_gatherer(self.algo_str)(self.model.policy)
         
-    def load_hf_model(self, algorithm: str, environment: str) -> str:
+    def _load_hf_model(self, algorithm: str, environment: str) -> str:
         """
         Return the model path for the local model downloaded from huggingface for the
         given algorithm and environment.
@@ -64,7 +65,11 @@ class DatasetCreator():
         
         repo_id = f"sb3/{algorithm}-{environment}"
         filename = f"{algorithm}-{environment}.zip"
-        checkpoint = load_from_hub(repo_id=repo_id, filename=filename)
+        logging.info(f"Loading model {repo_id}/{filename} from huggingface...")
+        try:
+            checkpoint = load_from_hub(repo_id=repo_id, filename=filename)
+        except Exception as e:
+            logging.error(f"Model could not be loaded from huggingface.\n{e}")
         return checkpoint
     
     def collect_episodes(self, num_episodes: int) -> Dict[str, Any]:
@@ -78,6 +83,7 @@ class DatasetCreator():
             - Dict[str, Any]: Dictionary of datapoints after num_episodes
         """
         
+        logging.info("Collecting episodes...")
         datapoint_dict = utils.get_datapoint_dict(self.algo_str)()
         
         for _ in tqdm(range(num_episodes)):
@@ -87,7 +93,7 @@ class DatasetCreator():
             while not done:
                 action = self.gatherer.gather_data(obs, datapoint_dict)
                 
-                obs, reward, done, _ = self.env.step(action.item())
+                obs, reward, done, _ = self.env.step(action)
                 datapoint_dict.add_base_data(obs, action, reward, done)
         
         return datapoint_dict.get_dict()
@@ -103,26 +109,31 @@ class DatasetCreator():
             - Dict[str, Any]: Dictionary of num_datapoints datapoints
         """
         
+        logging.info("Collecting datapoints...")
         datapoint_dict = utils.get_datapoint_dict(self.algo_str)()
         
-        n = 0
-        while n <= num_datapoints:
-            obs = self.env.reset()
-            done = False
+        obs = self.env.reset()
+        for _ in tqdm(range(num_datapoints)):
+            action = self.gatherer.gather_data(obs, datapoint_dict)
+                
+            obs, reward, done, _ = self.env.step(action)
+            datapoint_dict.add_base_data(obs, action, reward, done)
             
-            while not done:
-                action = self.gatherer.gather_data(obs, datapoint_dict)
-                
-                obs, reward, done, _ = self.env.step(action.item())
-                datapoint_dict.add_base_data(obs, action, reward, done)
-                
-                n += 1
-                if n > num_datapoints:
-                    break
+            if done:
+                obs = self.env.reset()
+                done = False
         
         return datapoint_dict.get_dict()
     
-    def save_datapoints(self, datapoint_dict: Dict[str, Any]):
-        filename = os.path.basename(self.load_path).split('.')[0] + '.pkl'
+    def save_datapoints(self, datapoint_dict: Dict[str, Any]) -> None:
+        """
+        Save dictionary of datapoints to self.save_dir.
+        
+        Args:
+            - datapoint_dict (Dict[str, Any]): Dictionary of XRL datapoints to save
+        """
+        num_points = datapoint_dict['actions'].shape[0]
+        filename = os.path.basename(self.load_path).split('.')[0] + f'-{num_points}.pkl'
+        logging.info(f"Saving datapoints to {self.save_path}/{filename}...")
         with open(os.path.join(self.save_path, filename), 'wb') as handle:
             pickle.dump(datapoint_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
