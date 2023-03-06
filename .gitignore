@@ -1,3 +1,4 @@
-/data_zoo
+data_zoo/
 *.pyc
 /config.yaml
+outputs/
