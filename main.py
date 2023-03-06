@@ -6,6 +6,7 @@ import os
 import warnings
 
 from perfect_timing.dataset_creation.dataset_creator import DatasetCreator
+from perfect_timing.graph_creation.graph_creation import GraphCreator
 
 def get_config(config_path: str) -> Dict[str, Any]:
     """
@@ -26,28 +27,37 @@ def main(config: Dict[str, Any]) -> None:
     
     Args:
         - config (Dict[str, Any]): Config file with necessary information for running
-    """
-    # Logging and warning setup
-    logging.basicConfig(level=logging.INFO)
-    warnings.filterwarnings("ignore", category=UserWarning)  
+    """ 
     
-    # Create the DatasetCreator
-    params = config['DATASET_CREATION']
-    dataset_creator = DatasetCreator(**params['DATASET_CREATOR'])
+    if config['dataset_creation']:
+        # Create the DatasetCreator
+        params = config['DATASET_CREATION']
+        dataset_creator = DatasetCreator(**params['DATASET_CREATOR'])
+        
+        # Collect data
+        if params['collect_episodes']:
+            datapoints = dataset_creator.collect_episodes(params['num_collect'])
+        else:
+            datapoints = dataset_creator.collect_datapoints(params['num_collect'])
+        
+        # Save results
+        dataset_creator.save_datapoints(datapoints)
     
-    # Collect data
-    if params['collect_episodes']:
-        datapoints = dataset_creator.collect_episodes(params['num_collect'])
-    else:
-        datapoints = dataset_creator.collect_datapoints(params['num_collect'])
-    
-    # Save results
-    dataset_creator.save_datapoints(datapoints)
+    if config['graph_creation']:
+        # Create the GraphCreator
+        params = config['GRAPH_CREATION']
+        graph_creator = GraphCreator(**params)
+        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default='config.yaml', help='Path to main config.')
     args = parser.parse_args()
     config = get_config(args.config)
+    
+    # Logging and warning setup
+    logging.basicConfig(level=logging.INFO)
+    warnings.filterwarnings("ignore", category=UserWarning) 
+    
     main(config)
     
