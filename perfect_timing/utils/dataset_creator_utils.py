@@ -2,7 +2,7 @@ from stable_baselines3.common.base_class import BaseAlgorithm
 from stable_baselines3.ppo import PPO
 from stable_baselines3.dqn import DQN
 
-from perfect_timing.dataset_creation.data_gatherer import BaseDataGatherer, PPODataGatherer
+from perfect_timing.dataset_creation.data_gatherer import BaseDataGatherer, PPODataGatherer, DQNDataGatherer
 from perfect_timing.dataset_creation.datapoint_dict import BaseDatapointDict, PPODatapointDict, DQNDatapointDict
 
 from typing import Dict, List, Any, Type
@@ -66,6 +66,6 @@ def get_dataset_gatherer(algorithm: str) -> Type[BaseDataGatherer]:
     if algorithm == "ppo":
         return PPODataGatherer
     elif algorithm == "dqn":
-        return None
+        return DQNDataGatherer
     else:
         raise ValueError("Unsupported algorithm given!")

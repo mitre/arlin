@@ -2,7 +2,7 @@ DATASET_CREATION:
   collect_episodes: True
   num_collect: 100
   DATASET_CREATOR:
-    algorithm: ppo
+    algorithm: dqn
     environment: CartPole-v1
     save_dir: ./data_zoo/
     load_path: NULL

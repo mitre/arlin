@@ -65,7 +65,6 @@ class PPODataGatherer(BaseDataGatherer):
         
         return action
 
-# TODO
 class DQNDataGatherer(BaseDataGatherer):
     
     def __init__(self, policy: Type[BasePolicy]):
@@ -77,10 +76,13 @@ class DQNDataGatherer(BaseDataGatherer):
         
         with th.no_grad():
             obs = th.Tensor(np.expand_dims(observation, 0))
-            q_val = None
-            latent_q = None
-            action = None
+            
+            features = self.policy.extract_features(obs, self.policy.q_net.features_extractor)
+            latent_q = self.policy.q_net.q_net[:-1](features)
+            q_vals = self.policy.q_net.q_net[-1](latent_q)
+            action = q_vals.argmax(dim=1).reshape(-1).item()
         
-        datapoint_dict.add_specific_datapoint(q_val, latent_q)
+        datapoint_dict.add_specific_datapoint(th.squeeze(q_vals).numpy(), 
+                                              th.squeeze(latent_q).numpy())
         
         return action
