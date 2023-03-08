@@ -3,8 +3,9 @@ from typing import Any
 import os
 import logging
 
-CLUSTER_COLORS = ('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', \
-                      '#17becf', '#101010', '#6f2fff', '#0f8f7f', '#c48c5c', '#cf0fcf', '#4b0082')
+CLUSTER_COLORS = ('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', 
+                  '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#101010', '#6f2fff', 
+                  '#0f8f7f', '#c48c5c', '#cf0fcf', '#4b0082')
 
 
 def save_data(data: Any, save_dir: str, filename: str) -> None:

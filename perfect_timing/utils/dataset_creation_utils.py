@@ -5,7 +5,7 @@ from stable_baselines3.dqn import DQN
 from perfect_timing.dataset_creation.data_gatherer import BaseDataGatherer, PPODataGatherer, DQNDataGatherer
 from perfect_timing.dataset_creation.datapoint_dict import BaseDatapointDict, PPODatapointDict, DQNDatapointDict
 
-from typing import Dict, List, Any, Type
+from typing import Type
 
 
 def get_algo(algo_str: str) -> Type[BaseAlgorithm]:
@@ -36,13 +36,13 @@ def get_algo(algo_str: str) -> Type[BaseAlgorithm]:
 
 def get_datapoint_dict(algorithm: str) -> Type[BaseDatapointDict]:
     """
-    Create a dictionary to hold all datapoints based on given algorithm.
+    Return DatapointDict based on given algorithm.
     
     Args:
         - algorithm (str): Algorithm used during training
         
     Returns:
-        - Dict[str, List[Any]]: Empty dictionary for datapoint collection
+        - Type[BaseDatapointDict]: Algorithm specific DatapointDict
     """
     
     if algorithm == "ppo":

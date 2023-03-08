@@ -1,7 +1,7 @@
 from typing import Union, Dict, Any
 import os
 import gym
-import perfect_timing.utils.dataset_creator_utils as utils
+import perfect_timing.utils.dataset_creation_utils as utils
 from tqdm import tqdm
 import pickle
 import logging

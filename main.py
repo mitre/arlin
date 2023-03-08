@@ -6,7 +6,7 @@ import os
 import warnings
 
 from perfect_timing.dataset_creation.dataset_creator import DatasetCreator
-from perfect_timing.graph_creation.graph_creation import GraphCreator
+from perfect_timing.data_analysis.data_analyzer import DataAnalyzer
 
 def get_config(config_path: str) -> Dict[str, Any]:
     """
@@ -43,10 +43,14 @@ def main(config: Dict[str, Any]) -> None:
         # Save results
         dataset_creator.save_datapoints(datapoints)
     
-    if config['graph_creation']:
-        # Create the GraphCreator
-        params = config['GRAPH_CREATION']
-        graph_creator = GraphCreator(**params)
+    if config['data_analysis']:
+        # Create the DataAnalyzer
+        params = config['DATA_ANALYSIS']
+        analyzer = DataAnalyzer()
+        analyzer.load_data(params['dataset_path'])
+        embeddings = analyzer.get_embeddings(**params['EMBEDDINGS'])
+        clusters = analyzer.get_clusters(**params['CLUSTERS'])
+        analyzer.graph_clusters()
         
 
 if __name__ == '__main__':
