@@ -53,6 +53,8 @@ class PPODataGatherer(BaseDataGatherer):
             features = self.policy.extract_features(obs)
             if self.policy.share_features_extractor:
                 latent_pi, latent_vf = self.policy.mlp_extractor(features)
+                pi_features = features
+                vf_features = features
             else:
                 pi_features, vf_features = features
                 latent_pi = self.policy.mlp_extractor.forward_actor(pi_features)
@@ -61,7 +63,9 @@ class PPODataGatherer(BaseDataGatherer):
         datapoint_dict.add_specific_datapoint(th.squeeze(latent_pi).numpy(), 
                                               th.squeeze(latent_vf).numpy(), 
                                               th.squeeze(probs).numpy(), 
-                                              th.squeeze(value).item())
+                                              th.squeeze(value).item(),
+                                              th.squeeze(pi_features).numpy(),
+                                              th.squeeze(vf_features).numpy())
         
         return action
 
@@ -83,6 +87,7 @@ class DQNDataGatherer(BaseDataGatherer):
             action = q_vals.argmax(dim=1).reshape(-1).item()
         
         datapoint_dict.add_specific_datapoint(th.squeeze(q_vals).numpy(), 
-                                              th.squeeze(latent_q).numpy())
+                                              th.squeeze(latent_q).numpy(),
+                                              th.squeeze(features).numpy())
         
         return action

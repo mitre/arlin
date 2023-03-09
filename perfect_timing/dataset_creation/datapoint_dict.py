@@ -67,13 +67,17 @@ class PPODatapointDict(BaseDatapointDict):
         self.latent_critics = []
         self.dist_probs = []
         self.critic_values = []
+        self.pi_features = []
+        self.vf_features = []
     
     def add_specific_datapoint(
         self, 
         latent_actor: np.ndarray,
         latent_critic: np.ndarray,
         dist_prob: np.ndarray,
-        critic_value: float) -> None:
+        critic_value: float,
+        pi_features: np.ndarray,
+        vf_features: np.ndarray) -> None:
         """
         Add datapoint information that is specific to PPO.
         
@@ -82,12 +86,16 @@ class PPODatapointDict(BaseDatapointDict):
             - latent_critic (np.ndarray): Final embedding layer output within critic
             - dist_probs (np.ndarray): Probability distribution of actions
             - critic_value (float): Critic value for the current state
+            - pi_features (np.ndarray): Output features for the obs from the pi net
+            - vf_features (np.ndarray): Output features for the obs from the vf net
         """
         
         self.latent_actors.append(latent_actor)
         self.latent_critics.append(latent_critic)
         self.dist_probs.append(dist_prob)
         self.critic_values.append(critic_value)
+        self.pi_features.append(pi_features)
+        self.vf_features.append(vf_features)
     
     def get_dict(self) -> Dict[str, np.ndarray]:
         data_dict = {
@@ -98,7 +106,9 @@ class PPODatapointDict(BaseDatapointDict):
             "latent_actors": np.array(self.latent_actors),
             "latent_critics": np.array(self.latent_critics),
             "dist_probs": np.array(self.dist_probs),
-            "critic_values": np.array(self.critic_values)
+            "critic_values": np.array(self.critic_values),
+            "pi_features": np.array(self.pi_features),
+            "vf_features": np.array(self.vf_features)
         }
         
         return data_dict
@@ -112,21 +122,25 @@ class DQNDatapointDict(BaseDatapointDict):
         super().__init__()
         self.q_vals = []
         self.latent_qs = []
+        self.features = []
     
     def add_specific_datapoint(
         self, 
-        q_vals,
-        latent_q) -> None:
+        q_vals: np.ndarray,
+        latent_q: np.ndarray,
+        features: np.ndarray) -> None:
         """
         Add datapoint information that is specific to DQN.
         
         Args:
             - q_vals (np.ndarray): Q values for each action at current state
             - latent_q (np.ndarray): Final embedding layer output within q network
+            - features (np.ndarray): Output features for the obs
         """
         
         self.q_vals.append(q_vals)
         self.latent_qs.append(latent_q)
+        self.features.append(features)
     
     def get_dict(self) -> Dict[str, np.ndarray]:
         data_dict = {
@@ -135,7 +149,8 @@ class DQNDatapointDict(BaseDatapointDict):
             "rewards": np.array(self.rewards),
             "dones": np.array(self.dones),
             "q_vals": np.array(self.q_vals),
-            "latent_qs": np.array(self.latent_qs)
+            "latent_qs": np.array(self.latent_qs),
+            "features": np.array(self.features)
         }
         
         return data_dict
