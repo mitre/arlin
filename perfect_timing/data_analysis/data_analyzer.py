@@ -196,7 +196,8 @@ class DataAnalyzer():
         
         embeddings = self.dataset['embeddings']
         if clustering_method == 'kmeans':
-            clusters = KMeans(n_clusters=num_clusters, n_init='auto').fit(embeddings).labels_
+            clusters = KMeans(n_clusters=num_clusters,
+                              n_init='auto').fit(embeddings).labels_
         elif clustering_method == 'kgmeans':
             # TODO clean up
             dummy_final_y = 2*np.amax(embeddings[:,0]) - np.amin(embeddings[:,0])
@@ -210,7 +211,8 @@ class DataAnalyzer():
                 augmented_embeddings[final_state,2] = temporal_discount * dummy_final_y
                 augmented_embeddings[final_state,3] = temporal_discount * dummy_final_x
             # Run K-Means clustering on the augmented embeddings
-            clusters = KMeans(n_clusters=num_clusters, n_init='auto').fit(augmented_embeddings).labels_
+            clusters = KMeans(n_clusters=num_clusters, 
+                              n_init='auto').fit(augmented_embeddings).labels_
         
         return np.array(clusters)
     
@@ -224,13 +226,19 @@ class DataAnalyzer():
         
         _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1)
         plt.axis('off')
-        plt.title(f"{self.filename} with {self.num_clusters} Groups and {self.perplexity} Perplexity")
+        title = f"{self.filename} with {self.num_clusters} Groups \
+            and {self.perplexity} Perplexity"
+        plt.title(title)
         
-        handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i)) for i in range(self.num_clusters)]
-        plt.legend(handles=handles, labels=[f"Group {i}" for i in range(self.num_clusters)], loc="lower right", title="Cluster Groups")
+        handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
+                   for i in range(self.num_clusters)]
+        labels = [f"Group {i}" for i in range(self.num_clusters)]
+        plot_title = "Cluster Groups"
+        plt.legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
         
         save_dir = './outputs/cluster_graphs/'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-            
-        plt.savefig(os.path.join(save_dir, f'{self.filename}-{self.num_clusters}-{self.perplexity}'))
+        
+        plot_filename = f'{self.filename}-{self.num_clusters}-{self.perplexity}'
+        plt.savefig(os.path.join(save_dir, plot_filename))
