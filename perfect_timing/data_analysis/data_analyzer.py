@@ -97,6 +97,7 @@ class DataAnalyzer():
         embed_filename = f"{self.filename}-{activation_key}-{perplexity}_embeddings.pkl"
         
         self.perplexity = perplexity
+        self.activation_key = activation_key
         
         if load_embeddings:
             self.dataset['embeddings'] = utils.load_data(embeddings_dir, embed_filename)
@@ -162,7 +163,8 @@ class DataAnalyzer():
             - np.ndarray: Clusters of embeddings
         """
         clusters_dir = os.path.join(self.dataset_dir, "clusters")
-        cluster_filename = f"{self.filename}-{num_clusters}_clusters.pkl"
+        cluster_filename = f"{self.filename}-{self.activation_key} \
+            -{num_clusters}_clusters.pkl"
         
         self.num_clusters = num_clusters
         
@@ -226,8 +228,8 @@ class DataAnalyzer():
         
         _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1)
         plt.axis('off')
-        title = f"{self.filename} with {self.num_clusters} Groups \
-            and {self.perplexity} Perplexity"
+        title = f"{self.filename} {self.activation_key} Embeddings "\
+            f"with {self.num_clusters} Groups and {self.perplexity} Perplexity"
         plt.title(title)
         
         handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
@@ -240,5 +242,53 @@ class DataAnalyzer():
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         
-        plot_filename = f'{self.filename}-{self.num_clusters}-{self.perplexity}'
+        plot_filename = f'{self.filename}-{self.activation_key}- \
+        {self.num_clusters}-{self.perplexity}'
+        plt.savefig(os.path.join(save_dir, plot_filename))
+    
+    def graph_embeddings(self) -> None:
+        """
+        Graph and save an image of the embeddings.
+        """
+        embeddings = self.dataset["embeddings"]
+        
+        _ = plt.scatter(embeddings[:,0], embeddings[:,1], s=1)
+        plt.axis('off')
+        title = f"{self.filename} {self.activation_key} Embeddings"\
+            f" with {self.perplexity} Perplexity"
+        plt.title(title)
+        
+        save_dir = './outputs/embedding_graphs/'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        
+        plot_filename = f'{self.filename}-{self.activation_key}-{self.perplexity}'
+        plt.savefig(os.path.join(save_dir, plot_filename))
+        
+    def graph_action_embeddings(self) -> None:
+        """
+        Graph and save an image of the embeddings grouped by action.
+        """
+        embeddings = self.dataset["embeddings"]
+        
+        colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["actions"]]
+        possible_actions = np.unique(self.dataset["actions"])
+        
+        _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1)
+        plt.axis('off')
+        title = f"{self.filename} {self.activation_key} Embeddings"\
+            f" with {self.perplexity} Perplexity"
+        plt.title(title)
+        
+        handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
+                   for i in possible_actions]
+        labels = [f"Action Value {i}" for i in possible_actions]
+        plot_title = "Actions"
+        plt.legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        
+        save_dir = './outputs/action_graphs/'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        
+        plot_filename = f'{self.filename}-{self.activation_key}-{self.perplexity}_actions'
         plt.savefig(os.path.join(save_dir, plot_filename))
