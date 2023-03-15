@@ -133,7 +133,8 @@ class DataAnalyzer():
             n_components=num_components, 
             perplexity=perplexity, 
             verbose=1, 
-            random_state=12345)
+            random_state=12345,
+            n_iter=5000)
     
         activations = self.dataset[activation_key]
         unique_activations = activations[self.dataset["unique_indices"]]
@@ -163,8 +164,8 @@ class DataAnalyzer():
             - np.ndarray: Clusters of embeddings
         """
         clusters_dir = os.path.join(self.dataset_dir, "clusters")
-        cluster_filename = f"{self.filename}-{self.activation_key} \
-            -{num_clusters}_clusters.pkl"
+        cluster_filename = f"{self.filename}-{self.activation_key}"\
+            f"-{num_clusters}_clusters.pkl"
         
         self.num_clusters = num_clusters
         
@@ -238,12 +239,11 @@ class DataAnalyzer():
         plot_title = "Cluster Groups"
         plt.legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
         
-        save_dir = './outputs/cluster_graphs/'
+        save_dir = f'./outputs/cluster_graphs/{self.filename}/{self.activation_key}'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         
-        plot_filename = f'{self.filename}-{self.activation_key}- \
-        {self.num_clusters}-{self.perplexity}'
+        plot_filename = f"{self.perplexity}_perplexity-{self.num_clusters}_clusters"
         plt.savefig(os.path.join(save_dir, plot_filename))
     
     def graph_embeddings(self) -> None:
@@ -258,11 +258,11 @@ class DataAnalyzer():
             f" with {self.perplexity} Perplexity"
         plt.title(title)
         
-        save_dir = './outputs/embedding_graphs/'
+        save_dir = f'./outputs/embedding_graphs/{self.filename}/{self.activation_key}'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         
-        plot_filename = f'{self.filename}-{self.activation_key}-{self.perplexity}'
+        plot_filename = f'{self.perplexity}_perplexity-embeddings'
         plt.savefig(os.path.join(save_dir, plot_filename))
         
     def graph_action_embeddings(self) -> None:
@@ -286,9 +286,9 @@ class DataAnalyzer():
         plot_title = "Actions"
         plt.legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
         
-        save_dir = './outputs/action_graphs/'
+        save_dir = f'./outputs/action_graphs/{self.filename}/{self.activation_key}'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         
-        plot_filename = f'{self.filename}-{self.activation_key}-{self.perplexity}_actions'
+        plot_filename = f'{self.perplexity}_perplexity-actions'
         plt.savefig(os.path.join(save_dir, plot_filename))

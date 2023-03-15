@@ -17,6 +17,8 @@ class DatasetCreator():
     stable-baselines3.
     
     Args:
+        - repo_id (str): Repo_ID where the model is stored on huggingface
+        - filename (str): Filename of the model within the repo on huggingface 
         - algorithm (str): Algorithm name that the model was trained with
         - environment (str): OpenAI Gym registered env name
         - save_dir (str): Path to the directory in which to save the XRL dataset
@@ -28,6 +30,8 @@ class DatasetCreator():
     
     def __init__(
         self, 
+        repo_id: str,
+        filename: str,
         algorithm: str, 
         environment: str,
         save_dir: str,
@@ -45,26 +49,23 @@ class DatasetCreator():
             os.mkdir(save_dir)
         
         if self.load_path is None:
-            self.load_path = self._load_hf_model(algorithm, environment)
+            self.load_path = self._load_hf_model(repo_id, filename)
         
         self.model = self.algorithm.load(self.load_path)
         self.gatherer = utils.get_dataset_gatherer(self.algo_str)(self.model.policy)
         
-    def _load_hf_model(self, algorithm: str, environment: str) -> str:
+    def _load_hf_model(self, repo_id: str, filename: str) -> str:
         """
         Return the model path for the local model downloaded from huggingface for the
         given algorithm and environment.
         
         Args:
-            - algorithm (str): Algorithm used for training
-            - environment (str): OpenAI gym environment ID used for training
+            - repo_id (str): Repo_ID where the model is stored on huggingface
+            - filename (str): Filename of the model within the repo on huggingface
         
         Returns:
             - str: Path to the local model downloaded from huggingface
         """
-        
-        repo_id = f"sb3/{algorithm}-{environment}"
-        filename = f"{algorithm}-{environment}.zip"
         logging.info(f"Loading model {repo_id}/{filename} from huggingface...")
         try:
             checkpoint = load_from_hub(repo_id=repo_id, filename=filename)
@@ -133,7 +134,7 @@ class DatasetCreator():
             - datapoint_dict (Dict[str, Any]): Dictionary of XRL datapoints to save
         """
         num_points = datapoint_dict['actions'].shape[0]
-        filename = os.path.basename(self.load_path).split('.')[0] + f'-{num_points}.pkl'
+        filename = f"{self.algo_str}-{self.env_str}-{num_points}.pkl"
         logging.info(f"Saving datapoints to {self.save_path}/{filename}...")
         with open(os.path.join(self.save_path, filename), 'wb') as handle:
             pickle.dump(datapoint_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
