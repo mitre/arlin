@@ -78,6 +78,7 @@ class DataAnalyzer():
         activation_key: str, 
         num_components: int,
         perplexity: int,
+        n_iter: int,
         load_embeddings: bool = False
         ) -> np.ndarray:
         """
@@ -87,24 +88,27 @@ class DataAnalyzer():
             - activation_key (str): Data to perform dimensionality reduction on
             - num_components (int): Number of components to reduce to
             - perplexity (int): Value for balancing local vs global aspects
+            - n_iter (int): Number of iterations during training for T-SNE
             - load_embeddings (bool): Wheter or not to load a premade embedding
             
         Returns:
             - np.ndarray: Embeddings of values from the activation key
         """
         
-        embeddings_dir = os.path.join(self.dataset_dir, "embeddings")
-        embed_filename = f"{self.filename}-{activation_key}-{perplexity}_embeddings.pkl"
+        embeddings_dir = os.path.join(self.dataset_dir, "embeddings",
+                                      self.filename, activation_key)
+        embed_filename = f"{perplexity}_perplexity-{n_iter}_iter-embeddings.pkl"
         
         self.perplexity = perplexity
         self.activation_key = activation_key
+        self.n_iter = n_iter
         
         if load_embeddings:
             self.dataset['embeddings'] = utils.load_data(embeddings_dir, embed_filename)
         else:
             
             self.dataset['embeddings'] = self._generate_embeddings(
-                activation_key, num_components, perplexity,
+                activation_key, num_components, perplexity, n_iter
             )
             utils.save_data(self.dataset['embeddings'], embeddings_dir, embed_filename)
             
@@ -114,7 +118,8 @@ class DataAnalyzer():
         self,
         activation_key: str, 
         num_components: int,
-        perplexity: int
+        perplexity: int,
+        n_iter: int
         ) -> np.ndarray:
         """
         Generate new embeddings from an activation key.
@@ -123,7 +128,7 @@ class DataAnalyzer():
             - activation_key (str): Data to perform dimensionality reduction on
             - num_components (int): Number of components to reduce to
             - perplexity (int): Value for balancing local vs global aspects
-            - load_embeddings (bool): Wheter or not to load a premade embedding
+            - n_iter (int): Number of iterations during training for T-SNE
         
         Returns:
             - np.ndarray: Embeddings of values from the activation key
@@ -131,10 +136,10 @@ class DataAnalyzer():
         
         embedder = TSNE(
             n_components=num_components, 
-            perplexity=perplexity, 
+            perplexity=perplexity,
+            n_iter=n_iter,
             verbose=1, 
-            random_state=12345,
-            n_iter=5000)
+            random_state=12345)
     
         activations = self.dataset[activation_key]
         unique_activations = activations[self.dataset["unique_indices"]]
@@ -163,9 +168,10 @@ class DataAnalyzer():
         Returns:
             - np.ndarray: Clusters of embeddings
         """
-        clusters_dir = os.path.join(self.dataset_dir, "clusters")
-        cluster_filename = f"{self.filename}-{self.activation_key}"\
-            f"-{num_clusters}_clusters.pkl"
+        clusters_dir = os.path.join(self.dataset_dir, "clusters",
+                                    self.filename, self.activation_key)
+        cluster_filename = f"{self.perplexity}_perplexity-{self.n_iter}_iter-"\
+            f"{num_clusters}_clusters.pkl"
         
         self.num_clusters = num_clusters
         
@@ -197,6 +203,8 @@ class DataAnalyzer():
             - np.ndarray: Clusters of embeddings
         """
         
+        # TODO pass in fields to cluster by
+        
         embeddings = self.dataset['embeddings']
         if clustering_method == 'kmeans':
             clusters = KMeans(n_clusters=num_clusters,
@@ -227,7 +235,7 @@ class DataAnalyzer():
         colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["clusters"]]
         embeddings = self.dataset["embeddings"]
         
-        _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1)
+        _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1, alpha=0.1)
         plt.axis('off')
         title = f"{self.filename} {self.activation_key} Embeddings "\
             f"with {self.num_clusters} Groups and {self.perplexity} Perplexity"
@@ -243,26 +251,9 @@ class DataAnalyzer():
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         
-        plot_filename = f"{self.perplexity}_perplexity-{self.num_clusters}_clusters"
-        plt.savefig(os.path.join(save_dir, plot_filename))
-    
-    def graph_embeddings(self) -> None:
-        """
-        Graph and save an image of the embeddings.
-        """
-        embeddings = self.dataset["embeddings"]
-        
-        _ = plt.scatter(embeddings[:,0], embeddings[:,1], s=1)
-        plt.axis('off')
-        title = f"{self.filename} {self.activation_key} Embeddings"\
-            f" with {self.perplexity} Perplexity"
-        plt.title(title)
-        
-        save_dir = f'./outputs/embedding_graphs/{self.filename}/{self.activation_key}'
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        
-        plot_filename = f'{self.perplexity}_perplexity-embeddings'
+        plot_filename = f"{self.perplexity}_perplexity-{self.n_iter}_iter-"\
+            f"{self.num_clusters}_clusters"
+        logging.info(f"Saving cluster graph png to {plot_filename}...")
         plt.savefig(os.path.join(save_dir, plot_filename))
         
     def graph_action_embeddings(self) -> None:
@@ -270,25 +261,70 @@ class DataAnalyzer():
         Graph and save an image of the embeddings grouped by action.
         """
         embeddings = self.dataset["embeddings"]
+        action_probs = np.amax(self.dataset["dist_probs"], axis=1)
+        values = self.dataset['critic_values']
         
         colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["actions"]]
         possible_actions = np.unique(self.dataset["actions"])
         
-        _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1)
-        plt.axis('off')
+        fig, axs = plt.subplots(2,2)
         title = f"{self.filename} {self.activation_key} Embeddings"\
             f" with {self.perplexity} Perplexity"
-        plt.title(title)
+        fig.suptitle(title)
+        
+        _ = axs[0,0].scatter(embeddings[:,0], embeddings[:,1], c=colors, s=0.1)
+        axs[0,0].axis('off')
+        axs[0,0].set_title("Taken Actions")
+        axs[0,0].title.set_size(10)
         
         handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
                    for i in possible_actions]
-        labels = [f"Action Value {i}" for i in possible_actions]
+        labels = [f"{i}" for i in possible_actions]
         plot_title = "Actions"
-        plt.legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        axs[0,0].legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        
+        #---------
+        
+        _ = axs[0,1].scatter(embeddings[:,0], embeddings[:,1], cmap="Reds_r", c=action_probs, s=0.1)
+        axs[0,1].axis('off')
+        axs[0,1].set_title("Action Confidence Heatmap")
+        axs[0,1].title.set_size(10)
+        
+        # handles = [Patch(color='#67000d')]
+        # labels = ["High"]
+        # plot_title = "Confidence"
+        # axs[0,1].legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        
+        #---------
+        
+        _ = axs[1,0].scatter(embeddings[:,0], embeddings[:,1], cmap="Greens_r", c=values, s=0.1)
+        axs[1,0].axis('off')
+        axs[1,0].set_title("Action Importance Heatmap")
+        axs[1,0].title.set_size(10)
+        
+        # handles = [Patch(color='#00441b')]
+        # labels = ["High"]
+        # plot_title = "Importance"
+        # axs[1,0].legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        
+        #---------
+        
+        colors = [utils.CLUSTER_COLORS[1] if i else '#F5F5F5' for i in self.dataset["dones"]]
+        _ = axs[1,1].scatter(embeddings[:,0], embeddings[:,1], c=colors, s=0.1)
+        axs[1,1].axis('off')
+        axs[1,1].set_title("Terminal States")
+        axs[1,1].title.set_size(10)
+        
+        # handles = [Patch(color=utils.CLUSTER_COLORS[1])]
+        # labels = ["Yes"]
+        # plot_title = "Terminal State"
+        # axs[1,1].legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
         
         save_dir = f'./outputs/action_graphs/{self.filename}/{self.activation_key}'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         
-        plot_filename = f'{self.perplexity}_perplexity-actions'
+        plot_filename = f'{self.perplexity}_perplexity-{self.n_iter}_iter-actions'
+        logging.info(f"Saving action graph png to {plot_filename}...")
         plt.savefig(os.path.join(save_dir, plot_filename))
+        plt.close()

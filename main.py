@@ -49,7 +49,6 @@ def main(config: Dict[str, Any]) -> None:
         analyzer = DataAnalyzer()
         analyzer.load_data(params['dataset_path'])
         embeddings = analyzer.get_embeddings(**params['EMBEDDINGS'])
-        analyzer.graph_embeddings()
         analyzer.graph_action_embeddings()
         clusters = analyzer.get_clusters(**params['CLUSTERS'])
         analyzer.graph_clusters()

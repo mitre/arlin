@@ -20,7 +20,7 @@ def save_data(data: Any, save_dir: str, filename: str) -> None:
     file_path = os.path.join(save_dir, filename)
     logging.info(f"Saving data to {file_path}...")
     if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+        os.makedirs(save_dir)
     
     with open(file_path, 'wb') as handle:
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
