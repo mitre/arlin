@@ -73,7 +73,7 @@ class DatasetCreator():
             logging.error(f"Model could not be loaded from huggingface.\n{e}")
         return checkpoint
     
-    def collect_episodes(self, num_episodes: int) -> Dict[str, Any]:
+    def collect_episodes(self, num_episodes: int, random: bool = False) -> Dict[str, Any]:
         """
         Collect episodes needed for an XRL dataset.
         
@@ -89,17 +89,22 @@ class DatasetCreator():
         
         for _ in tqdm(range(num_episodes)):
             obs = self.env.reset()
+            step = 0
             done = False
             
             while not done:
                 action = self.gatherer.gather_data(obs, datapoint_dict)
                 
+                if random:
+                    action = self.env.action_space.sample()
+                
                 obs, reward, done, _ = self.env.step(action)
-                datapoint_dict.add_base_data(obs, action, reward, done)
+                datapoint_dict.add_base_data(obs, action, reward, done, step)
+                step += 1
         
         return datapoint_dict.get_dict()
     
-    def collect_datapoints(self, num_datapoints: int) -> Dict[str, Any]:
+    def collect_datapoints(self, num_datapoints: int, random: bool = False) -> Dict[str, Any]:
         """
         Collect datapoints needed for an XRL dataset.
         
@@ -114,14 +119,20 @@ class DatasetCreator():
         datapoint_dict = utils.get_datapoint_dict(self.algo_str)()
         
         obs = self.env.reset()
+        step = 0
         for _ in tqdm(range(num_datapoints)):
             action = self.gatherer.gather_data(obs, datapoint_dict)
+            
+            if random:
+                action = self.env.action_space.sample()
                 
             obs, reward, done, _ = self.env.step(action)
-            datapoint_dict.add_base_data(obs, action, reward, done)
+            datapoint_dict.add_base_data(obs, action, reward, done, step)
+            step += 1
             
             if done:
                 obs = self.env.reset()
+                step = 0
                 done = False
         
         return datapoint_dict.get_dict()

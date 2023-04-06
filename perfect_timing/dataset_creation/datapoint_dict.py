@@ -12,13 +12,15 @@ class BaseDatapointDict(ABC):
         self.actions = []
         self.rewards = []
         self.dones = []
+        self.steps = []
     
     def add_base_data(
         self, 
         observation: np.ndarray, 
         action: int, 
         reward: float, 
-        done: bool
+        done: bool,
+        step: int
         ) -> None:
         """
         Add base data that is independent of the algorithm used during training.
@@ -28,11 +30,13 @@ class BaseDatapointDict(ABC):
             - action (int): Output action from model
             - reward (float): Output reward from given step
             - done (bool): Whether or not this was the last step in an episode
+            - step (int): Current step
         """
         self.observations.append(observation)
         self.actions.append(action)
         self.rewards.append(reward)
         self.dones.append(done)
+        self.steps.append(step)
     
     @abstractmethod
     def add_specific_datapoint(self, *kwargs):
@@ -47,10 +51,11 @@ class BaseDatapointDict(ABC):
         Return a dicitonary representation of all datapoints currently collected.
         """
         data_dict = {
-            "observations": np.as_array(self.observations),
-            "actions": np.as_array(self.actions),
-            "rewards": np.as_array(self.rewards),
-            "dones": np.as_array(self.dones)
+            "observations": np.array(self.observations),
+            "actions": np.array(self.actions),
+            "rewards": np.array(self.rewards),
+            "dones": np.array(self.dones),
+            "steps": np.array(self.steps)
         }
         
         return data_dict
@@ -103,6 +108,7 @@ class PPODatapointDict(BaseDatapointDict):
             "actions": np.array(self.actions),
             "rewards": np.array(self.rewards),
             "dones": np.array(self.dones),
+            "steps": np.array(self.steps),
             "latent_actors": np.array(self.latent_actors),
             "latent_critics": np.array(self.latent_critics),
             "dist_probs": np.array(self.dist_probs),
@@ -148,6 +154,7 @@ class DQNDatapointDict(BaseDatapointDict):
             "actions": np.array(self.actions),
             "rewards": np.array(self.rewards),
             "dones": np.array(self.dones),
+            "steps": np.as_array(self.steps),
             "q_vals": np.array(self.q_vals),
             "latent_qs": np.array(self.latent_qs),
             "features": np.array(self.features)

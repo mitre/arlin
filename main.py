@@ -36,9 +36,11 @@ def main(config: Dict[str, Any]) -> None:
         
         # Collect data
         if params['collect_episodes']:
-            datapoints = dataset_creator.collect_episodes(params['num_collect'])
+            datapoints = dataset_creator.collect_episodes(params['num_collect'],
+                                                          params['random'])
         else:
-            datapoints = dataset_creator.collect_datapoints(params['num_collect'])
+            datapoints = dataset_creator.collect_datapoints(params['num_collect'],
+                                                            params['random'])
         
         # Save results
         dataset_creator.save_datapoints(datapoints)
@@ -48,10 +50,12 @@ def main(config: Dict[str, Any]) -> None:
         params = config['DATA_ANALYSIS']
         analyzer = DataAnalyzer()
         analyzer.load_data(params['dataset_path'])
+        
         embeddings = analyzer.get_embeddings(**params['EMBEDDINGS'])
-        analyzer.graph_action_embeddings()
         clusters = analyzer.get_clusters(**params['CLUSTERS'])
+        #analyzer.graph_action_embeddings()
         analyzer.graph_clusters()
+        analyzer.graph_latents()
         
 
 if __name__ == '__main__':
