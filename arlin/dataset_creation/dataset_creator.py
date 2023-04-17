@@ -1,7 +1,7 @@
 from typing import Union, Dict, Any
 import os
 import gym
-import perfect_timing.utils.dataset_creation_utils as utils
+import arlin.utils.dataset_creation_utils as utils
 from tqdm import tqdm
 import pickle
 import logging
@@ -42,11 +42,11 @@ class DatasetCreator():
         
         self.algorithm = utils.get_algo(self.algo_str.lower())
         self.env = gym.make(self.env_str)
-        self.save_path = save_dir
+        self.save_dir = os.path.join(save_dir, self.env_str)
         self.load_path = load_path
         
-        if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
         
         if self.load_path is None:
             self.load_path = self._load_hf_model(repo_id, filename)
@@ -145,7 +145,7 @@ class DatasetCreator():
             - datapoint_dict (Dict[str, Any]): Dictionary of XRL datapoints to save
         """
         num_points = datapoint_dict['actions'].shape[0]
-        filename = f"{self.algo_str}-{self.env_str}-{num_points}.pkl"
-        logging.info(f"Saving datapoints to {self.save_path}/{filename}...")
-        with open(os.path.join(self.save_path, filename), 'wb') as handle:
+        filename = f"{self.algo_str}-{num_points}.pkl"
+        logging.info(f"Saving datapoints to {self.save_dir}/{filename}...")
+        with open(os.path.join(self.save_dir, filename), 'wb') as handle:
             pickle.dump(datapoint_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)

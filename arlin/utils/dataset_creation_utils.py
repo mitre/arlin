@@ -2,8 +2,8 @@ from stable_baselines3.common.base_class import BaseAlgorithm
 from stable_baselines3.ppo import PPO
 from stable_baselines3.dqn import DQN
 
-from perfect_timing.dataset_creation.data_gatherer import BaseDataGatherer, PPODataGatherer, DQNDataGatherer
-from perfect_timing.dataset_creation.datapoint_dict import BaseDatapointDict, PPODatapointDict, DQNDatapointDict
+from arlin.dataset_creation.data_gatherer import BaseDataGatherer, PPODataGatherer, DQNDataGatherer
+from arlin.dataset_creation.datapoint_dict import BaseDatapointDict, PPODatapointDict, DQNDatapointDict
 
 from typing import Type
 

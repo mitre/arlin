@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "perfect_timing"
+name = "arlin"
 version = "0.1.0"
-description = "Adversarial Attack Timing Identification for Maximum Effectiveness"
+description = "Adversarial Reinforcement Learning for Model Interrogation"
 authors = ["Alex Tapley <atapley@mitre.org>"]
 readme = "README.md"
 keywords = ["python", "reinforcement learning", "adversarial", "explainable"]
-repository = "https://gitlab.mitre.org/arlin/perfect_timing"
+repository = "https://gitlab.mitre.org/ecrp/arlin"
 
 [tool.poetry.dependencies]
 python = "^3.9"

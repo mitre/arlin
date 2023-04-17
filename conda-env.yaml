@@ -1,4 +1,4 @@
-name: timing
+name: arlin
 channels:
   - pytorch
   - conda-forge
@@ -8,5 +8,3 @@ dependencies:
   - pip
   - pip:
     - poetry
-    - setuptools==65.5.0
-    - gym==0.21

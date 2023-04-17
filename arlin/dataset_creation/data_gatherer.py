@@ -4,7 +4,7 @@ import numpy as np
 from typing import Dict, Type
 import torch as th
 
-from perfect_timing.dataset_creation.datapoint_dict import BaseDatapointDict, PPODatapointDict, DQNDatapointDict
+from arlin.dataset_creation.datapoint_dict import BaseDatapointDict, PPODatapointDict, DQNDatapointDict
 
 class BaseDataGatherer(ABC):
     """

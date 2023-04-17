@@ -5,12 +5,14 @@ import numpy as np
 import os
 import pickle
 import logging
+import pathlib
+import shutil
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
-import perfect_timing.utils.data_analysis_utils as utils
+import arlin.utils.data_analysis_utils as utils
+from arlin.data_analysis.graph_data import GraphData
 
 class DataAnalyzer():
     """
@@ -34,6 +36,37 @@ class DataAnalyzer():
         
         self._get_episode_data()
         self._get_distinct_state_data()
+        
+        self._setup_outputs()
+        
+    def _setup_outputs(self):
+        """
+        Create necessary directories for outputs and save a copy of the config.
+        """
+        
+        if not os.path.exists('./outputs'):
+            os.mkdir('./outputs')
+            trial_name = 'trial_0'
+        else:
+            output_path = pathlib.Path('./outputs')
+            
+            highest = 0
+            for item in output_path.iterdir():
+                if item.is_dir():
+                    name = os.path.basename(item)
+                    split_name = name.split('_')
+                    if split_name[0] == 'trial' and int(split_name[1]) > highest:
+                        highest = int(split_name[1])
+            
+            trial_name = f"trial_{highest + 1}"
+        
+        os.mkdir(f'./outputs/{trial_name}')
+        os.mkdir(f'./outputs/{trial_name}/individual_graphs/')
+        os.mkdir(f'./outputs/{trial_name}/combo_graphs/')
+        
+        self.trial_path = f"./outputs/{trial_name}/"
+        
+        shutil.copy2('./config.yaml', f'./outputs/{trial_name}/config.yaml')
     
     def _get_episode_data(self):
         """
@@ -154,7 +187,6 @@ class DataAnalyzer():
     def get_clusters(
         self,
         num_clusters: int,
-        cluster_by: List[str],
         temporal_discount: float = 0.25,
         clustering_method: str = "kmeans",
         load_clusters: bool = False
@@ -170,9 +202,7 @@ class DataAnalyzer():
         Returns:
             - np.ndarray: Clusters of embeddings
         """
-        cluster_name = "_".join(cluster_by)
-        clusters_dir = os.path.join(self.dataset_dir, "clusters",
-                                    self.filename, cluster_name)
+        clusters_dir = os.path.join(self.dataset_dir, "clusters", self.filename)
         cluster_filename = f"{num_clusters}_clusters.pkl"
         
         self.num_clusters = num_clusters
@@ -181,34 +211,15 @@ class DataAnalyzer():
             self.dataset["clusters"] = utils.load_data(clusters_dir, cluster_filename)
         else:
             self.dataset["clusters"] = self._generate_clusters(
-                num_clusters, cluster_by, temporal_discount, clustering_method
+                num_clusters, temporal_discount, clustering_method
                 )
             utils.save_data(self.dataset["clusters"], clusters_dir, cluster_filename)
         
         return self.dataset["clusters"]
-    
-    def _concatenate_data(self, cluster_by: List[str]):
-        
-        # only pull unique data
-        cluster_by_data = []
-        for field in cluster_by:
-            unique_field_data = self.dataset[field][self.dataset["unique_indices"]]
-            
-            if len(unique_field_data.shape) == 1:
-                unique_field_data = np.expand_dims(unique_field_data, axis=-1)
-            cluster_by_data.append(unique_field_data)
-            
-        datapoints = np.concatenate(cluster_by_data, axis=-1)
-        
-        self.dataset["clustered_data"] = datapoints
-        
-        return datapoints
-            
 
     def _generate_clusters(
         self,
         num_clusters: int,
-        cluster_by = List[str],
         temporal_discount: float = 0.25,
         clustering_method: str = "kmeans"
         ) -> np.ndarray:
@@ -225,7 +236,6 @@ class DataAnalyzer():
             - np.ndarray: Clusters of embeddings
         """
         
-        #data = self._concatenate_data(cluster_by)
         embeddings = self.dataset['embeddings']
         if clustering_method == 'kmeans':
             clusters = KMeans(n_clusters=num_clusters,
@@ -248,183 +258,179 @@ class DataAnalyzer():
         
         return np.array(clusters)
     
-    def graph_clusters(self) -> None:
+    def cluster_data(self) -> GraphData:
         """
-        Graph and save an image of the embedding clusters.
+        Generate data necessary for creating cluster graphs.
         """
         embeddings = self.dataset["embeddings"]
-        colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["clusters"]]
         
-        _ = plt.scatter(embeddings[:,0], embeddings[:,1], c=colors, s=1, alpha=0.1)
-        plt.axis('off')
-        title = f"{self.filename} {self.activation_key} Embeddings "\
-            f"with {self.num_clusters} Groups and {self.perplexity} Perplexity"
-        plt.title(title)
+        x = embeddings[:,0]
+        y = embeddings[:,1]
+        colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["clusters"]]
+        title = f"{self.num_clusters} Clusters"
         
         handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
                    for i in range(self.num_clusters)]
-        labels = [f"{i}" for i in range(self.num_clusters)]
-        plot_title = "Cluster Groups"
-        plt.legend(handles=handles, labels=labels, loc="lower center", title=plot_title, ncol=self.num_clusters)
-        plt.tight_layout()
+        labels = [f"Cluster {i}" for i in range(self.num_clusters)]
+        leg_title = "Cluster Groups"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
         
-        save_dir = f'./outputs/cluster_graphs/{self.filename}/{self.activation_key}'
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        cluster_data = GraphData(
+            x=x,
+            y=y,
+            title=title,
+            colors=colors,
+            legend=legend,
+            showaxis=False
+        )
         
-        plot_filename = f"{self.perplexity}_perplexity-{self.n_iter}_iter-"\
-            f"{self.num_clusters}_clusters"
-        logging.info(f"Saving cluster graph png to {plot_filename}...")
-        plt.savefig(os.path.join(save_dir, plot_filename), bbox_inches='tight')
-        
-    def graph_action_embeddings(self) -> None:
+        return cluster_data
+    
+    def decision_boundary_data(self) -> GraphData:
         """
-        Graph and save an image of the embeddings grouped by action.
+        Generate data necessary for creating decision boundary graphs.
         """
         embeddings = self.dataset["embeddings"]
-        action_probs = np.amax(self.dataset["dist_probs"], axis=1)
-        values = self.dataset['critic_values']
         
+        x = embeddings[:,0]
+        y = embeddings[:,1]
         colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["actions"]]
-        possible_actions = np.unique(self.dataset["actions"])
+        title = "Decision Boundaries for Taken Actions"
         
-        fig, axs = plt.subplots(2,2)
-        title = f"{self.filename} {self.activation_key} Embeddings"\
-            f" with {self.perplexity} Perplexity"
-        fig.suptitle(title)
+        num_actions = len(np.unique(self.dataset['actions']))
+        handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
+                   for i in range(num_actions)]
+        labels = [f"{i}" for i in range(num_actions)]
+        leg_title = "Action Values"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
         
-        _ = axs[0,0].scatter(embeddings[:,0], embeddings[:,1], c=colors, s=0.1)
-        axs[0,0].axis('off')
-        axs[0,0].set_title("Taken Actions")
-        axs[0,0].title.set_size(10)
+        decision_boundary_data = GraphData(
+            x=x,
+            y=y,
+            title=title,
+            colors=colors,
+            legend=legend,
+            showaxis=False
+        )
         
-        # handles = [Patch(color=utils.CLUSTER_COLORS[i], label=str(i))
-        #            for i in possible_actions]
-        # labels = [f"{i}" for i in possible_actions]
-        # plot_title = "Actions"
-        # axs[0,0].legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        return decision_boundary_data
         
-        #---------
+    def episode_prog_data(self) -> GraphData:
+        """
+        Generate data necessary for creating episode progression graphs.
+        """
+        embeddings = self.dataset["embeddings"]
         
-        _ = axs[0,1].scatter(embeddings[:,0], embeddings[:,1], cmap="RdYlGn", c=action_probs, s=0.1)
-        axs[0,1].axis('off')
-        axs[0,1].set_title("Action Confidence Heatmap")
-        axs[0,1].title.set_size(10)
+        x = embeddings[:,0]
+        y = embeddings[:,1]
+        colors = self.dataset['steps']
+        title = "Episode Progression"
         
-        #---------
+        episode_prog_data = GraphData(
+            x=x,
+            y=y,
+            title=title,
+            colors=colors,
+            cmap="viridis",
+            showaxis=False
+        )
         
-        _ = axs[1,0].scatter(embeddings[:,0], embeddings[:,1], cmap="RdYlGn", c=values, s=0.1)
-        axs[1,0].axis('off')
-        axs[1,0].set_title("Action Importance Heatmap")
-        axs[1,0].title.set_size(10)
+        return episode_prog_data
+    
+    def confidence_data(self) -> GraphData:
+        """
+        Generate data necessary for creating episode progression graphs.
+        """
+        embeddings = self.dataset["embeddings"]
         
-        #---------
+        x = embeddings[:,0]
+        y = embeddings[:,1]
+        colors = np.amax(self.dataset["dist_probs"], axis=1)
+        title = "Policy Confidence in Greedy Action"
         
+        conf_data = GraphData(
+            x=x,
+            y=y,
+            title=title,
+            colors=colors,
+            cmap="RdYlGn",
+            showaxis=False
+        )
+        
+        return conf_data
+    
+    def initial_terminal_state_data(self) -> GraphData:
+        """
+        Generate data necessary for creating initial/terminal state graphs.
+        """
+        embeddings = self.dataset["embeddings"]
+        
+        x = embeddings[:,0]
+        y = embeddings[:,1]
         colors = [utils.CLUSTER_COLORS[0] if i else '#F5F5F5' for i in self.dataset["dones"]]
         for i in self.dataset["start_indices"]:
             colors[i] = utils.CLUSTER_COLORS[1] 
+        title = "Initial and Terminal States"
         
-        _ = axs[1,1].scatter(embeddings[:,0], embeddings[:,1], c=colors, s=0.1)
-        axs[1,1].axis('off')
-        axs[1,1].set_title("Initial and Terminal States")
-        axs[1,1].title.set_size(10)
+        handles = [Patch(color=utils.CLUSTER_COLORS[0]),
+                   Patch(color=utils.CLUSTER_COLORS[1])]
+        labels = ["Initial", "Terminal"]
+        leg_title = "State Type"
         
-        # handles = [Patch(color=utils.CLUSTER_COLORS[0]),
-        #            Patch(color=utils.CLUSTER_COLORS[1])]
-        # labels = ["Initial", "Terminal"]
-        # plot_title = "States"
-        # axs[1,1].legend(handles=handles, labels=labels, loc="lower right", title=plot_title)
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
         
-        plt.tight_layout()
+        state_data = GraphData(
+            x=x,
+            y=y,
+            title=title,
+            colors=colors,
+            legend=legend,
+            showaxis=False
+        )
+    
+        return state_data
+    
+    def graph_individual_data(
+        self,
+        data: GraphData,
+        filename: str
+        ):
+        _ = plt.scatter(
+            data.x, 
+            data.y, 
+            c=data.colors, 
+            cmap=data.cmap, 
+            s=1)
         
-        save_dir = f'./outputs/action_graphs/{self.filename}/{self.activation_key}'
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        if not data.showaxis:
+            plt.axis('off')
+        plt.title(data.title)
         
-        plot_filename = f'{self.perplexity}_perplexity-{self.n_iter}_iter-actions'
-        logging.info(f"Saving action graph png to {plot_filename}...")
-        plt.savefig(os.path.join(save_dir, plot_filename))
-        plt.close()
+        if data.legend is not None:
+            data.legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+            plt.legend(**data.legend)
         
-    def graph_latents(self) -> None:
-        """
-        Graph and save an image of the embeddings grouped by action.
-        """
-        embeddings = self.dataset["embeddings"]
-        
-        #colors = [utils.CLUSTER_COLORS[i] for i in self.dataset["actions"]]
-        
-        from matplotlib import cm
-        cmap = cm.get_cmap('viridis')
-        
-        vals = []
-        v = 1
-        skip = False
-        for i in range(50000):
-            if skip:
-                skip = False
-                continue
-            action = self.dataset["actions"][i]
-            
-            if action == 1:
-                vals.append(v)
-                v += 1
-                vals.append(v)
-                v += 1
-                skip = True
-            else:
-                v = 1
-                vals.append(0)
-                skip = False
-            
-        vals = np.array(vals[:-1])       
-        norms = (vals - 1) / (vals.max() - 1)
-        colors = cmap(norms)
-        
-        for i in range(len(vals)):
-            if vals[i] == 0:
-                colors[i] = [0.9,0.9,0.9,1]
-        
-        # p = []
-        # step = 0
-        # for i in self.dataset["dones"]:
-        #     p.append(step)
-        #     step +=1
-        #     if i:
-        #         v = step
-        #         step = 0
-        #         break
-        
-        # s = [0] * (50000 - v)   
-        # p.extend(s)
-        # self.dataset["steps"] = np.array(p)
-        
-        # d = self.dataset["steps"][0:v]
-        # norms = (d - d.min()) / (d.max() - d.min())
-        
-        # add = [cmap(norms[i]) for i in d]
-        
-        # colors = [[0.9,0.9,0.9,1] for i in range((50000 - v))]
-        
-        # add.extend(colors)
-        
-        fig, axs = plt.subplots(1)
-        title = f"{self.filename} {self.activation_key} Embeddings"\
-            f" with {self.perplexity} Perplexity"
-        fig.suptitle(title)
-        
-        _ = axs.scatter(embeddings[:,0], embeddings[:,1], cmap='viridis', c=colors, s=0.1)
-        axs.axis('off')
-        axs.set_title("Taken Actions")
-        axs.title.set_size(10)
+        if data.cmap is not None:
+            plt.colorbar()
         
         plt.tight_layout()
         
-        save_dir = f'./outputs/test_graphs/{self.filename}/{self.activation_key}'
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        
-        plot_filename = f'{self.perplexity}_perplexity-{self.n_iter}_iter-actions-lefts'
-        logging.info(f"Saving action graph png to {plot_filename}...")
-        plt.savefig(os.path.join(save_dir, plot_filename))
+        save_path = os.path.join(self.trial_path, "individual_graphs", filename)
+        logging.info(f"Saving individual graph png to {save_path}...")
+        plt.savefig(save_path, bbox_inches='tight')
         plt.close()
+    
+    def graph_analytics(self) -> None:
+        
+        db_data = self.decision_boundary_data()
+        conf_data = self.confidence_data()
+        ep_prog_data = self.episode_prog_data()
+        initial_terminal_states = self.initial_terminal_state_data()
+        
+        data = [db_data, conf_data, ep_prog_data, initial_terminal_states]
+        
+        utils.graph_subplots(
+            "XAI Data Analysis", 
+            data, 
+            self.trial_path, 
+            "xai_data_analytics.png")
