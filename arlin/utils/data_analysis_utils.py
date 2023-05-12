@@ -51,25 +51,33 @@ def load_data(load_dir: str, filename: str) -> Any:
     
     return data
 
-def find_subplot_dims(num_plots: int) -> Tuple[int, int]:
+def find_subplot_dims(num_plots: int, horizontal: bool) -> Tuple[int, int]:
     
     # if number is a square number
     if num_plots == isqrt(num_plots) ** 2:
         return sqrt(num_plots), sqrt(num_plots)
     
     if num_plots % 2 == 0:
-        return 2, int(num_plots / 2)
+        dim_long = int(num_plots / 2)
+        dim_short = 2
     else:
-        return 1, num_plots
+        dim_long = num_plots
+        dim_short = 1
+    
+    if horizontal:
+        return dim_short, dim_long
+    else:
+        return dim_short, dim_long
 
 def graph_subplots(
     figure_title: str,
     graph_datas: List[GraphData],
     trial_path: str, 
-    filename: str
+    filename: str,
+    horizontal: bool = True
 ):
     num_plots = len(graph_datas)
-    nrows, ncols = find_subplot_dims(num_plots)
+    nrows, ncols = find_subplot_dims(num_plots, horizontal)
     
     fig, axs = plt.subplots(int(nrows), int(ncols))
     fig.set_size_inches(6*ncols, 4*nrows)
@@ -79,7 +87,13 @@ def graph_subplots(
     for irow in range(int(nrows)):
         for icol in range(int(ncols)):
             data = graph_datas[cur_num]
-            axis = axs[irow, icol]
+            
+            if horizontal and nrows == 1:
+                axis = axs[icol]
+            elif not horizontal and ncols == 1:
+                axis = axs[irow]
+            else:
+                axis = axs[irow, icol]
             
             scp = axis.scatter(
                 data.x, 

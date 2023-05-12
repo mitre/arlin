@@ -54,21 +54,26 @@ def main(config: Dict[str, Any]) -> None:
         embeddings = analyzer.get_embeddings(**params['EMBEDDINGS'])
         clusters = analyzer.get_clusters(**params['CLUSTERS'])
         
-        db_data = analyzer.decision_boundary_data()
+        # db_data = analyzer.decision_boundary_data()
         cluster_data = analyzer.cluster_data()
-        conf_data = analyzer.confidence_data()
-        state_data = analyzer.initial_terminal_state_data()
+        # conf_data = analyzer.confidence_data()
+        # state_data = analyzer.initial_terminal_state_data()
+        # embed_data = analyzer.embeddings_data()
         
-        graph_data = [(db_data, "decision_boundaries.png"),
-                      (cluster_data, f"{analyzer.num_clusters}-clusters.png"),
-                      (conf_data, "confidence.png"),
-                      (state_data, "important_states.png")]
+        # graph_data = [(db_data, "decision_boundaries.png"),
+        #               (cluster_data, f"{analyzer.num_clusters}-clusters.png"),
+        #               (conf_data, "confidence.png"),
+        #               (state_data, "important_states.png"),
+        #               (embed_data, "embeddings.png")]
         
-        for i in graph_data:
-            data, filename = i
-            analyzer.graph_individual_data(data, filename)
+        # for i in graph_data:
+        #     data, filename = i
+        #     analyzer.graph_individual_data(data, filename)
         
-        analyzer.graph_analytics()
+        #analyzer.graph_analytics(horizontal=True)
+        
+        #analyzer.graph_individual_data(cluster_data, "confidence.png")
+        analyzer.generate_SAMDP()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

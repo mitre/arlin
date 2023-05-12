@@ -7,6 +7,8 @@ import pickle
 import logging
 import pathlib
 import shutil
+import networkx as nx
+from prettytable import PrettyTable
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
@@ -19,6 +21,8 @@ class DataAnalyzer():
     #### Description
     Class for analyzing, embedding, clustering, and visualizing RL dataset information.
     """
+    
+    np.random.seed(1234)
     
     def load_data(self, dataset_path: str) -> None:
         """
@@ -63,6 +67,7 @@ class DataAnalyzer():
         os.mkdir(f'./outputs/{trial_name}')
         os.mkdir(f'./outputs/{trial_name}/individual_graphs/')
         os.mkdir(f'./outputs/{trial_name}/combo_graphs/')
+        os.mkdir(f'./outputs/{trial_name}/SAMDP/')
         
         self.trial_path = f"./outputs/{trial_name}/"
         
@@ -236,7 +241,7 @@ class DataAnalyzer():
             - np.ndarray: Clusters of embeddings
         """
         
-        embeddings = self.dataset['embeddings']
+        embeddings = self.dataset[self.activation_key]
         if clustering_method == 'kmeans':
             clusters = KMeans(n_clusters=num_clusters,
                               n_init='auto').fit(embeddings).labels_
@@ -257,6 +262,28 @@ class DataAnalyzer():
                               n_init='auto').fit(augmented_embeddings).labels_
         
         return np.array(clusters)
+    
+    def graph_embeddings(self) -> GraphData:
+        """
+        Generate data necessary for creating embedding graphs.
+        """
+        embeddings = self.dataset["embeddings"]
+        
+        x = embeddings[:,0]
+        y = embeddings[:,1]
+        colors = ['#5A5A5A'] * len(self.dataset["embeddings"])
+        act_key = " ".join(self.activation_key.split("_")).title()
+        title = act_key + " Embeddings"
+        
+        embed_data = GraphData(
+            x=x,
+            y=y,
+            title=title,
+            colors=colors,
+            showaxis=False
+        )
+        
+        return embed_data
     
     def cluster_data(self) -> GraphData:
         """
@@ -372,8 +399,8 @@ class DataAnalyzer():
             colors[i] = utils.CLUSTER_COLORS[1] 
         title = "Initial and Terminal States"
         
-        handles = [Patch(color=utils.CLUSTER_COLORS[0]),
-                   Patch(color=utils.CLUSTER_COLORS[1])]
+        handles = [Patch(color=utils.CLUSTER_COLORS[1]),
+                   Patch(color=utils.CLUSTER_COLORS[0])]
         labels = ["Initial", "Terminal"]
         leg_title = "State Type"
         
@@ -395,6 +422,12 @@ class DataAnalyzer():
         data: GraphData,
         filename: str
         ):
+        """Graph given GraphData to a single plot and save a PNG to the given file.
+
+        Args:
+            data (GraphData): Data necessary to graph and individual plot.
+            filename (str): Name for the PNG file.
+        """
         _ = plt.scatter(
             data.x, 
             data.y, 
@@ -420,17 +453,190 @@ class DataAnalyzer():
         plt.savefig(save_path, bbox_inches='tight')
         plt.close()
     
-    def graph_analytics(self) -> None:
-        
-        db_data = self.decision_boundary_data()
-        conf_data = self.confidence_data()
-        ep_prog_data = self.episode_prog_data()
-        initial_terminal_states = self.initial_terminal_state_data()
-        
-        data = [db_data, conf_data, ep_prog_data, initial_terminal_states]
+    def graph_analytics(self,
+                        data: List[GraphData],
+                        horizontal: bool = True) -> None:
+        """Graph all given GraphData to a single figure with multiple subplots.
+
+        Args:
+            data (List[GraphData]): Collection of GraphData create subplots for.
+            horizontal (bool, optional): Place more subplots horizontally to create
+                a more horizontal figure than vertical. Defaults to True.
+        """
         
         utils.graph_subplots(
             "XAI Data Analysis", 
             data, 
             self.trial_path, 
-            "xai_data_analytics.png")
+            "xai_data_analytics.png",
+            horizontal)
+
+    def _create_SAMDP_txt(self, samdp_counts: np.ndarray) -> None:
+        """Create a txt table of the SAMDP.
+
+        Args:
+            samdp_counts (np.ndarray): The number of times an agent moved from one
+                cluster to another along with the action taken to get to the latter.
+        """
+        num_actions = samdp_counts.shape[1]
+        samdp_data = ["SAMDP"]
+        for from_cluster_id in range(self.num_clusters):
+            table = PrettyTable()
+            table.title = f"Cluster {from_cluster_id}"
+            
+            headers = [f"Cluster {i}" for i in range(self.num_clusters)]
+            table.field_names = ["Action Value"] + headers
+            for action in range(num_actions):
+                row = [f'Action {action}']
+                
+                for to_cluster_id in range(self.num_clusters):
+                    value = samdp_counts[from_cluster_id, action, to_cluster_id]
+                    percent = self.percentages[from_cluster_id, action, to_cluster_id]
+                    row.append(f"{value} | {round(percent*100, 2)}%")
+                table.add_row(row)
+            
+            samdp_data.append(str(table))
+        
+        samdp_data = "\n".join(samdp_data)
+        
+        with open(os.path.join(self.trial_path, 'SAMDP', 'samdp.txt'), 'w') as f:
+            f.write(samdp_data)
+    
+    def _create_SAMDP_graph(self) -> nx.Graph:
+        """Create a graph of this dataset's SAMDP using NetworkX.
+        
+        Each node represents a cluster from self.dataset['clusters'] and the edges
+        represent the paths the agent takes in the dataset between clusters. An edge is
+        added for each action taken that brings the agent from one cluster to another.
+        For each action from a cluster, only the edge with the highest probability is 
+        shown, meaning there are other clusters that action can move the agent to but
+        only the highest probability edge is shown.
+
+        Returns:
+            nx.Graph: NetworkX Graph representation of the SAMDP
+        """
+        
+        num_actions = self.percentages.shape[1]
+        
+        _ = plt.figure(figsize=(15,15))
+        plt.title('SAMDP')
+        G = nx.MultiDiGraph()
+        
+        G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
+        
+        edges = []
+        edge_colors = []
+        for from_cluster_id in range(self.num_clusters):
+            from_cluster = f"Cluster {from_cluster_id}"
+            for action_id in range(num_actions):
+                best_edge = {'prob': 0}
+                for to_cluster_id in range(self.num_clusters):
+                    to_cluster = f"Cluster {to_cluster_id}"
+                    
+                    prob = self.percentages[from_cluster_id, action_id, to_cluster_id]
+                    if not prob == 0 and not from_cluster_id == to_cluster_id:
+                        edge = (from_cluster, to_cluster)
+                        prob_percent = round(prob * 100, 2)
+                        
+                        if prob_percent > best_edge["prob"]:
+                            best_edge["edge"] = edge
+                            best_edge["prob"] = prob_percent.item()
+                
+                if not best_edge["prob"] == 0:
+                    edges.append(best_edge['edge'])
+                    edge_colors.append(utils.CLUSTER_COLORS[action_id])     
+                    G.add_edge(best_edge['edge'][0], best_edge['edge'][1], weight=best_edge['prob'])
+
+        pos = nx.shell_layout(G)
+        nx.draw_networkx_nodes(G, 
+                               pos,
+                               node_size=4000,
+                               node_color=utils.CLUSTER_COLORS[0:self.num_clusters])
+        
+        nx.draw_networkx_labels(G, pos)
+        
+        for i, e in enumerate(G.edges):
+            nx.draw_networkx_edges(G, 
+                                   pos, 
+                                   edgelist=[e], 
+                                   connectionstyle=f"arc3,rad={0.1*e[2]}",
+                                   edge_color=edge_colors[i],
+                                   node_size=4000, 
+                                   arrowsize=25)
+        
+        plt.tight_layout()
+        save_path = os.path.join(self.trial_path, "SAMDP", "SAMDP.png")
+        logging.info(f"Saving SAMDP graph png to {save_path}...")
+        plt.savefig(save_path, format="PNG")
+        plt.close()
+        
+        return G
+    
+    def get_samdp(
+        self,
+        load_samdp: bool = False
+        ) -> nx.Graph:
+        """Create or load an SAMDP from the current dataset.
+
+        Args:
+            load_samdp (bool, optional): To load a previously generated SAMDP graph. 
+                Defaults to False.
+
+        Returns:
+            nx.Graph: NetworkX Graph representation of the SAMDP.
+        """
+        
+        samdp_path = os.path.join(self.dataset_dir, "samdp", "samdp.graphml")
+        
+        if load_samdp:
+            self.graph = nx.read_graphml(samdp_path)
+        else:
+            self.graph = self._generate_SAMDP()
+            nx.write_graphml(self.graph, samdp_path)
+            
+        return self.graph
+    
+    def _generate_SAMDP(self) -> nx.Graph:
+        """Create an SAMDP from the current dataset.
+
+        Raises:
+            ValueError: Returned if there are no clusters created to serve as nodes.
+
+        Returns:
+            nx.Graph: NetworkX Graph representation of the SAMDP.
+        """
+        
+        try:
+            cluster_data = self.dataset['clusters']
+            actions = self.dataset['actions']
+        except:
+            raise ValueError("There are no clusters to create the SAMDP of.")
+        
+        num_actions = len(np.unique(actions))
+        samdp_counts = np.zeros([self.num_clusters, num_actions, self.num_clusters])
+        
+        for i in range(len(cluster_data) - 1):
+            done = self.dataset['dones'][i]
+            
+            if not done:
+                cur_cluster = cluster_data[i]
+                action = actions[i]
+                next_cluster = cluster_data[i+1]
+            
+                samdp_counts[cur_cluster, action, next_cluster] += 1
+        
+        np.set_printoptions(suppress=True)
+        np.seterr(divide='ignore', invalid='ignore')
+        
+        totals_movements = np.sum(samdp_counts, axis=-1)
+        totals_movements = np.expand_dims(totals_movements, axis=-1)
+        totals_movements = np.repeat(totals_movements, 10, axis=-1)
+        
+        samdp = samdp_counts / totals_movements
+        self.samdp = np.nan_to_num(samdp, nan=0)
+
+        self._create_SAMDP_txt(samdp_counts)
+        G = self._create_SAMDP_graph()
+        
+        return G
+        
