@@ -470,109 +470,8 @@ class DataAnalyzer():
             self.trial_path, 
             "xai_data_analytics.png",
             horizontal)
-
-    def _create_SAMDP_txt(self, samdp_counts: np.ndarray) -> None:
-        """Create a txt table of the SAMDP.
-
-        Args:
-            samdp_counts (np.ndarray): The number of times an agent moved from one
-                cluster to another along with the action taken to get to the latter.
-        """
-        num_actions = samdp_counts.shape[1]
-        samdp_data = ["SAMDP"]
-        for from_cluster_id in range(self.num_clusters):
-            table = PrettyTable()
-            table.title = f"Cluster {from_cluster_id}"
-            
-            headers = [f"Cluster {i}" for i in range(self.num_clusters)]
-            table.field_names = ["Action Value"] + headers
-            for action in range(num_actions):
-                row = [f'Action {action}']
-                
-                for to_cluster_id in range(self.num_clusters):
-                    value = samdp_counts[from_cluster_id, action, to_cluster_id]
-                    percent = self.percentages[from_cluster_id, action, to_cluster_id]
-                    row.append(f"{value} | {round(percent*100, 2)}%")
-                table.add_row(row)
-            
-            samdp_data.append(str(table))
-        
-        samdp_data = "\n".join(samdp_data)
-        
-        with open(os.path.join(self.trial_path, 'SAMDP', 'samdp.txt'), 'w') as f:
-            f.write(samdp_data)
     
-    def _create_SAMDP_graph(self) -> nx.Graph:
-        """Create a graph of this dataset's SAMDP using NetworkX.
-        
-        Each node represents a cluster from self.dataset['clusters'] and the edges
-        represent the paths the agent takes in the dataset between clusters. An edge is
-        added for each action taken that brings the agent from one cluster to another.
-        For each action from a cluster, only the edge with the highest probability is 
-        shown, meaning there are other clusters that action can move the agent to but
-        only the highest probability edge is shown.
-
-        Returns:
-            nx.Graph: NetworkX Graph representation of the SAMDP
-        """
-        
-        num_actions = self.percentages.shape[1]
-        
-        _ = plt.figure(figsize=(15,15))
-        plt.title('SAMDP')
-        G = nx.MultiDiGraph()
-        
-        G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
-        
-        edges = []
-        edge_colors = []
-        for from_cluster_id in range(self.num_clusters):
-            from_cluster = f"Cluster {from_cluster_id}"
-            for action_id in range(num_actions):
-                best_edge = {'prob': 0}
-                for to_cluster_id in range(self.num_clusters):
-                    to_cluster = f"Cluster {to_cluster_id}"
-                    
-                    prob = self.percentages[from_cluster_id, action_id, to_cluster_id]
-                    if not prob == 0 and not from_cluster_id == to_cluster_id:
-                        edge = (from_cluster, to_cluster)
-                        prob_percent = round(prob * 100, 2)
-                        
-                        if prob_percent > best_edge["prob"]:
-                            best_edge["edge"] = edge
-                            best_edge["prob"] = prob_percent.item()
-                
-                if not best_edge["prob"] == 0:
-                    edges.append(best_edge['edge'])
-                    edge_colors.append(utils.CLUSTER_COLORS[action_id])     
-                    G.add_edge(best_edge['edge'][0], best_edge['edge'][1], weight=best_edge['prob'])
-
-        pos = nx.shell_layout(G)
-        nx.draw_networkx_nodes(G, 
-                               pos,
-                               node_size=4000,
-                               node_color=utils.CLUSTER_COLORS[0:self.num_clusters])
-        
-        nx.draw_networkx_labels(G, pos)
-        
-        for i, e in enumerate(G.edges):
-            nx.draw_networkx_edges(G, 
-                                   pos, 
-                                   edgelist=[e], 
-                                   connectionstyle=f"arc3,rad={0.1*e[2]}",
-                                   edge_color=edge_colors[i],
-                                   node_size=4000, 
-                                   arrowsize=25)
-        
-        plt.tight_layout()
-        save_path = os.path.join(self.trial_path, "SAMDP", "SAMDP.png")
-        logging.info(f"Saving SAMDP graph png to {save_path}...")
-        plt.savefig(save_path, format="PNG")
-        plt.close()
-        
-        return G
-    
-    def get_samdp(
+    def get_SAMDP(
         self,
         load_samdp: bool = False
         ) -> nx.Graph:
@@ -586,12 +485,15 @@ class DataAnalyzer():
             nx.Graph: NetworkX Graph representation of the SAMDP.
         """
         
-        samdp_path = os.path.join(self.dataset_dir, "samdp", "samdp.graphml")
+        samdp_dir = os.path.join(self.dataset_dir, "samdp")
+        samdp_path = os.path.join(samdp_dir, "samdp.graphml")
         
         if load_samdp:
             self.graph = nx.read_graphml(samdp_path)
         else:
             self.graph = self._generate_SAMDP()
+            if not os.path.exists(samdp_dir):
+                os.makedirs(samdp_dir)
             nx.write_graphml(self.graph, samdp_path)
             
         return self.graph
@@ -639,4 +541,175 @@ class DataAnalyzer():
         G = self._create_SAMDP_graph()
         
         return G
+
+    def _create_SAMDP_txt(self, samdp_counts: np.ndarray) -> None:
+        """Create a txt table of the SAMDP.
+
+        Args:
+            samdp_counts (np.ndarray): The number of times an agent moved from one
+                cluster to another along with the action taken to get to the latter.
+        """
+        num_actions = samdp_counts.shape[1]
+        samdp_data = ["SAMDP"]
+        for from_cluster_id in range(self.num_clusters):
+            table = PrettyTable()
+            table.title = f"Cluster {from_cluster_id}"
+            
+            headers = [f"Cluster {i}" for i in range(self.num_clusters)]
+            table.field_names = ["Action Value"] + headers
+            for action in range(num_actions):
+                row = [f'Action {action}']
+                
+                for to_cluster_id in range(self.num_clusters):
+                    value = samdp_counts[from_cluster_id, action, to_cluster_id]
+                    percent = self.samdp[from_cluster_id, action, to_cluster_id]
+                    row.append(f"{value} | {round(percent*100, 2)}%")
+                table.add_row(row)
+            
+            samdp_data.append(str(table))
         
+        samdp_data = "\n".join(samdp_data)
+        
+        with open(os.path.join(self.trial_path, 'SAMDP', 'samdp.txt'), 'w') as f:
+            f.write(samdp_data)
+    
+    def _create_SAMDP_graph(self) -> nx.Graph:
+        """Create a graph of this dataset's SAMDP using NetworkX.
+        
+        Each node represents a cluster from self.dataset['clusters'] and the edges
+        represent the paths the agent takes in the dataset between clusters. An edge is
+        added for each action taken that brings the agent from one cluster to another.
+        For each action from a cluster, only the edge with the highest probability is 
+        shown, meaning there are other clusters that action can move the agent to but
+        only the highest probability edge is shown.
+
+        Returns:
+            nx.Graph: NetworkX Graph representation of the SAMDP
+        """
+        
+        num_actions = self.samdp.shape[1]
+        
+        _ = plt.figure(figsize=(15,15))
+        plt.title('SAMDP')
+        G = nx.MultiDiGraph()
+        
+        G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
+        
+        edges = []
+        edge_colors = []
+        for from_cluster_id in range(self.num_clusters):
+            from_cluster = f"Cluster {from_cluster_id}"
+            for action_id in range(num_actions):
+                best_edge = {'prob': 0}
+                for to_cluster_id in range(self.num_clusters):
+                    to_cluster = f"Cluster {to_cluster_id}"
+                    
+                    prob = self.samdp[from_cluster_id, action_id, to_cluster_id]
+                    if not prob == 0 and not from_cluster_id == to_cluster_id:
+                        edge = (from_cluster, to_cluster)
+                        prob_percent = round(prob * 100, 2)
+                        
+                        if prob_percent > best_edge["prob"]:
+                            best_edge["edge"] = edge
+                            best_edge["prob"] = prob_percent.item()
+                
+                if not best_edge["prob"] == 0:
+                    edges.append(best_edge['edge'])
+                    edge_colors.append(utils.CLUSTER_COLORS[action_id])     
+                    G.add_edge(best_edge['edge'][0], 
+                               best_edge['edge'][1], 
+                               weight=best_edge['prob'],
+                               action=action_id)
+
+        pos = nx.shell_layout(G)
+        nx.draw_networkx_nodes(G, 
+                               pos,
+                               node_size=4000,
+                               node_color=utils.CLUSTER_COLORS[0:self.num_clusters])
+        
+        nx.draw_networkx_labels(G, pos)
+        
+        for i, e in enumerate(G.edges):
+            nx.draw_networkx_edges(G, 
+                                   pos, 
+                                   edgelist=[e], 
+                                   connectionstyle=f"arc3,rad={0.1*e[2]}",
+                                   edge_color=edge_colors[i],
+                                   node_size=4000, 
+                                   arrowsize=25)
+        
+        plt.tight_layout()
+        save_path = os.path.join(self.trial_path, "SAMDP", "SAMDP.png")
+        logging.info(f"Saving SAMDP graph png to {save_path}...")
+        plt.savefig(save_path, format="PNG")
+        plt.close()
+        
+        return G
+    
+    def find_paths(self, from_cluster_id: str, to_cluster_id: int):
+        from_cluster = f'Cluster {from_cluster_id}'
+        to_cluster = f'Cluster {to_cluster_id}'
+        paths = list(nx.all_simple_edge_paths(self.graph, from_cluster, to_cluster))
+        
+        _ = plt.figure(figsize=(15,15))
+        plt.title(f'Paths from {from_cluster} to {to_cluster}')
+        G = nx.MultiDiGraph()
+        
+        samdp_edges = list(self.graph.edges)
+        samdp_edges_data = list(self.graph.edges(data=True))
+        
+        edges = []
+        edge_colors = []
+        node_colors = []
+        for path in paths:
+            for edge in path:
+                if edge in edges:
+                    continue
+                
+                if edge[0] not in G.nodes:
+                    G.add_node(edge[0])
+                    node_id = int(edge[0].split(' ')[-1])
+                    node_colors.append(utils.CLUSTER_COLORS[node_id])
+                    
+                    
+                if edge[1] not in G.nodes:
+                    G.add_node(edge[1])
+                    node_id = int(edge[1].split(' ')[-1])
+                    node_colors.append(utils.CLUSTER_COLORS[node_id])
+                    
+                edge_index = samdp_edges.index(edge)
+                edge_data = samdp_edges_data[edge_index]
+                
+                edges.append(edge)
+                G.add_edge(
+                    edge[0], 
+                    edge[1], 
+                    weight=edge_data[2]['weight'], 
+                    action=edge_data[2]['action']
+                    )
+                
+                edge_colors.append(utils.CLUSTER_COLORS[edge_data[2]['action']])
+        
+        pos = nx.shell_layout(G)
+        nx.draw_networkx_nodes(G, 
+                               pos,
+                               node_size=4000,
+                               node_color=node_colors)
+        
+        nx.draw_networkx_labels(G, pos)
+        
+        for i, e in enumerate(G.edges):
+            nx.draw_networkx_edges(G, 
+                                   pos, 
+                                   edgelist=[e], 
+                                   connectionstyle=f"arc3,rad={0.1*e[2]}",
+                                   edge_color=edge_colors[i],
+                                   node_size=4000, 
+                                   arrowsize=25)
+        
+        plt.tight_layout()
+        save_path = os.path.join(self.trial_path, "SAMDP", f"{from_cluster}-{to_cluster}.png")
+        logging.info(f"Saving paths from {from_cluster} to {to_cluster} graph png to {save_path}...")
+        plt.savefig(save_path, format="PNG")
+        plt.close()        
+                

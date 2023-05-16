@@ -73,7 +73,8 @@ def main(config: Dict[str, Any]) -> None:
         #analyzer.graph_analytics(horizontal=True)
         
         #analyzer.graph_individual_data(cluster_data, "confidence.png")
-        analyzer.generate_SAMDP()
+        samdp = analyzer.get_SAMDP()
+        analyzer.find_paths(3, 7)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
