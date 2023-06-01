@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
 import numpy as np
@@ -9,6 +9,7 @@ import pathlib
 import shutil
 import networkx as nx
 from prettytable import PrettyTable
+import statistics
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
@@ -106,7 +107,7 @@ class DataAnalyzer():
             axis=0)
         
         unique_states, unique_indices, state_mapping = outputs
-        logging.info(f"Found {unique_states.shape[0]} distinct states!")
+        logging.info(f"\tFound {unique_states.shape[0]} distinct states!")
         
         self.dataset['unique_states'] = unique_states
         self.dataset['unique_indices'] = unique_indices
@@ -437,6 +438,11 @@ class DataAnalyzer():
         
         if not data.showaxis:
             plt.axis('off')
+        else:
+            plt.xticks(data.x)
+            plt.xlabel(data.xlabel)
+            plt.ylabel(data.ylabel)
+            
         plt.title(data.title)
         
         if data.legend is not None:
@@ -445,6 +451,9 @@ class DataAnalyzer():
         
         if data.cmap is not None:
             plt.colorbar()
+        
+        if data.error_bars is not None:
+            plt.errorbar(data.x, data.y, yerr=data.error_bars, fmt="o", capsize=5)
         
         plt.tight_layout()
         
@@ -646,10 +655,93 @@ class DataAnalyzer():
         
         return G
     
-    def find_paths(self, from_cluster_id: str, to_cluster_id: int):
+    def calculate_path_probs(self, paths: List[Tuple[str, str, int]]) -> Dict[int, float]:
+        """Calculate the probability of each path being taken.
+
+        Args:
+            paths (List[Tuple[str, str, int]]): All simple paths from one cluster to 
+                another.
+
+        Returns:
+            Dict[int, float]: Dictionary with actions as keys and highest probability
+                to reach target from current node.
+        """
+        samdp_edges = list(self.graph.edges)
+        samdp_edges_data = list(self.graph.edges(data=True))
+        
+        probs = {}
+        for path in paths:
+            prob = 1
+            edge_index = samdp_edges.index(path[0])
+            edge_data = samdp_edges_data[edge_index]
+            action = edge_data[2]['action']
+            
+            for edge in path:
+                edge_index = samdp_edges.index(edge)
+                edge_data = samdp_edges_data[edge_index]
+                edge_prob = edge_data[2]['weight'] / 100
+                prob = prob * edge_prob
+            
+            if action in probs:
+                if prob > probs[action]:
+                    probs[action] = prob
+            else:
+                probs[action] = prob
+            logging.info(f'\tPath via {action}: {round(prob * 100,2)}%')
+        
+        return probs
+    
+    def analyze_clusters(self):
+        
+        cluster_conf = [[] for _ in range(self.num_clusters)]
+        
+        for e, i in enumerate(self.dataset["clusters"]):
+            conf = np.amax(self.dataset['dist_probs'][e]).astype(np.float64)
+            cluster_conf[i].append(conf)
+            
+        means = []
+        stdevs = []
+        
+        for i in range(self.num_clusters):
+            means.append(statistics.mean(cluster_conf[i]))
+            stdevs.append(statistics.stdev(cluster_conf[i]))
+
+        
+        title = "Cluter Confidence Analysis"
+        
+        cluster_conf_data = GraphData(
+            x=[i for i in range(self.num_clusters)],
+            y=means,
+            title=title,
+            error_bars=stdevs,
+            xlabel='Cluster ID',
+            ylabel='Mean Highest Action Confidence',
+            showaxis=True
+        )
+        
+        return cluster_conf_data
+        
+        
+    
+    def find_paths(self, from_cluster_id: int, to_cluster_id: int):
+        """Find simple paths between two clusters within SAMDP.
+
+        Args:
+            from_cluster_id (int): ID of cluster to start from.
+            to_cluster_id (int): ID of cluster to end at.
+        """
         from_cluster = f'Cluster {from_cluster_id}'
         to_cluster = f'Cluster {to_cluster_id}'
+        logging.info(f'Finding paths from {from_cluster} to {to_cluster}...')
         paths = list(nx.all_simple_edge_paths(self.graph, from_cluster, to_cluster))
+        
+        probs = self.calculate_path_probs(paths)
+        
+        logging.info(f"Highest probability of getting from {from_cluster} to {to_cluster}:")
+        for action in probs:
+            logging.info(f"\tvia Action {action}: {round(probs[action] * 100, 2)}%")
+        best_action = max(probs, key=probs.get)
+        logging.info(f'\tBest Option: Action {best_action} with {round(probs[best_action] * 100, 2)}%')
         
         _ = plt.figure(figsize=(15,15))
         plt.title(f'Paths from {from_cluster} to {to_cluster}')

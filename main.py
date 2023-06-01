@@ -56,6 +56,8 @@ def main(config: Dict[str, Any]) -> None:
         
         # db_data = analyzer.decision_boundary_data()
         cluster_data = analyzer.cluster_data()
+        cluster_confs = analyzer.analyze_clusters()
+        analyzer.graph_individual_data(cluster_confs, "cluster_analysis.png")
         # conf_data = analyzer.confidence_data()
         # state_data = analyzer.initial_terminal_state_data()
         # embed_data = analyzer.embeddings_data()
@@ -73,8 +75,8 @@ def main(config: Dict[str, Any]) -> None:
         #analyzer.graph_analytics(horizontal=True)
         
         #analyzer.graph_individual_data(cluster_data, "confidence.png")
-        samdp = analyzer.get_SAMDP()
-        analyzer.find_paths(3, 7)
+        # samdp = analyzer.get_SAMDP()
+        # analyzer.find_paths(3, 7)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
