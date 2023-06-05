@@ -15,7 +15,7 @@ class GraphData():
         error_bars: Optional[List[float]] = None,
         xlabel: Optional[str] = None,
         ylabel: Optional[str] = None,
-        showaxis: bool = False
+        showall: bool = False
     ):
         self.x = x
         self.y = y
@@ -26,7 +26,7 @@ class GraphData():
         self.error_bars = error_bars
         self.xlabel = xlabel
         self.ylabel = ylabel
-        self.showaxis = showaxis
+        self.showall = showall
     
     def get_data(self) -> Dict[str, Any]:
         data = {
@@ -39,7 +39,7 @@ class GraphData():
             "error_bars": self.error_bars,
             "xlabel": self.xlabel,
             "ylabel": self.ylabel,
-            "showaxis": self.showaxis
+            "showall": self.showall
         }
         
         return data

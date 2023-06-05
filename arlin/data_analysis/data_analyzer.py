@@ -10,6 +10,7 @@ import shutil
 import networkx as nx
 from prettytable import PrettyTable
 import statistics
+import itertools
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
@@ -37,6 +38,7 @@ class DataAnalyzer():
         
         dataset_file = open(dataset_path,'rb')
         self.dataset = pickle.load(dataset_file)
+        self.num_datapoints = len(self.dataset['observations'])
         dataset_file.close()
         
         self._get_episode_data()
@@ -264,7 +266,7 @@ class DataAnalyzer():
         
         return np.array(clusters)
     
-    def graph_embeddings(self) -> GraphData:
+    def embeddings_data(self) -> GraphData:
         """
         Generate data necessary for creating embedding graphs.
         """
@@ -281,7 +283,7 @@ class DataAnalyzer():
             y=y,
             title=title,
             colors=colors,
-            showaxis=False
+            showall=False
         )
         
         return embed_data
@@ -309,7 +311,7 @@ class DataAnalyzer():
             title=title,
             colors=colors,
             legend=legend,
-            showaxis=False
+            showall=False
         )
         
         return cluster_data
@@ -338,7 +340,7 @@ class DataAnalyzer():
             title=title,
             colors=colors,
             legend=legend,
-            showaxis=False
+            showall=False
         )
         
         return decision_boundary_data
@@ -360,7 +362,7 @@ class DataAnalyzer():
             title=title,
             colors=colors,
             cmap="viridis",
-            showaxis=False
+            showall=False
         )
         
         return episode_prog_data
@@ -382,7 +384,7 @@ class DataAnalyzer():
             title=title,
             colors=colors,
             cmap="RdYlGn",
-            showaxis=False
+            showall=False
         )
         
         return conf_data
@@ -413,7 +415,7 @@ class DataAnalyzer():
             title=title,
             colors=colors,
             legend=legend,
-            showaxis=False
+            showall=False
         )
     
         return state_data
@@ -436,7 +438,7 @@ class DataAnalyzer():
             cmap=data.cmap, 
             s=1)
         
-        if not data.showaxis:
+        if not data.showall:
             plt.axis('off')
         else:
             plt.xticks(data.x)
@@ -541,7 +543,7 @@ class DataAnalyzer():
         
         totals_movements = np.sum(samdp_counts, axis=-1)
         totals_movements = np.expand_dims(totals_movements, axis=-1)
-        totals_movements = np.repeat(totals_movements, 10, axis=-1)
+        totals_movements = np.repeat(totals_movements, self.num_clusters, axis=-1)
         
         samdp = samdp_counts / totals_movements
         self.samdp = np.nan_to_num(samdp, nan=0)
@@ -598,7 +600,7 @@ class DataAnalyzer():
         
         num_actions = self.samdp.shape[1]
         
-        _ = plt.figure(figsize=(15,15))
+        _ = plt.figure(figsize=(40,20))
         plt.title('SAMDP')
         G = nx.MultiDiGraph()
         
@@ -623,14 +625,36 @@ class DataAnalyzer():
                             best_edge["prob"] = prob_percent.item()
                 
                 if not best_edge["prob"] == 0:
-                    edges.append(best_edge['edge'])
-                    edge_colors.append(utils.CLUSTER_COLORS[action_id])     
+                    edges.append(best_edge['edge'])   
                     G.add_edge(best_edge['edge'][0], 
                                best_edge['edge'][1], 
                                weight=best_edge['prob'],
                                action=action_id)
 
-        pos = nx.shell_layout(G)
+        sources = []
+        for node in G.nodes():
+            if G.in_degree(node) == 0:
+                sources.append(node)
+        
+        pos = {}
+        bfs_layers = list(nx.bfs_layers(G, sources))
+        for i, layer_list in enumerate(bfs_layers):
+            for j, node in enumerate(layer_list):
+                pos[node] = (i, j)
+        
+        same_layer_perms = []
+        for layer in bfs_layers:
+            same_layer_perms += list(itertools.permutations(layer, 2))
+        
+        edge_arcs = []
+        edges = G.edges()
+        for edge in G.edges:
+            e = (edge[0], edge[1])
+            if e in same_layer_perms or (edge[1], edge[0]) in edges:
+                edge_arcs.append(0.1*(edge[2]+1))
+            else:
+                edge_arcs.append(0)
+            
         nx.draw_networkx_nodes(G, 
                                pos,
                                node_size=4000,
@@ -638,12 +662,18 @@ class DataAnalyzer():
         
         nx.draw_networkx_labels(G, pos)
         
-        for i, e in enumerate(G.edges):
+        samdp_edges_data = list(G.edges(data=True))
+        samdp_edges = list(G.edges)
+        
+        for i, edge in enumerate(G.edges):
+            edge_index = samdp_edges.index(edge)
+            edge_data = samdp_edges_data[edge_index]
+            action_id = edge_data[2]["action"]
             nx.draw_networkx_edges(G, 
                                    pos, 
-                                   edgelist=[e], 
-                                   connectionstyle=f"arc3,rad={0.1*e[2]}",
-                                   edge_color=edge_colors[i],
+                                   edgelist=[edge], 
+                                   connectionstyle=f"arc3,rad={edge_arcs[i]}",
+                                   edge_color=utils.CLUSTER_COLORS[action_id],
                                    node_size=4000, 
                                    arrowsize=25)
         
@@ -707,7 +737,7 @@ class DataAnalyzer():
             stdevs.append(statistics.stdev(cluster_conf[i]))
 
         
-        title = "Cluter Confidence Analysis"
+        title = "Cluster Confidence Analysis"
         
         cluster_conf_data = GraphData(
             x=[i for i in range(self.num_clusters)],
@@ -716,12 +746,10 @@ class DataAnalyzer():
             error_bars=stdevs,
             xlabel='Cluster ID',
             ylabel='Mean Highest Action Confidence',
-            showaxis=True
+            showall=True
         )
         
         return cluster_conf_data
-        
-        
     
     def find_paths(self, from_cluster_id: int, to_cluster_id: int):
         """Find simple paths between two clusters within SAMDP.
@@ -779,8 +807,6 @@ class DataAnalyzer():
                     weight=edge_data[2]['weight'], 
                     action=edge_data[2]['action']
                     )
-                
-                edge_colors.append(utils.CLUSTER_COLORS[edge_data[2]['action']])
         
         pos = nx.shell_layout(G)
         nx.draw_networkx_nodes(G, 
@@ -790,12 +816,15 @@ class DataAnalyzer():
         
         nx.draw_networkx_labels(G, pos)
         
-        for i, e in enumerate(G.edges):
+        for edge in G.edges:
+            edge_index = samdp_edges.index(edge)
+            edge_data = samdp_edges_data[edge_index]
+            action_id = edge_data[2]["action"]
             nx.draw_networkx_edges(G, 
                                    pos, 
-                                   edgelist=[e], 
-                                   connectionstyle=f"arc3,rad={0.1*e[2]}",
-                                   edge_color=edge_colors[i],
+                                   edgelist=[edge], 
+                                   connectionstyle=f"arc3,rad={0.1*edge[2]}",
+                                   edge_color=utils.CLUSTER_COLORS[action_id],
                                    node_size=4000, 
                                    arrowsize=25)
         

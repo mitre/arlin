@@ -55,27 +55,27 @@ def main(config: Dict[str, Any]) -> None:
         clusters = analyzer.get_clusters(**params['CLUSTERS'])
         
         # db_data = analyzer.decision_boundary_data()
-        cluster_data = analyzer.cluster_data()
-        cluster_confs = analyzer.analyze_clusters()
-        analyzer.graph_individual_data(cluster_confs, "cluster_analysis.png")
+        # cluster_data = analyzer.cluster_data()
+        # cluster_confs = analyzer.analyze_clusters()
         # conf_data = analyzer.confidence_data()
         # state_data = analyzer.initial_terminal_state_data()
+        # episode_prog_data = analyzer.episode_prog_data()
         # embed_data = analyzer.embeddings_data()
         
         # graph_data = [(db_data, "decision_boundaries.png"),
         #               (cluster_data, f"{analyzer.num_clusters}-clusters.png"),
         #               (conf_data, "confidence.png"),
         #               (state_data, "important_states.png"),
-        #               (embed_data, "embeddings.png")]
+        #               (embed_data, "embeddings.png"),
+        #               (episode_prog_data, "episode_prog.png"),
+        #               (cluster_confs, "cluster_analysis.png")]
         
         # for i in graph_data:
         #     data, filename = i
         #     analyzer.graph_individual_data(data, filename)
         
-        #analyzer.graph_analytics(horizontal=True)
-        
-        #analyzer.graph_individual_data(cluster_data, "confidence.png")
-        # samdp = analyzer.get_SAMDP()
+        # analyzer.graph_analytics([cluster_data, conf_data], horizontal=True)
+        samdp = analyzer.get_SAMDP()
         # analyzer.find_paths(3, 7)
 
 if __name__ == '__main__':

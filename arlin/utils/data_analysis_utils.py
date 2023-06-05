@@ -57,7 +57,10 @@ def find_subplot_dims(num_plots: int, horizontal: bool) -> Tuple[int, int]:
     if num_plots == isqrt(num_plots) ** 2:
         return sqrt(num_plots), sqrt(num_plots)
     
-    if num_plots % 2 == 0:
+    if num_plots == 2:
+        dim_long = 2
+        dim_short = 1
+    elif num_plots % 2 == 0:
         dim_long = int(num_plots / 2)
         dim_short = 2
     else:
@@ -106,8 +109,12 @@ def graph_subplots(
             axis.set_title(data.title)
             axis.title.set_size(10)
             
-            if not data.showaxis:
+            if not data.showall:
                 plt.axis('off')
+            else:
+                plt.xticks(data.x)
+                plt.xlabel(data.xlabel)
+                plt.ylabel(data.ylabel)
             
             if data.legend is not None:
                 extra_legends = {"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'}
@@ -116,6 +123,9 @@ def graph_subplots(
             
             if data.cmap is not None:
                 plt.colorbar(scp, ax=axis)
+            
+            if data.error_bars is not None:
+                plt.errorbar(data.x, data.y, yerr=data.error_bars, fmt="o", capsize=5)
             
             plt.tight_layout()
             
