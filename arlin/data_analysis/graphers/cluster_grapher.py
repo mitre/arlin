@@ -14,8 +14,20 @@ class ClusterGrapher():
         self.clusters = clusters
         self.num_clusters = len(np.unique(self.clusters))
         
-        start_clusters = list(set(self.clusters[self.dataset.start_indices]))
-        done_clusters = list(set(self.clusters[self.dataset.done_indices]))
+        _, cluster_sizes = np.unique(self.clusters, return_counts=True)
+        start_cluster_ids, start_cluster_sizes = np.unique(self.clusters[self.dataset.start_indices], return_counts=True)
+        done_cluster_ids, done_cluster_sizes = np.unique(self.clusters[self.dataset.done_indices], return_counts=True)
+        
+        total_starts = sum(start_cluster_sizes)
+        total_dones = sum(done_cluster_sizes)
+        
+        start_clusters = [cluster_id for cluster_id, cluster_size 
+                          in zip(start_cluster_ids, start_cluster_sizes) 
+                          if (cluster_size / total_starts) > (1 / len(start_cluster_ids))]
+        
+        done_clusters = [cluster_id for cluster_id, cluster_size 
+                         in zip(done_cluster_ids, done_cluster_sizes) 
+                         if (cluster_size / total_dones) > (1 / len(start_cluster_ids))]
         
         self.cluster_stage_colors = []
         
@@ -42,7 +54,11 @@ class ClusterGrapher():
         
         for i in range(self.num_clusters):
             means.append(statistics.mean(cluster_conf[i]))
-            stdevs.append(statistics.stdev(cluster_conf[i]))
+            
+            try:
+                stdevs.append(statistics.stdev(cluster_conf[i]))
+            except:
+                stdevs.append(0)
         
         title = "Cluster Confidence Analysis"
         
