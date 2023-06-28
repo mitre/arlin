@@ -53,11 +53,24 @@ class SAMDP():
         np.set_printoptions(suppress=True)
         np.seterr(divide='ignore', invalid='ignore')
         
-        total_moves_out = np.sum(samdp_counts, axis=-1)
-        total_moves_out = np.expand_dims(total_moves_out, axis=-1)
-        total_moves_out = np.repeat(total_moves_out, self.num_clusters, axis=-1)
+        # Get the total number of out_edges for each cluster by action
+        out_edges_per_action = np.sum(samdp_counts, axis=-1)
         
-        samdp = samdp_counts / total_moves_out
+        # Add total row 
+        total_out_edges = np.expand_dims(np.sum(out_edges_per_action, 1), axis=-1)
+        out_edges_per_action = np.append(out_edges_per_action, total_out_edges, axis=-1)
+          
+        out_edges_per_action = np.expand_dims(out_edges_per_action, axis=-1)
+        # Expand total out_edges count to match size of samdp_counts
+        expanded_out_edges = np.repeat(out_edges_per_action, self.num_clusters, axis=-1)
+        
+        # Get total out_edges to each cluster (not grouped by action)
+        total_by_cluster = np.expand_dims(np.sum(samdp_counts, axis=1), 1)
+        
+        # Add the total counts row to the samdp_counts
+        samdp_counts = np.concatenate([samdp_counts, total_by_cluster], axis=1)
+        
+        samdp = samdp_counts / expanded_out_edges
         samdp = np.nan_to_num(samdp, nan=0)
 
         return samdp
@@ -129,20 +142,41 @@ class SAMDP():
                            color=COLORS[action_id])
         
         self.graph = G
-        self._set_node_attributes()
+        self._set_node_attributes(self.graph)
         return self.graph
+
+    def _generate_simplified_graph(self) -> nx.Graph:
+        G = nx.MultiDiGraph()
+        G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
+        
+        for from_cluster_id in range(self.num_clusters):
+            from_cluster = f"Cluster {from_cluster_id}"
+            for to_cluster_id in range(self.num_clusters):
+                to_cluster = f"Cluster {to_cluster_id}"
+                
+                prob = self.samdp[from_cluster_id, self.num_actions, to_cluster_id]
+                
+                if not prob == 0 and not from_cluster_id == to_cluster_id:
+                    G.add_edge(from_cluster, 
+                        to_cluster, 
+                        weight=prob,
+                        action=-1,
+                        color='#000000')
+        
+        self._set_node_attributes(G)
+        return G
     
-    def _set_node_attributes(self):
-        self._set_node_colors()
-        self._set_node_edges()
+    def _set_node_attributes(self, graph: nx.Graph):
+        self._set_node_colors(graph)
+        self._set_node_edges(graph)
     
-    def _set_node_colors(self):
+    def _set_node_colors(self, graph: nx.Graph):
         node_colors = {}
         for i in range(self.num_clusters):
             node_colors[f'Cluster {i}'] = COLORS[i]
-        nx.set_node_attributes(self.graph, node_colors, 'color')
+        nx.set_node_attributes(graph, node_colors, 'color')
     
-    def _set_node_edges(self):
+    def _set_node_edges(self, graph: nx.Graph):
         start_clusters = set(self.clusters[self.dataset.start_indices])
         done_clusters = set(self.clusters[self.dataset.done_indices])
         
@@ -158,7 +192,7 @@ class SAMDP():
             else:
                 node_edges[node_name] = 'k'
         
-        nx.set_node_attributes(self.graph, node_edges, 'edge_color')
+        nx.set_node_attributes(graph, node_edges, 'edge_color')
     
     def _generate_bfs_pos(self):
 
@@ -238,6 +272,46 @@ class SAMDP():
         plt.close()
         
         return self.graph
+    
+    def save_simplified_graph(self, file_path: str):
+        _ = plt.figure(figsize=(40,20))
+        plt.title('Simplified SAMDP')
+        
+        G = self._generate_simplified_graph()
+        pos = self._generate_bfs_pos()
+        
+        colors = [node[1]['color'] for node in self.graph.nodes(data=True)]
+        node_edges = [node[1]['edge_color'] for node in self.graph.nodes(data=True)]
+        
+        nx.draw_networkx_nodes(G, 
+                               pos,
+                               node_size=4100,
+                               node_color=colors,
+                               edgecolors=node_edges,
+                               linewidths=5)
+        
+        nx.draw_networkx_labels(G, pos, font_color='whitesmoke')
+        
+        edges = G.edges(data=True, keys=True)
+        edge_arcs = self._generate_edge_arcs(pos, edges)
+        
+        for i, edge in enumerate(edges):
+            nx.draw_networkx_edges(self.graph, 
+                                    pos, 
+                                    edgelist=[edge], 
+                                    connectionstyle=f"arc3,rad={edge_arcs[i]}",
+                                    edge_color=edge[3]['color'],
+                                    alpha=edge[3]['weight'],
+                                    node_size=4000, 
+                                    arrowsize=25)
+        
+        plt.tight_layout()
+        logging.info(f"Saving simplified SAMDP graph png to {file_path}...")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        plt.savefig(file_path, format="PNG")
+        plt.close()
+        
+        return G
     
     def save_early_termination_paths(self, file_path: str):
         _ = plt.figure(figsize=(15, 15))
@@ -368,13 +442,23 @@ class SAMDP():
             Dict[int, float]: Dictionary with actions as keys and highest probability
                 to reach target from current node.
         """
+        
+        if len(paths) == 0:
+            logging.info(f"No paths found from {from_cluster} to {to_cluster}.")
+            return {}, []
+        
         probs = {}
         best_paths = {}
         for path in paths:
             prob = 1
             action = path[0][3]['action']
-            for edge in path:
-                edge_prob = edge[3]['weight']
+            for e, edge in enumerate(path):
+                if e == 0:
+                    edge_prob = edge[3]['weight']
+                else:
+                    from_node = int(edge[0].split(' ')[-1])
+                    to_node = int(edge[1].split(' ')[-1])
+                    edge_prob = self.samdp[from_node][-1][to_node]
                 prob = prob * edge_prob
             
             if action in probs:
@@ -384,29 +468,27 @@ class SAMDP():
             else:
                 probs[action] = prob
                 best_paths[action] = path
-        
-        if len(probs.keys()) == 0:
-            logging.info(f"No paths found from {from_cluster} to {to_cluster}.")
-        else:
-            logging.info(f"Highest probability of getting from {from_cluster} to {to_cluster}:")
-            for action in probs:
-                logging.info(f"\tvia Action {action}: {round(probs[action] * 100, 2)}%")
-                for edge in best_paths[action]:
-                    logging.info(f"\t\t{edge[0]} to {edge[1]} with {round(edge[3]['weight'] * 100, 2)}%")
-                
-            best_action = max(probs, key=probs.get)
-            logging.info(f'\tBest Option: Action {best_action} with {round(probs[best_action] * 100, 2)}%')
-            logging.info(f'\tBest Path:')
-            for edge in best_paths[best_action]:
+
+        logging.info(f"Highest probability of getting from {from_cluster} to {to_cluster}:")
+        for action in probs:
+            logging.info(f"\tvia Action {action}: {round(probs[action] * 100, 2)}%")
+            for edge in best_paths[action]:
                 logging.info(f"\t\t{edge[0]} to {edge[1]} with {round(edge[3]['weight'] * 100, 2)}%")
+            
+        best_action = max(probs, key=probs.get)
+        logging.info(f'\tBest Option: Action {best_action} with {round(probs[best_action] * 100, 2)}%')
+        logging.info(f'\tBest Path:')
+        for edge in best_paths[best_action]:
+            logging.info(f"\t\t{edge[0]} to {edge[1]} with {round(edge[3]['weight'] * 100, 2)}%")
         
-        return probs, best_paths
+        return probs, best_paths[best_action]
     
     def save_paths(self,
                    graph: nx.Graph,
                    from_cluster_id: int, 
                    to_cluster_id: int,
-                   file_path: str):
+                   file_path: str,
+                   best_path_only: bool = False):
         """Find simple paths between two clusters within SAMDP.
 
         Args:
@@ -420,7 +502,19 @@ class SAMDP():
         plt.title(f'SAMDP Paths from {from_cluster} to {to_cluster}')
         
         logging.info(f'Finding paths from {from_cluster} to {to_cluster}...')
-        paths = list(nx.all_simple_edge_paths(graph, from_cluster, to_cluster))
+        
+        simplified_graph = self._generate_simplified_graph()
+        
+        out_edges = simplified_graph.out_edges(from_cluster)
+        simplified_graph.remove_edges_from(list(out_edges))
+        
+        action_out_edges = self.graph.out_edges(from_cluster, data=True, keys=True)
+        
+        simplified_graph.add_edges_from(list(action_out_edges))
+        
+        paths = list(nx.all_simple_edge_paths(simplified_graph, 
+                                              from_cluster, 
+                                              to_cluster))
         
         updated_paths = []
         full_edge_list = []
@@ -428,7 +522,7 @@ class SAMDP():
         for path in paths:
             data_path = []
             for edge in path:
-                edge_data = graph.get_edge_data(edge[0], edge[1], edge[2])
+                edge_data = simplified_graph.get_edge_data(edge[0], edge[1], edge[2])
                 updated_edge = (edge[0], edge[1], edge[2], edge_data)
                 data_path.append(updated_edge)
                 
@@ -438,11 +532,20 @@ class SAMDP():
             
             updated_paths.append(data_path)
         
-        _, _ = self._calculate_path_probs(from_cluster,
+        _, best_path = self._calculate_path_probs(from_cluster,
                                           to_cluster, 
                                           updated_paths)
         
-        subgraph = nx.edge_subgraph(graph, edge_list)
+        if best_path == []:
+            return
+        
+        if best_path_only:
+            full_edge_list = best_path
+            edge_list = []
+            for edge in best_path:
+                edge_list.append((edge[0], edge[1], edge[2]))
+        
+        subgraph = nx.edge_subgraph(simplified_graph, edge_list)
         
         pos = self._generate_bfs_pos()
         edge_arcs = self._generate_edge_arcs(pos, edge_list)
@@ -460,7 +563,7 @@ class SAMDP():
         nx.draw_networkx_labels(subgraph, pos, font_color='whitesmoke')
         
         for i, edge in enumerate(full_edge_list):
-            nx.draw_networkx_edges(self.graph, 
+            nx.draw_networkx_edges(subgraph, 
                                    pos, 
                                    edgelist=[edge], 
                                    connectionstyle=f"arc3,rad={edge_arcs[i]}",

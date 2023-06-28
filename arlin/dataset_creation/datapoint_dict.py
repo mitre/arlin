@@ -11,6 +11,7 @@ class BaseDatapointDict(ABC):
         self.observations = []
         self.actions = []
         self.rewards = []
+        self.total_rewards = []
         self.dones = []
         self.steps = []
     
@@ -19,6 +20,7 @@ class BaseDatapointDict(ABC):
         observation: np.ndarray, 
         action: int, 
         reward: float, 
+        total_reward: float,
         done: bool,
         step: int
         ) -> None:
@@ -35,6 +37,7 @@ class BaseDatapointDict(ABC):
         self.observations.append(observation)
         self.actions.append(action)
         self.rewards.append(reward)
+        self.total_rewards.append(total_reward)
         self.dones.append(done)
         self.steps.append(step)
     
@@ -54,6 +57,7 @@ class BaseDatapointDict(ABC):
             "observations": np.array(self.observations),
             "actions": np.array(self.actions),
             "rewards": np.array(self.rewards),
+            "total_rewards": np.array(self.total_rewards),
             "dones": np.array(self.dones),
             "steps": np.array(self.steps)
         }
@@ -107,6 +111,7 @@ class PPODatapointDict(BaseDatapointDict):
             "observations": np.array(self.observations),
             "actions": np.array(self.actions),
             "rewards": np.array(self.rewards),
+            "total_rewards": np.array(self.total_rewards),
             "dones": np.array(self.dones),
             "steps": np.array(self.steps),
             "latent_actors": np.array(self.latent_actors),
@@ -153,6 +158,7 @@ class DQNDatapointDict(BaseDatapointDict):
             "observations": np.array(self.observations),
             "actions": np.array(self.actions),
             "rewards": np.array(self.rewards),
+            "total_rewards": np.array(self.total_rewards),
             "dones": np.array(self.dones),
             "steps": np.as_array(self.steps),
             "q_vals": np.array(self.q_vals),

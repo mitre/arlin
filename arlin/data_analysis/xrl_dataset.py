@@ -9,7 +9,7 @@ class XRLDataset():
         dataset = pickle.load(dataset_file)
         dataset_file.close()
         
-        required_keys = ['observations', 'actions', 'rewards', 'dones']
+        required_keys = ['observations', 'actions', 'rewards', 'total_rewards', 'dones']
         for key in required_keys:
             if key not in dataset:
                 raise ValueError('Dataset must include, at minimum, the keys '\

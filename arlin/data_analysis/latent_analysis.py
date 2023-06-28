@@ -34,31 +34,15 @@ def generate_embeddings(
     return np.array(embeddings)
 
 def generate_clusters(
-    dataset: XRLDataset,
+    cluster_on: np.ndarray,
     num_clusters: int,
-    cluster_key: Optional[str] = None,
-    embeddings: Optional[np.ndarray] = None,
     clustering_method: str = 'kmeans'
 ) -> np.ndarray:
-    
-    if cluster_key is None and embeddings is None:
-        raise ValueError('At least one of cluster_key and embeddings must be set.')
-    
-    if cluster_key is not None and embeddings is not None:
-        raise ValueError('Only one of cluster_key and embeddings can be set at a time.')
-    
-    if cluster_key is not None:
-        try:
-            cluster_on = getattr(dataset, cluster_key)
-        except:
-            raise ValueError(f"Cluster key {cluster_key} is not in dataset.")
-    else:
-        cluster_on = embeddings
-    
+    clustering_method = clustering_method.lower()
     if clustering_method == 'kmeans':
         clusters = KMeans(n_clusters=num_clusters,
                             n_init='auto').fit(cluster_on).labels_
     else:
         raise NotImplementedError(f'{clustering_method} is not currently supported.')
     
-    return np.array(clusters)
+    return clusters
