@@ -1,11 +1,10 @@
-from typing import Dict, Optional
-import os
 import numpy as np
 from arlin.data_analysis.xrl_dataset import XRLDataset
-from arlin.data_analysis.samdp import SAMDP
 from sklearn.manifold import TSNE
-from sklearn.cluster import KMeans
-import networkx as nx
+from sklearn.cluster import KMeans, AgglomerativeClustering
+import matplotlib.pyplot as plt
+
+from arlin.data_analysis.analytics_graphing import COLORS
 
 np.random.seed(1234)
 
@@ -41,8 +40,13 @@ def generate_clusters(
     clustering_method = clustering_method.lower()
     if clustering_method == 'kmeans':
         clusters = KMeans(n_clusters=num_clusters,
-                            n_init='auto').fit(cluster_on).labels_
+                          n_init='auto').fit(cluster_on)
+        
+    elif clustering_method == 'hac':
+        clusters = AgglomerativeClustering(n_clusters=num_clusters, 
+                                           metric='euclidean', 
+                                           linkage='ward').fit(cluster_on)
     else:
         raise NotImplementedError(f'{clustering_method} is not currently supported.')
     
-    return clusters
+    return clusters.labels_
