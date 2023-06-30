@@ -7,10 +7,6 @@ from math import isqrt, sqrt
 import os
 import logging
 
-COLORS = ('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', 
-          '#7f7f7f', '#bcbd22', '#17becf', '#101010', '#6f2fff', '#0f8f7f', '#c48c5c',
-          '#cf0fcf', '#4b0082')
-
 class GraphData():
     def __init__(
         self,
@@ -74,9 +70,9 @@ def _find_subplot_dims(num_plots: int, horizontal: bool) -> Tuple[int, int]:
         return dim_short, dim_long
 
 def graph_multiple_data(
+    file_path: str,
     figure_title: str,
     graph_datas: List[GraphData],
-    file_path: str,
     horizontal: bool = True
 ):
     num_plots = len(graph_datas)
@@ -144,8 +140,8 @@ def graph_multiple_data(
     plt.close()
     
 def graph_individual_data(
+    filename: str,
     data: GraphData,
-    filename: str
     ):
     """Graph given GraphData to a single plot and save a PNG to the given file.
 

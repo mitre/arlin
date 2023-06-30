@@ -4,11 +4,8 @@ import networkx as nx
 import logging
 import os
 from prettytable import PrettyTable
-import pandas as pd
-import statistics
-import itertools
 import matplotlib.pyplot as plt
-from arlin.data_analysis.analytics_graphing import COLORS
+from arlin.data_analysis.graphers.colors import COLORS
 
 from typing import Dict, Tuple, List, Optional, Any
 
@@ -484,7 +481,6 @@ class SAMDP():
         return probs, best_paths[best_action]
     
     def save_paths(self,
-                   graph: nx.Graph,
                    from_cluster_id: int, 
                    to_cluster_id: int,
                    file_path: str,

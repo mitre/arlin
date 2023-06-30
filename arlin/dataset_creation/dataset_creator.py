@@ -10,7 +10,7 @@ from huggingface_sb3 import load_from_hub
         
 def load_hf_sb_model(repo_id: str,
                      filename: str,
-                     sb_algo_str: str) -> str:
+                     algo_str: str) -> str:
     """
     Return the model path for the local model downloaded from huggingface for the
     given algorithm and environment.
@@ -28,7 +28,7 @@ def load_hf_sb_model(repo_id: str,
     except Exception as e:
         raise ValueError(f"Model could not be loaded from huggingface.\n{e}")
     
-    algorithm = utils.get_algo(sb_algo_str.lower())
+    algorithm = utils.get_algo(algo_str.lower())
     model = algorithm.load(checkpoint_path)
     
     return model
@@ -55,7 +55,7 @@ def collect_episodes(model,
     gatherer = utils.get_dataset_gatherer(algo_str)(model.policy)
     
     for _ in tqdm(range(num_episodes)):
-        obs = env.reset()
+        obs, _ = env.reset()
         total_reward = 0
         step = 0
         done = False
@@ -66,7 +66,7 @@ def collect_episodes(model,
             if random:
                 action = env.action_space.sample()
             
-            obs, reward, done, _ = env.step(action)
+            obs, reward, done, _, _ = env.step(action)
             total_reward += reward
             datapoint_dict.add_base_data(obs, action, reward, total_reward, done, step)
             step += 1
@@ -94,7 +94,7 @@ def collect_datapoints(model,
     
     gatherer = utils.get_dataset_gatherer(algo_str)(model.policy)
     
-    obs = env.reset()
+    obs, _ = env.reset()
     total_reward = 0
     step = 0
     for _ in tqdm(range(num_datapoints)):
@@ -103,13 +103,13 @@ def collect_datapoints(model,
         if random:
             action = env.action_space.sample()
             
-        obs, reward, done, _ = env.step(action)
+        obs, reward, done, _, _ = env.step(action)
         total_reward += reward
         datapoint_dict.add_base_data(obs, action, reward, total_reward, done, step)
         step += 1
         
         if done:
-            obs = env.reset()
+            obs, _ = env.reset()
             total_reward = 0
             step = 0
             done = False
@@ -128,5 +128,6 @@ def save_datapoints(datapoint_dict: Dict[str, Any], file_path: str) -> None:
         file_path += '.pkl'
     
     logging.info(f"Saving datapoints to {file_path}...")
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, 'wb') as handle:
         pickle.dump(datapoint_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)

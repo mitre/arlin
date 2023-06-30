@@ -4,7 +4,7 @@ from typing import Any, Dict
 import logging
 import os
 import warnings
-import gym
+import gymnasium as gym
 
 import arlin.data_analysis.latent_analysis as latent_analysis
 import arlin.data_analysis.analytics_graphing as analytics_graphing
@@ -13,52 +13,76 @@ import arlin.dataset_creation.dataset_creator as dataset_creator
 from arlin.data_analysis.xrl_dataset import XRLDataset
 from arlin.data_analysis.samdp import SAMDP
 import arlin.utils.data_analysis_utils as da_utils
-    
-def dataset_creation():
-    model = dataset_creator.load_hf_sb_model(repo_id='sb3/ppo-LunarLander-v2',
-                                              filename='ppo-LunarLander-v2.zip',
-                                              sb_algo_str='ppo')
-    env = gym.make('LunarLander-v2')
+
+def get_config(config_path: str) -> Dict[str, Any]:
+    """
+    Load the YAML config file from the given path.
+
+    Args:
+        config_path (str): Path to load YAML config file from.
+
+    Returns:
+        Dict[str, Any]: Dictionary version of YAML config file.
+    """
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
+
+
+def dataset_creation(cfg: Dict[str, Any]):
+    model = dataset_creator.load_hf_sb_model(repo_id=f"sb3/{cfg['algo_str']}-{cfg['environment']}",
+                                             filename=f"{cfg['algo_str']}-{cfg['environment']}.zip",
+                                             algo_str=cfg['algo_str'])
+    env = gym.make(cfg['environment'])
     
     datapoints = dataset_creator.collect_datapoints(model=model,
-                                                   algo_str='ppo',
+                                                   algo_str=cfg['algo_str'],
                                                    env=env,
-                                                   num_datapoints=50000,
-                                                   random=False)
+                                                   num_datapoints=cfg['num_datapoints'],
+                                                   random=cfg['random'])
     
+    save_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}.pkl"
     dataset_creator.save_datapoints(datapoint_dict=datapoints, 
-                                    file_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/ppo-50000.pkl')
-        
+                                    file_path=save_path)
+    
+    return save_path
 
-def get_data(load_embeddings=False, load_clusters=False):
-    dataset = XRLDataset(dataset_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/ppo-50000.pkl')
+def get_data(cfg: Dict[str, Any],
+             dataset, 
+             load_embeddings=False, 
+             load_clusters=False):
+    
+    embed_cfg = cfg['EMBEDDINGS']
+    cluster_cfg = cfg['CLUSTERS']
+    
+    base_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}"
+    embeddings_path = f"{base_path}/embeddings/{cfg['algo_str']}-{cfg['num_datapoints']}/{embed_cfg['activation_key']}/embeddings.pkl"
+    clusters_path = f"{base_path}/clusters/{cfg['algo_str']}-{cfg['num_datapoints']}/clusters_{cluster_cfg['method']}_{cluster_cfg['num_clusters']}'.pkl"
     
     if load_embeddings:
-        embeddings = da_utils.load_data(file_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/embeddings/ppo-50000/latent_actors/test_embeddings.pkl')
+        embeddings = da_utils.load_data(file_path=embeddings_path)
     else:
         embeddings = latent_analysis.generate_embeddings(dataset=dataset,
-                                                        activation_key='latent_actors',
-                                                        perplexity=500,
-                                                        n_train_iter=4000,
+                                                        activation_key=embed_cfg['activation_key'],
+                                                        perplexity=embed_cfg['perplexity'],
+                                                        n_train_iter=embed_cfg['n_train_iter'],
                                                         output_dim=2,
                                                         seed=12345)
         
-        da_utils.save_data(data=embeddings, 
-                        file_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/embeddings/ppo-50000/latent_actors/test_embeddings.pkl')  
+        da_utils.save_data(data=embeddings, file_path=embeddings_path)  
     
     if load_clusters: 
-        clusters = da_utils.load_data(file_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/clusters/ppo-50000/test_clusters_hac.pkl')
+        clusters = da_utils.load_data(file_path=clusters_path)
     else:
-        clusters = latent_analysis.generate_clusters(cluster_on=dataset.latent_actors,
-                                                     num_clusters=16,
-                                                     clustering_method='hac')
+        cluster_on = getattr(dataset, embed_cfg['activation_key'])
+        clusters = latent_analysis.generate_clusters(cluster_on=cluster_on,
+                                                     num_clusters=cluster_cfg['num_clusters'],
+                                                     clustering_method=cluster_cfg['method'])
         
-        da_utils.save_data(data=clusters,
-                        file_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/clusters/ppo-50000/test_clusters_hac.pkl')
+        da_utils.save_data(data=clusters, file_path=clusters_path)
     
     return embeddings, clusters
         
-def graph_latent_analytics(embeddings, clusters, dataset):
+def graph_latent_analytics(run_dir:str, embeddings, clusters, dataset):
     grapher = LatentGrapher(embeddings, dataset)
     
     embeddings_data = grapher.embeddings_graph_data()
@@ -68,63 +92,102 @@ def graph_latent_analytics(embeddings, clusters, dataset):
     ep_prog_data = grapher.episode_prog_graph_data()
     conf_data = grapher.confidence_data()
     
-    base_path = './outputs/latent_analytics_hac/'
-    for data in [#(embeddings_data, "embeddings.png"),
+    base_path = os.path.join(run_dir, 'latent_analytics')
+    for data in [(embeddings_data, "embeddings.png"),
                  (cluster_data, "clusters.png"),
-                 #(db_data, "decision_boundaries.png"),
-                 #(init_term_data, "initial_terminal.png"),
-                 #(ep_prog_data, "episode_progression.png"),
-                 #(conf_data, "confidence.png")
+                 (db_data, "decision_boundaries.png"),
+                 (init_term_data, "initial_terminal.png"),
+                 (ep_prog_data, "episode_progression.png"),
+                 (conf_data, "confidence.png")
                  ]:
         path = os.path.join(base_path, data[1])
         
-        analytics_graphing.graph_individual_data(data[0], path)
+        analytics_graphing.graph_individual_data(path, data[0])
     
-    #analytics_graphing.graph_multiple_data('Latent Analytics', [db_data, conf_data, cluster_data, ep_prog_data], './outputs/combined_graphs_hac/latent_analytics.png')
+    combined_path = os.path.join(base_path, 'combined_analytics.png')
+    analytics_graphing.graph_multiple_data(file_path=combined_path,
+                                           figure_title='Latent Analytics', 
+                                           graph_datas=[db_data, 
+                                                        conf_data, 
+                                                        cluster_data, 
+                                                        ep_prog_data])
 
-def graph_cluster_analytics(dataset, clusters):
+def graph_cluster_analytics(run_dir: str, dataset, clusters):
     grapher = ClusterGrapher(dataset, clusters)
     
     cluster_conf = grapher.cluster_confidence()
     cluster_rewards = grapher.cluster_rewards()
     
-    base_path = './outputs/cluster_analytics_hac/'
+    base_path = os.path.join(run_dir, 'cluster_analytics')
     for data in [[cluster_conf, 'cluster_confidence.png'], [cluster_rewards, 'cluster_rewards.png']]:
         path = os.path.join(base_path, data[1])
-        analytics_graphing.graph_individual_data(data[0], path)
-        
-    analytics_graphing.graph_multiple_data('Cluster Analytics', [cluster_rewards, cluster_conf], './outputs/combined_graphs/cluster_analytics_hac.png')
+        analytics_graphing.graph_individual_data(path, data[0])
+    
+    combined_path = os.path.join(base_path, 'combined_analytics.png')
+    analytics_graphing.graph_multiple_data(file_path=combined_path, 
+                                           figure_title='Cluster Analytics', 
+                                           graph_datas=[cluster_rewards, cluster_conf])
 
-def samdp(clusters, dataset):
+def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     samdp = SAMDP(clusters, dataset)
-    # complete_graph = samdp.save_complete_graph('./outputs/samdp/samdp_complete.png')
-    # et_graph = samdp.save_early_termination_paths('./outputs/samdp/samdp_et.png')
-    likely_graph = samdp.save_likely_paths('./outputs/samdp/samdp_likely.png')
-    #simplified_graph = samdp.save_simplified_graph('./outputs/samdp/samdp_simplified.png')
-    samdp.save_paths(likely_graph, 3, 7, './outputs/samdp/samdp_path_3_7.png')
-    samdp.save_paths(likely_graph, 3, 7, './outputs/samdp/samdp_path_3_7_bp.png', best_path_only=True)
-    #samdp.save_txt('./outputs/samdp/samdp.txt')
+    
+    base_path = os.path.join(run_dir, 'samdp')
+    
+    # complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
+    # et_graph = samdp.save_early_termination_paths(f'{base_path}/samdp_et.png')
+    likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
+    #simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
+    
+    path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
+    
+    samdp.save_paths(cfg['from_cluster'], 
+                     cfg['to_cluster'], 
+                     f'./outputs/samdp/{path_path}.png')
+    
+    samdp.save_paths(cfg['from_cluster'], 
+                     cfg['to_cluster'], 
+                     f'./outputs/samdp/{path_path}_bp.png', 
+                     best_path_only=True)
+    #samdp.save_txt(f'{base_path}}/samdp.txt')
 
-def main(args) -> None:
-    #dataset_creation()
-    embeddings, clusters = get_data(load_embeddings=args.load_embeddings,
-                                    load_clusters=args.load_clusters)
+def main(args, cfg: Dict[str, Any]) -> None:
+    if not args.ld:
+        dataset_path = dataset_creation(cfg['DATASET_CREATION'])
+    else:
+        data_cfg = cfg['DATASET_CREATION']
+        dataset_path = f"/nfs/lslab2/arlin/data_zoo/{data_cfg['environment']}/{data_cfg['algo_str']}-{data_cfg['num_datapoints']}.pkl"
+        dataset = XRLDataset(dataset_path=dataset_path)
+        
+    embeddings, clusters = get_data(cfg['GET_DATA'],
+                                    dataset,
+                                    load_embeddings=args.le,
+                                    load_clusters=args.lc)
     
-    dataset = XRLDataset(dataset_path='/nfs/lslab2/arlin/data_zoo/LunarLander-v2/ppo-50000.pkl')
+    run_dir = f"./outputs/{cfg['GET_DATA']['CLUSTERS']['method']}-{cfg['GET_DATA']['CLUSTERS']['num_clusters']}/"
     
-    graph_latent_analytics(embeddings, clusters, dataset)
-    graph_cluster_analytics(dataset, clusters)
-    #samdp(clusters, dataset)
+    if not args.sla:
+        graph_latent_analytics(run_dir, embeddings, clusters, dataset)
+        
+    if not args.sca:
+        graph_cluster_analytics(run_dir, dataset, clusters)
+    
+    if not args.ss:
+        samdp(run_dir, cfg['SAMDP'], clusters, dataset)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--load_embeddings', action='store_true')
-    parser.add_argument('--load_clusters', action='store_true')
+    parser.add_argument('-ld', action='store_true')
+    parser.add_argument('-le', action='store_true')
+    parser.add_argument('-lc', action='store_true')
+    parser.add_argument('-sla', action='store_true')
+    parser.add_argument('-sca', action='store_true')
+    parser.add_argument('-ss', action='store_true')
     args = parser.parse_args()
     
     # Logging and warning setup
     logging.basicConfig(level=logging.INFO)
     warnings.filterwarnings("ignore", category=UserWarning) 
     
-    main(args)
+    config = get_config('./config.yaml')
+    main(args, config)
     

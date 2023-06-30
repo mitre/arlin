@@ -2,7 +2,8 @@ import numpy as np
 import statistics
 
 from arlin.data_analysis.xrl_dataset import XRLDataset
-from arlin.data_analysis.analytics_graphing import GraphData, COLORS
+from arlin.data_analysis.analytics_graphing import GraphData
+from arlin.data_analysis.graphers.colors import COLORS
 
 class ClusterGrapher():
     
@@ -14,7 +15,6 @@ class ClusterGrapher():
         self.clusters = clusters
         self.num_clusters = len(np.unique(self.clusters))
         
-        _, cluster_sizes = np.unique(self.clusters, return_counts=True)
         start_cluster_ids, start_cluster_sizes = np.unique(self.clusters[self.dataset.start_indices], return_counts=True)
         done_cluster_ids, done_cluster_sizes = np.unique(self.clusters[self.dataset.done_indices], return_counts=True)
         
@@ -23,11 +23,11 @@ class ClusterGrapher():
         
         start_clusters = [cluster_id for cluster_id, cluster_size 
                           in zip(start_cluster_ids, start_cluster_sizes) 
-                          if (cluster_size / total_starts) > (1 / len(start_cluster_ids))]
+                          if (cluster_size / total_starts) > (1 / (len(start_cluster_ids)+2))]
         
         done_clusters = [cluster_id for cluster_id, cluster_size 
                          in zip(done_cluster_ids, done_cluster_sizes) 
-                         if (cluster_size / total_dones) > (1 / len(start_cluster_ids))]
+                         if (cluster_size / total_dones) > (1 / (len(start_cluster_ids)+2))]
         
         self.cluster_stage_colors = []
         

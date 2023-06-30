@@ -16,6 +16,8 @@ def save_data(data: Any, file_path: str) -> None:
     
     with open(file_path, 'wb') as handle:
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    
+    logging.info("\tData saved successfully.")
 
 def load_data(file_path: str) -> Any:
     """Load and return data from given file path:
@@ -30,5 +32,7 @@ def load_data(file_path: str) -> Any:
     data_file = open(file_path,'rb')
     data = pickle.load(data_file)
     data_file.close()
+    
+    logging.info("\tData loaded successfully.")
     
     return data

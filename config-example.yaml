@@ -1,24 +1,21 @@
-dataset_creation: False
-data_analysis: True
-
 DATASET_CREATION:
-  collect_episodes: False
-  num_collect: 50000
-  DATASET_CREATOR:
-    algorithm: dqn
-    environment: CartPole-v1
-    save_dir: ./data_zoo
-    load_path: NULL
+  algo_str: &algo_str ppo
+  environment: &env 'LunarLander-v2'
+  num_datapoints: &n_dp 50000
+  random: False
 
-DATA_ANALYSIS:
-  dataset_path: ./data_zoo/dqn-CartPole-v1-50000.pkl
+GET_DATA:
+  algo_str: *algo_str
+  environment: *env
+  num_datapoints: *n_dp
   EMBEDDINGS:
-    load_embeddings: True
-    num_components: 2
-    perplexity: 30
-    activation_key: latent_qs
+    activation_key: latent_actors
+    perplexity: 500
+    n_train_iter: 4000
   CLUSTERS:
-    load_clusters: True
-    num_clusters: 4
-    temporal_discount: 0.25
-    clustering_method: kgmeans
+    method: kmeans
+    num_clusters: 16
+
+SAMDP:
+  from_cluster: 3
+  to_cluster: 7
