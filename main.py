@@ -56,7 +56,7 @@ def get_data(cfg: Dict[str, Any],
     
     base_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}"
     embeddings_path = f"{base_path}/embeddings/{cfg['algo_str']}-{cfg['num_datapoints']}/{embed_cfg['activation_key']}/embeddings.pkl"
-    clusters_path = f"{base_path}/clusters/{cfg['algo_str']}-{cfg['num_datapoints']}/clusters_{cluster_cfg['method']}_{cluster_cfg['num_clusters']}'.pkl"
+    clusters_path = f"{base_path}/clusters/{cfg['algo_str']}-{cfg['num_datapoints']}/{cluster_cfg['num_clusters']}'.pkl"
     
     if load_embeddings:
         embeddings = da_utils.load_data(file_path=embeddings_path)
@@ -73,10 +73,9 @@ def get_data(cfg: Dict[str, Any],
     if load_clusters: 
         clusters = da_utils.load_data(file_path=clusters_path)
     else:
-        cluster_on = getattr(dataset, embed_cfg['activation_key'])
-        clusters = latent_analysis.generate_clusters(cluster_on=cluster_on,
-                                                     num_clusters=cluster_cfg['num_clusters'],
-                                                     clustering_method=cluster_cfg['method'])
+        clusters = latent_analysis.generate_clusters(dataset=dataset,
+                                                     embeddings=embeddings,
+                                                     num_clusters=cluster_cfg['num_clusters'])
         
         da_utils.save_data(data=clusters, file_path=clusters_path)
     
@@ -117,37 +116,40 @@ def graph_cluster_analytics(run_dir: str, dataset, clusters):
     
     cluster_conf = grapher.cluster_confidence()
     cluster_rewards = grapher.cluster_rewards()
+    cluster_values = grapher.cluster_values()
     
     base_path = os.path.join(run_dir, 'cluster_analytics')
-    for data in [[cluster_conf, 'cluster_confidence.png'], [cluster_rewards, 'cluster_rewards.png']]:
+    for data in [[cluster_conf, 'cluster_confidence.png'], 
+                 [cluster_rewards, 'cluster_rewards.png'],
+                 [cluster_values, 'cluster_values.png']
+                 ]:
         path = os.path.join(base_path, data[1])
         analytics_graphing.graph_individual_data(path, data[0])
     
     combined_path = os.path.join(base_path, 'combined_analytics.png')
     analytics_graphing.graph_multiple_data(file_path=combined_path, 
                                            figure_title='Cluster Analytics', 
-                                           graph_datas=[cluster_rewards, cluster_conf])
+                                           graph_datas=[cluster_rewards, cluster_values])
 
 def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     samdp = SAMDP(clusters, dataset)
     
     base_path = os.path.join(run_dir, 'samdp')
     
-    # complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
-    # et_graph = samdp.save_early_termination_paths(f'{base_path}/samdp_et.png')
+    complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
     likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
-    #simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
+    simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
     
-    path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
+    # path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
     
-    samdp.save_paths(cfg['from_cluster'], 
-                     cfg['to_cluster'], 
-                     f'./outputs/samdp/{path_path}.png')
+    # samdp.save_paths(cfg['from_cluster'], 
+    #                  cfg['to_cluster'], 
+    #                  f'./outputs/samdp/{path_path}.png')
     
-    samdp.save_paths(cfg['from_cluster'], 
-                     cfg['to_cluster'], 
-                     f'./outputs/samdp/{path_path}_bp.png', 
-                     best_path_only=True)
+    # samdp.save_paths(cfg['from_cluster'], 
+    #                  cfg['to_cluster'], 
+    #                  f'./outputs/samdp/{path_path}_bp.png', 
+    #                  best_path_only=True)
     #samdp.save_txt(f'{base_path}}/samdp.txt')
 
 def main(args, cfg: Dict[str, Any]) -> None:
@@ -163,7 +165,7 @@ def main(args, cfg: Dict[str, Any]) -> None:
                                     load_embeddings=args.le,
                                     load_clusters=args.lc)
     
-    run_dir = f"./outputs/{cfg['GET_DATA']['CLUSTERS']['method']}-{cfg['GET_DATA']['CLUSTERS']['num_clusters']}/"
+    run_dir = f"./outputs/{cfg['GET_DATA']['CLUSTERS']['num_clusters']}-clusters/"
     
     if not args.sla:
         graph_latent_analytics(run_dir, embeddings, clusters, dataset)
@@ -176,12 +178,12 @@ def main(args, cfg: Dict[str, Any]) -> None:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-ld', action='store_true')
-    parser.add_argument('-le', action='store_true')
-    parser.add_argument('-lc', action='store_true')
-    parser.add_argument('-sla', action='store_true')
-    parser.add_argument('-sca', action='store_true')
-    parser.add_argument('-ss', action='store_true')
+    parser.add_argument('-ld', help='load dataset', action='store_true')
+    parser.add_argument('-le', help='load embeddings', action='store_true')
+    parser.add_argument('-lc', help='load clusters', action='store_true')
+    parser.add_argument('-sla', help='skip latent analysis', action='store_true')
+    parser.add_argument('-sca', help='skip cluster analysis', action='store_true')
+    parser.add_argument('-ss', help='skip samdp', action='store_true')
     args = parser.parse_args()
     
     # Logging and warning setup

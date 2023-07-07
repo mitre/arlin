@@ -6,9 +6,10 @@ from sklearn.cluster import (
     KMeans, 
     AgglomerativeClustering, 
     SpectralClustering, 
-    OPTICS, 
+    OPTICS,
     MeanShift
 )
+from tslearn.clustering import TimeSeriesKMeans
 import time
 
 np.random.seed(1234)
@@ -41,45 +42,71 @@ def generate_embeddings(
     
     end = time.time()
     
-    logging.info(f"Successfully generated embeddings in {end - start} seconds.")
+    logging.info(f"\tSuccessfully generated embeddings in {end - start} seconds.")
     
     return np.array(embeddings)
 
+def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
+    cluster_on_start = dataset.critic_values[dataset.start_indices].reshape(-1, 1)
+    cluster_on_done = dataset.total_rewards[dataset.done_indices].reshape(-1, 1)
+    
+    mask = np.ones([len(dataset.dones)], dtype=bool)
+    mask[dataset.start_indices] = False
+    mask[dataset.done_indices] = False
+    
+    embeddings = embeddings[mask]
+    actions = np.expand_dims(dataset.actions[mask], axis=-1)
+    values = np.expand_dims(dataset.critic_values[mask], axis=-1)
+    steps = np.expand_dims(dataset.steps[mask], axis=-1)
+    rewards = np.expand_dims(dataset.rewards[mask], axis=-1)
+    total_rewards = np.expand_dims(dataset.total_rewards[mask], axis=-1)
+    confidences = np.expand_dims(np.amax(dataset.dist_probs, axis=1)[mask], axis=-1)
+    
+    cluster_on = np.concatenate([embeddings,
+                                 actions,
+                                 values,
+                                 steps,
+                                 rewards,
+                                 total_rewards,
+                                 confidences], axis=-1)
+    
+    return cluster_on, mask, cluster_on_start, cluster_on_done
+
 def generate_clusters(
-    cluster_on: np.ndarray,
-    num_clusters: int,
-    clustering_method: str = 'kmeans'
+    dataset: XRLDataset,
+    embeddings: np.ndarray,
+    num_clusters: int
 ) -> np.ndarray:
     
-    logging.info(f"Generating clusters using the {clustering_method} method.")
+    logging.info(f"Generating {num_clusters} clusters.")
     
     start = time.time()
     
-    clustering_method = clustering_method.lower()
-    if clustering_method == 'kmeans':
-        clusters = KMeans(n_clusters=num_clusters,
-                          n_init='auto').fit(cluster_on)
-        
-    elif clustering_method == 'hac':
-        clusters = AgglomerativeClustering(n_clusters=num_clusters, 
-                                           metric='euclidean', 
-                                           linkage='ward').fit(cluster_on)
-        
-    elif clustering_method == 'spectral':
-        clusters = SpectralClustering(n_clusters=num_clusters, 
-                                      assign_labels='cluster_qr', 
-                                      random_state=0).fit(cluster_on)
+    (cluster_on, 
+     cluster_on_mask, 
+     cluster_on_start, 
+     cluster_on_done) = _get_cluster_ons(dataset, embeddings)
     
-    elif clustering_method == 'optics':
-        clusters = OPTICS(min_samples=500).fit(cluster_on)
-        
-    elif clustering_method == 'meanshift':
-        clusters = MeanShift().fit(cluster_on)
+    start_clusters = MeanShift().fit(cluster_on_start)
+    done_clusters = MeanShift().fit(cluster_on_done)
+    mid_clusters = KMeans(n_clusters=num_clusters, n_init='auto').fit(cluster_on)
     
-    else:
-        raise NotImplementedError(f'{clustering_method} is not currently supported.')
+    start_clusters = start_clusters.labels_
+    done_clusters = done_clusters.labels_
+    mid_clusters = mid_clusters.labels_
+    
+    n_clusters = len(set(mid_clusters))
+    n_start_clusters = len(set(start_clusters))
+    
+    start_clusters = np.array([x+n_clusters for x in start_clusters], dtype=int)
+    done_clusters = np.array([x+n_start_clusters+n_clusters for x in done_clusters], dtype=int)
+    
+    clusters = np.empty([len(dataset.dones)], dtype=int)
+    clusters[cluster_on_mask] = mid_clusters
+    clusters[dataset.start_indices] = start_clusters
+    clusters[dataset.done_indices] = done_clusters
     
     end = time.time()
-    logging.info(f"Successfully generated clusters in {end - start} seconds.")
+    logging.info(f"\tSuccessfully generated clusters in {end - start} seconds.")
     
-    return clusters.labels_
+    return clusters

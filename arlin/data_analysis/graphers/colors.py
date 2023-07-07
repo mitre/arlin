@@ -6,6 +6,7 @@ base = mcl.BASE_COLORS
 
 COLORS = [
     base['b'],
+    tableau['tab:orange'],
     base['g'],
     base['r'],
     base['c'],
@@ -13,7 +14,6 @@ COLORS = [
     base['y'],
     base['k'],
     tableau['tab:blue'],
-    tableau['tab:orange'],
     tableau['tab:green'],
     tableau['tab:red'],
     tableau['tab:purple'],

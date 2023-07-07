@@ -15,19 +15,8 @@ class ClusterGrapher():
         self.clusters = clusters
         self.num_clusters = len(np.unique(self.clusters))
         
-        start_cluster_ids, start_cluster_sizes = np.unique(self.clusters[self.dataset.start_indices], return_counts=True)
-        done_cluster_ids, done_cluster_sizes = np.unique(self.clusters[self.dataset.done_indices], return_counts=True)
-        
-        total_starts = sum(start_cluster_sizes)
-        total_dones = sum(done_cluster_sizes)
-        
-        start_clusters = [cluster_id for cluster_id, cluster_size 
-                          in zip(start_cluster_ids, start_cluster_sizes) 
-                          if (cluster_size / total_starts) > (1 / (len(start_cluster_ids)+2))]
-        
-        done_clusters = [cluster_id for cluster_id, cluster_size 
-                         in zip(done_cluster_ids, done_cluster_sizes) 
-                         if (cluster_size / total_dones) > (1 / (len(start_cluster_ids)+2))]
+        start_clusters = set(self.clusters[self.dataset.start_indices])
+        done_clusters = set(self.clusters[self.dataset.done_indices])
         
         self.cluster_stage_colors = []
         
@@ -100,6 +89,36 @@ class ClusterGrapher():
             error_bars=stdevs,
             xlabel='Cluster ID',
             ylabel='Mean Total Reward',
+            showall=True
+        )
+        
+        return cluster_reward_data
+    
+    def cluster_values(self) -> GraphData:
+        
+        cluster_value = [[] for _ in range(self.num_clusters)]
+        
+        for e, i in enumerate(self.clusters):
+            value = self.dataset.critic_values[e].astype(np.float64)
+            cluster_value[i].append(value)
+            
+        means = []
+        stdevs = []
+        
+        for i in range(self.num_clusters):
+            means.append(statistics.mean(cluster_value[i]))
+            stdevs.append(statistics.stdev(cluster_value[i]))
+        
+        title = "Cluster Value Analysis"
+        
+        cluster_reward_data = GraphData(
+            x=[i for i in range(self.num_clusters)],
+            y=means,
+            title=title,
+            colors=self.cluster_stage_colors,
+            error_bars=stdevs,
+            xlabel='Cluster ID',
+            ylabel='Mean Value',
             showall=True
         )
         

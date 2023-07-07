@@ -258,7 +258,7 @@ class SAMDP():
                                    edgelist=[edge], 
                                    connectionstyle=f"arc3,rad={edge_arcs[i]}",
                                    edge_color=edge[2]['color'],
-                                   alpha=edge[2]['weight'],
+                                   alpha=max(0, min(edge[2]['weight'] + 0.1, 1)),
                                    node_size=4000, 
                                    arrowsize=25)
         
@@ -298,7 +298,7 @@ class SAMDP():
                                     edgelist=[edge], 
                                     connectionstyle=f"arc3,rad={edge_arcs[i]}",
                                     edge_color=edge[3]['color'],
-                                    alpha=edge[3]['weight'],
+                                    alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
                                     node_size=4000, 
                                     arrowsize=25)
         
@@ -309,67 +309,6 @@ class SAMDP():
         plt.close()
         
         return G
-    
-    def save_early_termination_paths(self, file_path: str):
-        _ = plt.figure(figsize=(15, 15))
-        plt.title('SAMDP Early Termination Paths')
-        
-        start_clusters = list(set(self.clusters[self.dataset.start_indices]))
-        done_clusters = list(set(self.clusters[self.dataset.done_indices]))
-        initial_nodes = [f'Cluster {i}' for i in start_clusters]
-        terminal_nodes = [f'Cluster {i}' for i in done_clusters]
-        
-        edges = []
-        for edge in self.graph.edges:
-            if edge[0] in initial_nodes and edge[1] in terminal_nodes:
-                edges.append(edge)
-        
-        subgraph = nx.edge_subgraph(self.graph, edges)
-        
-        pos = {}
-        initial = 0
-        terminal = 0
-        colors = []
-        node_edges = []
-        labels = {}
-        for node in subgraph.nodes(data=True):
-            if node[0] in initial_nodes:
-                pos[node[0]] = (0, initial)
-                initial += 1
-            
-            if node[0] in terminal_nodes:
-                pos[node[0]] = (1, terminal)
-                terminal += 1
-            
-            colors.append(node[1]['color'])
-            node_edges.append(node[1]['edge_color'])
-            labels[node[0]] = node[0]
-        
-        nx.draw_networkx_nodes(subgraph, 
-                               pos,
-                               node_size=4100,
-                               node_color=colors,
-                               edgecolors=node_edges,
-                               linewidths=5)
-
-        nx.draw_networkx_labels(subgraph, pos, labels=labels, font_color='whitesmoke')
-        
-        for edge in subgraph.edges(data=True, keys=True):
-            nx.draw_networkx_edges(subgraph, 
-                                        pos, 
-                                        edgelist=[edge], 
-                                        connectionstyle=f"arc3,rad={0.1 * edge[2]}",
-                                        edge_color=edge[3]['color'],
-                                        alpha=edge[3]['weight'],
-                                        node_size=4000, 
-                                        arrowsize=25)
-        plt.tight_layout()
-        logging.info(f"Saving SAMDP early termination paths png to {file_path}...")
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        plt.savefig(file_path, format="PNG")
-        plt.close()
-        
-        return subgraph
     
     def save_likely_paths(self, file_path: str):
         _ = plt.figure(figsize=(40,20))
@@ -407,7 +346,7 @@ class SAMDP():
                                    edgelist=[edge], 
                                    connectionstyle=f"arc3,rad={edge_arcs[i]}",
                                    edge_color=edge[3]['color'],
-                                   alpha=edge[3]['weight'],
+                                   alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
                                    node_size=4000, 
                                    arrowsize=25)
         
@@ -564,7 +503,7 @@ class SAMDP():
                                    edgelist=[edge], 
                                    connectionstyle=f"arc3,rad={edge_arcs[i]}",
                                    edge_color=edge[3]['color'],
-                                   alpha=edge[3]['weight'],
+                                   alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
                                    node_size=4000, 
                                    arrowsize=25)
         
