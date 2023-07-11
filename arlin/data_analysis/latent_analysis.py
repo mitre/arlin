@@ -2,14 +2,8 @@ import numpy as np
 import logging
 from arlin.data_analysis.xrl_dataset import XRLDataset
 from sklearn.manifold import TSNE
-from sklearn.cluster import (
-    KMeans, 
-    AgglomerativeClustering, 
-    SpectralClustering, 
-    OPTICS,
-    MeanShift
-)
-from tslearn.clustering import TimeSeriesKMeans
+from sklearn.cluster import KMeans, MeanShift
+
 import time
 
 np.random.seed(1234)

@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 import networkx as nx
 import logging
+import copy
 import os
 from prettytable import PrettyTable
 import matplotlib.pyplot as plt
@@ -423,7 +424,8 @@ class SAMDP():
                    from_cluster_id: int, 
                    to_cluster_id: int,
                    file_path: str,
-                   best_path_only: bool = False):
+                   best_path_only: bool = False,
+                   verbose=False):
         """Find simple paths between two clusters within SAMDP.
 
         Args:
@@ -438,16 +440,19 @@ class SAMDP():
         
         logging.info(f'Finding paths from {from_cluster} to {to_cluster}...')
         
-        simplified_graph = self._generate_simplified_graph()
+        if verbose:
+            graph = copy.deepcopy(self.graph)
+        else:
+            graph = self._generate_simplified_graph()
         
-        out_edges = simplified_graph.out_edges(from_cluster)
-        simplified_graph.remove_edges_from(list(out_edges))
+            out_edges = graph.out_edges(from_cluster)
+            graph.remove_edges_from(list(out_edges))
+            
+            action_out_edges = self.graph.out_edges(from_cluster, data=True, keys=True)
+            
+            graph.add_edges_from(list(action_out_edges))
         
-        action_out_edges = self.graph.out_edges(from_cluster, data=True, keys=True)
-        
-        simplified_graph.add_edges_from(list(action_out_edges))
-        
-        paths = list(nx.all_simple_edge_paths(simplified_graph, 
+        paths = list(nx.all_simple_edge_paths(graph, 
                                               from_cluster, 
                                               to_cluster))
         
@@ -457,7 +462,7 @@ class SAMDP():
         for path in paths:
             data_path = []
             for edge in path:
-                edge_data = simplified_graph.get_edge_data(edge[0], edge[1], edge[2])
+                edge_data = graph.get_edge_data(edge[0], edge[1], edge[2])
                 updated_edge = (edge[0], edge[1], edge[2], edge_data)
                 data_path.append(updated_edge)
                 
@@ -480,7 +485,7 @@ class SAMDP():
             for edge in best_path:
                 edge_list.append((edge[0], edge[1], edge[2]))
         
-        subgraph = nx.edge_subgraph(simplified_graph, edge_list)
+        subgraph = nx.edge_subgraph(graph, edge_list)
         
         pos = self._generate_bfs_pos()
         edge_arcs = self._generate_edge_arcs(pos, edge_list)
@@ -512,4 +517,86 @@ class SAMDP():
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         plt.savefig(file_path, format="PNG")
         plt.close()
+    
+    def save_all_paths_to(self, 
+                          to_cluster_id: int, 
+                          file_path: str,
+                          verbose: bool = False):
+        to_cluster = f'Cluster {to_cluster_id}'
         
+        _ = plt.figure(figsize=(40,20))
+        plt.title(f'All SAMDP Paths to {to_cluster} to {to_cluster}')
+        
+        logging.info(f'Finding paths to {to_cluster}...')
+        
+        if verbose:
+            graph = copy.deepcopy(self.graph)
+        else:
+            graph = self._generate_simplified_graph()
+            
+            in_edges = graph.in_edges(to_cluster)
+            graph.remove_edges_from(list(in_edges))
+            
+            action_in_edges = self.graph.in_edges(to_cluster, data=True, keys=True)
+            
+            graph.add_edges_from(list(action_in_edges))
+        
+        paths = []
+        
+        for node in graph.nodes():
+            if node == to_cluster:
+                continue
+            
+            paths += list(nx.all_simple_edge_paths(graph, 
+                                                  node, 
+                                                  to_cluster))
+            
+        
+        updated_paths = []
+        full_edge_list = []
+        edge_list = []
+        for path in paths:
+            data_path = []
+            for edge in path:
+                edge_data = graph.get_edge_data(edge[0], edge[1], edge[2])
+                updated_edge = (edge[0], edge[1], edge[2], edge_data)
+                data_path.append(updated_edge)
+                
+                if updated_edge not in full_edge_list:
+                    full_edge_list.append(updated_edge)
+                    edge_list.append(edge)
+            
+            updated_paths.append(data_path)
+        
+        subgraph = nx.edge_subgraph(graph, edge_list)
+        
+        pos = self._generate_bfs_pos()
+        edge_arcs = self._generate_edge_arcs(pos, edge_list)
+        
+        colors = [node[1]['color'] for node in subgraph.nodes(data=True)]
+        node_edges = [node[1]['edge_color'] for node in subgraph.nodes(data=True)]
+        
+        nx.draw_networkx_nodes(subgraph, 
+                               pos,
+                               node_size=4100,
+                               node_color=colors,
+                               edgecolors=node_edges,
+                               linewidths=5)
+        
+        nx.draw_networkx_labels(subgraph, pos, font_color='whitesmoke')
+        
+        for i, edge in enumerate(full_edge_list):
+            nx.draw_networkx_edges(subgraph, 
+                                   pos, 
+                                   edgelist=[edge], 
+                                   connectionstyle=f"arc3,rad={edge_arcs[i]}",
+                                   edge_color=edge[3]['color'],
+                                   alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
+                                   node_size=4000, 
+                                   arrowsize=25)
+        
+        plt.tight_layout()
+        logging.info(f"Saving all SAMDP paths to {to_cluster} png to {file_path}...")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        plt.savefig(file_path, format="PNG")
+        plt.close()

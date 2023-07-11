@@ -1,6 +1,6 @@
-from typing import Union, Dict, Any
+from typing import Dict, Any
 import os
-import gym
+import gymnasium as gym
 import arlin.utils.dataset_creation_utils as utils
 from tqdm import tqdm
 import pickle
@@ -32,12 +32,18 @@ def load_hf_sb_model(repo_id: str,
     model = algorithm.load(checkpoint_path)
     
     return model
+
+def load_sb_model(path: str, algo_str: str):
+    algorithm = utils.get_algo(algo_str.lower())
+    model = algorithm.load(path)
+    
+    return model
+    
     
 def collect_episodes(model,
                      algo_str: str,
                      env: gym.Env,
-                     num_episodes: int, 
-                     random: bool = False
+                     num_episodes: int
                      ) -> Dict[str, Any]:
     """
     Collect episodes needed for an XRL dataset.
@@ -63,9 +69,6 @@ def collect_episodes(model,
         while not done:
             action = gatherer.gather_data(obs, datapoint_dict)
             
-            if random:
-                action = env.action_space.sample()
-            
             obs, reward, done, _, _ = env.step(action)
             total_reward += reward
             datapoint_dict.add_base_data(obs, action, reward, total_reward, done, step)
@@ -76,8 +79,7 @@ def collect_episodes(model,
 def collect_datapoints(model,
                        algo_str: str,
                        env: gym.Env,
-                       num_datapoints: int, 
-                       random: bool = False
+                       num_datapoints: int
                        ) -> Dict[str, Any]:
     """
     Collect datapoints needed for an XRL dataset.
@@ -99,9 +101,6 @@ def collect_datapoints(model,
     step = 0
     for _ in tqdm(range(num_datapoints)):
         action = gatherer.gather_data(obs, datapoint_dict)
-        
-        if random:
-            action = env.action_space.sample()
             
         obs, reward, done, _, _ = env.step(action)
         total_reward += reward

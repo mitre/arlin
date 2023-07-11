@@ -27,18 +27,52 @@ def get_config(config_path: str) -> Dict[str, Any]:
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
+def simple_strike_setup():
+    from simplestrike.adr import CurriculumManager
+    from gymnasium.envs.registration import register
+    from simplestrike.simple_strike import SimpleStrikeEnv
+    
+    register(
+        id="SimpleStrike-v0",
+        entry_point="simplestrike.simple_strike:SimpleStrikeEnv",
+        reward_threshold=1.0,
+        nondeterministic=True,
+    )
+    
+    debug_config = "./simplestrike/config.yaml"
+    with open(debug_config, "r") as file:
+        cfg = yaml.safe_load(file)
+        
+    SCENARIO_CONFIG_PATH = cfg.get("SCENARIO_CONFIG_PATH")
+    with open(SCENARIO_CONFIG_PATH, "r") as file:
+        scenario_config = yaml.safe_load(file)
+    cm = CurriculumManager(scenario_config, cfg["LESSON_PLAN"])
+    lesson = cm.create_lesson(adr_lvls=(0, 0, 0, 0, 0, 0, 0))
+    
+    return {'lesson_config': lesson}
 
 def dataset_creation(cfg: Dict[str, Any]):
-    model = dataset_creator.load_hf_sb_model(repo_id=f"sb3/{cfg['algo_str']}-{cfg['environment']}",
-                                             filename=f"{cfg['algo_str']}-{cfg['environment']}.zip",
-                                             algo_str=cfg['algo_str'])
-    env = gym.make(cfg['environment'])
+    
+    path = cfg['model_path']
+    if path is None:
+        model = dataset_creator.load_hf_sb_model(repo_id=f"sb3/{cfg['algo_str']}-{cfg['environment']}",
+                                                filename=f"{cfg['algo_str']}-{cfg['environment']}.zip",
+                                                algo_str=cfg['algo_str'])
+    else:
+        model = dataset_creator.load_sb_model(path=path, 
+                                              algo_str=cfg['algo_str'])
+    
+    if cfg['environment'] == 'SimpleStrike-v0':
+        env_cfg = simple_strike_setup()
+    else:
+        env_cfg = {}
+        
+    env = gym.make(cfg['environment'], **env_cfg)
     
     datapoints = dataset_creator.collect_datapoints(model=model,
                                                    algo_str=cfg['algo_str'],
                                                    env=env,
-                                                   num_datapoints=cfg['num_datapoints'],
-                                                   random=cfg['random'])
+                                                   num_datapoints=cfg['num_datapoints'])
     
     save_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}.pkl"
     dataset_creator.save_datapoints(datapoint_dict=datapoints, 
@@ -140,17 +174,30 @@ def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
     simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
     
-    # path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
+    path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
     
     # samdp.save_paths(cfg['from_cluster'], 
     #                  cfg['to_cluster'], 
-    #                  f'./outputs/samdp/{path_path}.png')
+    #                  f'{path_path}.png')
     
     # samdp.save_paths(cfg['from_cluster'], 
     #                  cfg['to_cluster'], 
-    #                  f'./outputs/samdp/{path_path}_bp.png', 
+    #                  f'{path_path}_verbose.png', 
+    #                  verbose=True)
+    
+    # samdp.save_paths(cfg['from_cluster'], 
+    #                  cfg['to_cluster'], 
+    #                  f'{path_path}_bp.png', 
     #                  best_path_only=True)
-    #samdp.save_txt(f'{base_path}}/samdp.txt')
+    
+    samdp.save_all_paths_to(cfg['to_cluster'], 
+                            os.path.join(base_path, f"samdp_path_to_{cfg['to_cluster']}_verbose.png"),
+                            verbose=True)
+    
+    samdp.save_all_paths_to(cfg['to_cluster'], 
+                            os.path.join(base_path, f"samdp_path_to_{cfg['to_cluster']}.png"))
+    
+    # samdp.save_txt(f'{base_path}/samdp.txt')
 
 def main(args, cfg: Dict[str, Any]) -> None:
     if not args.ld:
@@ -158,14 +205,15 @@ def main(args, cfg: Dict[str, Any]) -> None:
     else:
         data_cfg = cfg['DATASET_CREATION']
         dataset_path = f"/nfs/lslab2/arlin/data_zoo/{data_cfg['environment']}/{data_cfg['algo_str']}-{data_cfg['num_datapoints']}.pkl"
-        dataset = XRLDataset(dataset_path=dataset_path)
+    
+    dataset = XRLDataset(dataset_path=dataset_path)
         
     embeddings, clusters = get_data(cfg['GET_DATA'],
                                     dataset,
                                     load_embeddings=args.le,
                                     load_clusters=args.lc)
     
-    run_dir = f"./outputs/{cfg['GET_DATA']['CLUSTERS']['num_clusters']}-clusters/"
+    run_dir = f"./outputs/{cfg['DATASET_CREATION']['environment']}-{cfg['GET_DATA']['CLUSTERS']['num_clusters']}_clusters/"
     
     if not args.sla:
         graph_latent_analytics(run_dir, embeddings, clusters, dataset)
