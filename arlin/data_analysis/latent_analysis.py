@@ -51,16 +51,12 @@ def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
     embeddings = embeddings[mask]
     actions = np.expand_dims(dataset.actions[mask], axis=-1)
     values = np.expand_dims(dataset.critic_values[mask], axis=-1)
-    steps = np.expand_dims(dataset.steps[mask], axis=-1)
-    rewards = np.expand_dims(dataset.rewards[mask], axis=-1)
     total_rewards = np.expand_dims(dataset.total_rewards[mask], axis=-1)
     confidences = np.expand_dims(np.amax(dataset.dist_probs, axis=1)[mask], axis=-1)
     
     cluster_on = np.concatenate([embeddings,
                                  actions,
                                  values,
-                                 steps,
-                                 rewards,
                                  total_rewards,
                                  confidences], axis=-1)
     
