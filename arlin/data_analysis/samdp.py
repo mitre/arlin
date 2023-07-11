@@ -387,7 +387,7 @@ class SAMDP():
         """
         
         if len(paths) == 0:
-            logging.info(f"No paths found from {from_cluster} to {to_cluster}.")
+            logging.info(f"\tNo paths found from {from_cluster} to {to_cluster}.")
             return {}, []
         
         probs = {}
@@ -440,6 +440,14 @@ class SAMDP():
         """
         from_cluster = f'Cluster {from_cluster_id}'
         to_cluster = f'Cluster {to_cluster_id}'
+        
+        if from_cluster not in self.graph.nodes():
+            logging.warning(f"{from_cluster} is not a valid cluster.")
+            return
+        
+        if to_cluster not in self.graph.nodes():
+            logging.warning(f"{to_cluster} is not a valid cluster.")
+            return
         
         _ = plt.figure(figsize=(40,20))
         plt.title(f'SAMDP Paths from {from_cluster} to {to_cluster}')
@@ -530,6 +538,10 @@ class SAMDP():
                           verbose: bool = False):
         to_cluster = f'Cluster {to_cluster_id}'
         
+        if to_cluster not in self.graph.nodes():
+            logging.warning(f"{to_cluster} is not a valid cluster.")
+            return
+        
         _ = plt.figure(figsize=(40,20))
         plt.title(f'All SAMDP Paths to {to_cluster} to {to_cluster}')
         
@@ -556,7 +568,10 @@ class SAMDP():
             paths += list(nx.all_simple_edge_paths(graph, 
                                                   node, 
                                                   to_cluster))
-            
+
+        if len(paths) == 0:
+            logging.info(f"\tNo paths found  to {to_cluster}.")
+            return
         
         updated_paths = []
         full_edge_list = []
