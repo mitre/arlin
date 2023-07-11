@@ -220,14 +220,20 @@ class SAMDP():
         return pos
     
     def _generate_edge_arcs(self, pos, edges: List):
-    
+
         edge_arcs = []
         for edge in edges:              
             from_node_x, from_node_y = pos[edge[0]]
             to_node_x, to_node_y = pos[edge[1]]
             
+            reverse_edge = False
+            for r_edge in edges:
+                if edge[0] == r_edge[1] and edge[1] == r_edge[0]:
+                    reverse_edge = True
+                    break
+            
             arc = edge[2]
-            if from_node_x == to_node_x or from_node_y == to_node_y:
+            if (from_node_x == to_node_x or from_node_y == to_node_y) or reverse_edge:
                 arc += 1
             
             edge_arcs.append(0.05*arc)
