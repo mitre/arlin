@@ -6,11 +6,13 @@ import os
 import warnings
 import gymnasium as gym
 
+import arlin.dataset.loaders as loaders
+from arlin.dataset import XRLDataset
+from arlin.dataset.collectors import SB3PPODataCollector, SB3PPODatapoint
+
 import arlin.data_analysis.latent_analysis as latent_analysis
 import arlin.data_analysis.analytics_graphing as analytics_graphing
 from arlin.data_analysis.graphers import ClusterGrapher, LatentGrapher
-import arlin.dataset_creation.dataset_creator as dataset_creator
-from arlin.data_analysis.xrl_dataset import XRLDataset
 from arlin.data_analysis.samdp import SAMDP
 import arlin.utils.data_analysis_utils as da_utils
 
@@ -51,34 +53,37 @@ def simple_strike_setup():
     
     return {'lesson_config': lesson}
 
-def dataset_creation(cfg: Dict[str, Any]):
-    
-    path = cfg['model_path']
-    if path is None:
-        model = dataset_creator.load_hf_sb_model(repo_id=f"sb3/{cfg['algo_str']}-{cfg['environment']}",
-                                                filename=f"{cfg['algo_str']}-{cfg['environment']}.zip",
-                                                algo_str=cfg['algo_str'])
-    else:
-        model = dataset_creator.load_sb_model(path=path, 
-                                              algo_str=cfg['algo_str'])
+def dataset_creation(cfg: Dict[str, Any], load_dataset: bool = False):
     
     if cfg['environment'] == 'SimpleStrike-v0':
         env_cfg = simple_strike_setup()
     else:
         env_cfg = {}
-        
+            
     env = gym.make(cfg['environment'], **env_cfg)
     
-    datapoints = dataset_creator.collect_datapoints(model=model,
-                                                   algo_str=cfg['algo_str'],
-                                                   env=env,
-                                                   num_datapoints=cfg['num_datapoints'])
+    path = cfg['model_path']
+    if path is None:
+        model = loaders.load_hf_sb_model(repo_id=f"sb3/{cfg['algo_str']}-{cfg['environment']}",
+                                            filename=f"{cfg['algo_str']}-{cfg['environment']}.zip",
+                                            algo_str=cfg['algo_str'])
+    else:
+        model = loaders.load_sb_model(path=path, algo_str=cfg['algo_str'])
+            
+    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
+                                    policy=model.policy)
+    dataset = XRLDataset(env, collector=collector)
     
-    save_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}.pkl"
-    dataset_creator.save_datapoints(datapoint_dict=datapoints, 
-                                    file_path=save_path)
+    dataset_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}-test.pkl"
     
-    return save_path
+    if load_dataset:
+        dataset.load(dataset_path)
+    else:
+        dataset.fill(num_datapoints=cfg['num_datapoints'])
+        dataset.analyze_dataset()
+        dataset.save(file_path=dataset_path)
+    
+    return dataset
 
 def get_data(cfg: Dict[str, Any],
              dataset, 
@@ -176,37 +181,31 @@ def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     
     path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
     
-    # samdp.save_paths(cfg['from_cluster'], 
-    #                  cfg['to_cluster'], 
-    #                  f'{path_path}.png')
+    samdp.save_paths(cfg['from_cluster'], 
+                     cfg['to_cluster'], 
+                     f'{path_path}.png')
     
-    # samdp.save_paths(cfg['from_cluster'], 
-    #                  cfg['to_cluster'], 
-    #                  f'{path_path}_verbose.png', 
-    #                  verbose=True)
+    samdp.save_paths(cfg['from_cluster'], 
+                     cfg['to_cluster'], 
+                     f'{path_path}_verbose.png', 
+                     verbose=True)
     
-    # samdp.save_paths(cfg['from_cluster'], 
-    #                  cfg['to_cluster'], 
-    #                  f'{path_path}_bp.png', 
-    #                  best_path_only=True)
+    samdp.save_paths(cfg['from_cluster'], 
+                     cfg['to_cluster'], 
+                     f'{path_path}_bp.png', 
+                     best_path_only=True)
     
     samdp.save_all_paths_to(cfg['to_cluster'], 
-                            os.path.join(base_path, f"samdp_path_to_{cfg['to_cluster']}_verbose.png"),
+                            os.path.join(base_path, f"samdp_paths_to_{cfg['to_cluster']}_verbose.png"),
                             verbose=True)
     
     samdp.save_all_paths_to(cfg['to_cluster'], 
-                            os.path.join(base_path, f"samdp_path_to_{cfg['to_cluster']}.png"))
+                            os.path.join(base_path, f"samdp_paths_to_{cfg['to_cluster']}.png"))
     
-    # samdp.save_txt(f'{base_path}/samdp.txt')
+    samdp.save_txt(f'{base_path}/samdp.txt')
 
 def main(args, cfg: Dict[str, Any]) -> None:
-    if not args.ld:
-        dataset_path = dataset_creation(cfg['DATASET_CREATION'])
-    else:
-        data_cfg = cfg['DATASET_CREATION']
-        dataset_path = f"/nfs/lslab2/arlin/data_zoo/{data_cfg['environment']}/{data_cfg['algo_str']}-{data_cfg['num_datapoints']}.pkl"
-    
-    dataset = XRLDataset(dataset_path=dataset_path)
+    dataset = dataset_creation(cfg['DATASET_CREATION'], load_dataset=args.ld)
         
     embeddings, clusters = get_data(cfg['GET_DATA'],
                                     dataset,

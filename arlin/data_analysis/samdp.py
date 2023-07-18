@@ -10,7 +10,7 @@ from arlin.data_analysis.graphers.colors import COLORS
 
 from typing import Dict, Tuple, List, Optional, Any
 
-from arlin.data_analysis.xrl_dataset import XRLDataset
+from arlin.dataset.xrl_dataset import XRLDataset
 
 class SAMDP():
     

@@ -1,7 +1,7 @@
 import numpy as np
 import statistics
 
-from arlin.data_analysis.xrl_dataset import XRLDataset
+from arlin.dataset.xrl_dataset import XRLDataset
 from arlin.data_analysis.analytics_graphing import GraphData
 from arlin.data_analysis.graphers.colors import COLORS
 
@@ -17,6 +17,8 @@ class ClusterGrapher():
         
         start_clusters = set(self.clusters[self.dataset.start_indices])
         done_clusters = set(self.clusters[self.dataset.done_indices])
+        
+        _, counts = np.unique(clusters, return_counts=True)
         
         self.cluster_stage_colors = []
         
@@ -77,7 +79,11 @@ class ClusterGrapher():
         
         for i in range(self.num_clusters):
             means.append(statistics.mean(cluster_reward[i]))
-            stdevs.append(statistics.stdev(cluster_reward[i]))
+            
+            try:
+                stdevs.append(statistics.stdev(cluster_reward[i]))
+            except:
+                stdevs.append(0)
         
         title = "Cluster Reward Analysis"
         
@@ -107,7 +113,11 @@ class ClusterGrapher():
         
         for i in range(self.num_clusters):
             means.append(statistics.mean(cluster_value[i]))
-            stdevs.append(statistics.stdev(cluster_value[i]))
+            
+            try:
+                stdevs.append(statistics.stdev(cluster_value[i]))
+            except:
+                stdevs.append(0)
         
         title = "Cluster Value Analysis"
         

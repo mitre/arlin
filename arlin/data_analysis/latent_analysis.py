@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from arlin.data_analysis.xrl_dataset import XRLDataset
+from arlin.dataset.xrl_dataset import XRLDataset
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, MeanShift
 

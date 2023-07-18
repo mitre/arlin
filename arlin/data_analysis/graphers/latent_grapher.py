@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib.patches import Patch
 
-from arlin.data_analysis.xrl_dataset import XRLDataset
+from arlin.dataset.xrl_dataset import XRLDataset
 from arlin.data_analysis.analytics_graphing import GraphData
 from arlin.data_analysis.graphers.colors import COLORS
 

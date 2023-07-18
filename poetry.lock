@@ -1449,6 +1449,35 @@ testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8 (<5)", "flake8-202
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
+name = "shimmy"
+version = "1.1.0"
+description = "An API conversion tool providing Gymnasium and PettingZoo bindings for popular external reinforcement learning environments."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Shimmy-1.1.0-py3-none-any.whl", hash = "sha256:0d2f44cdc3384b792336eb54002d23eb8c0ddb67580760e9c4e234fdf6077a69"},
+    {file = "Shimmy-1.1.0.tar.gz", hash = "sha256:028ff42861fd8fa168927631f8f8cb2bda4ffef67e65633c51bf3116792e1f88"},
+]
+
+[package.dependencies]
+gymnasium = ">=0.27.0"
+numpy = ">=1.18.0"
+
+[package.extras]
+all = ["ale-py (>=0.8.1,<0.9.0)", "bsuite (>=0.3.5)", "dm-control (>=1.0.10)", "dm-env (>=1.6)", "gym (>=0.26.2)", "h5py (>=3.7.0)", "imageio", "open-spiel (>=1.2)", "pettingzoo (>=1.23)"]
+atari = ["ale-py (>=0.8.1,<0.9.0)"]
+bsuite = ["bsuite (>=0.3.5)"]
+dm-control = ["dm-control (>=1.0.10)", "h5py (>=3.7.0)", "imageio"]
+dm-control-multi-agent = ["dm-control (>=1.0.10)", "h5py (>=3.7.0)", "imageio", "pettingzoo (>=1.23)"]
+dm-lab = ["dm-env (>=1.6)"]
+gym-v21 = ["gym (>=0.21.0,<0.26)", "pyglet (==1.5.11)"]
+gym-v26 = ["gym (>=0.26.2)"]
+meltingpot = ["pettingzoo (>=1.23)"]
+openspiel = ["open-spiel (>=1.2)", "pettingzoo (>=1.23)"]
+testing = ["autorom[accept-rom-license] (>=0.6.0,<0.7.0)", "pillow (>=9.3.0)", "pytest (==7.1.3)"]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1767,4 +1796,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c77da65613aa7c9dd9dfabe8c5d2e16b8f652a05de5c59620c67536dcb691f15"
+content-hash = "30f6f28b2c8a705ccd210fab8961235eb6f378508b84dde93f5d81d2db9f59f8"
