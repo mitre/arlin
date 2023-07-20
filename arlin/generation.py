@@ -81,12 +81,24 @@ def generate_clusters(
      cluster_on_start, 
      cluster_on_done) = _get_cluster_ons(dataset, embeddings)
     
-    start_clusters = MeanShift().fit(cluster_on_start)
-    done_clusters = MeanShift().fit(cluster_on_done)
-    mid_clusters = KMeans(n_clusters=num_clusters, n_init='auto').fit(cluster_on)
+    if len(cluster_on_start) == 0:
+        logging.warning('No start indices found in dataset.')
+        start_clusters = []
+    else:
+        start_clusters = MeanShift().fit(cluster_on_start)
+        start_clusters = start_clusters.labels_
     
-    start_clusters = start_clusters.labels_
-    done_clusters = done_clusters.labels_
+    if len(cluster_on_done) == 0:
+        logging.warning('No terminal indices found in dataset.')
+        done_clusters = []
+    else:
+        done_clusters = MeanShift().fit(cluster_on_done)
+        done_clusters = done_clusters.labels_
+        
+    if num_clusters > len(cluster_on):
+        raise ValueError(f'Not enough datapoints {len(cluster_on)} to create {num_clusters} clusters.')
+        
+    mid_clusters = KMeans(n_clusters=num_clusters, n_init='auto').fit(cluster_on)
     mid_clusters = mid_clusters.labels_
     
     n_clusters = len(set(mid_clusters))

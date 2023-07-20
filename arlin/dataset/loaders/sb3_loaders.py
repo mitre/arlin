@@ -1,4 +1,4 @@
-import arlin.utils.dataset_utils as utils
+import arlin.utils as utils
 import logging
 
 from stable_baselines3.common.base_class import BaseAlgorithm
@@ -36,7 +36,7 @@ def load_sb_model(path: str, algo_str: str) -> BaseAlgorithm:
     Returns:
         BaseAlgorithm: Trained SB3 model
     """
-    algorithm = utils.get_algo(algo_str.lower())
+    algorithm = utils.get_sb3_algo(algo_str.lower())
     model = algorithm.load(path)
     
     return model

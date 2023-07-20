@@ -6,10 +6,9 @@ import copy
 import os
 from prettytable import PrettyTable
 import matplotlib.pyplot as plt
-from arlin.data_analysis.graphers.colors import COLORS
-
 from typing import Dict, Tuple, List, Optional, Any
 
+from arlin.analysis.visualization.colors import COLORS
 from arlin.dataset.xrl_dataset import XRLDataset
 
 class SAMDP():

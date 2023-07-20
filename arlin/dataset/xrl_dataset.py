@@ -7,10 +7,8 @@ from tqdm import tqdm
 import dataclasses
 from typing import Dict, List, Type
 
-from arlin.dataset.collectors.base_collectors import (BaseDataCollector, 
-                                                      RandomDataCollector)
+from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector, BaseDatapoint
 
-from arlin.dataset.collectors.datapoints import BaseDatapoint
 
 class XRLDataset():
     
@@ -109,6 +107,12 @@ class XRLDataset():
         
         self.done_indices = done_indices
         self.start_indices = start_indices
+        
+        if len(self.start_indices) == 0:
+            logging.warning('No start indices identified.')
+        
+        if len(self.done_indices) == 0:
+            logging.warning('No terminal indices identified.')
     
     def _set_distinct_state_data(self):
         """Extract the unique state indices and corresponding state mapping to identify

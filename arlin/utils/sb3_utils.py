@@ -5,7 +5,7 @@ from stable_baselines3.dqn import DQN
 from typing import Type
 
 
-def get_algo(algo_str: str) -> Type[BaseAlgorithm]:
+def get_sb3_algo(algo_str: str) -> Type[BaseAlgorithm]:
     """
     Get the Algorithm class based on given algorithms string.
 

@@ -10,11 +10,11 @@ import arlin.dataset.loaders as loaders
 from arlin.dataset import XRLDataset
 from arlin.dataset.collectors import SB3PPODataCollector, SB3PPODatapoint
 
-import arlin.data_analysis.latent_analysis as latent_analysis
-import arlin.data_analysis.analytics_graphing as analytics_graphing
-from arlin.data_analysis.graphers import ClusterGrapher, LatentGrapher
-from arlin.data_analysis.samdp import SAMDP
-import arlin.utils.data_analysis_utils as da_utils
+from arlin.generation import generate_clusters, generate_embeddings
+import arlin.analysis.visualization as viz
+from arlin.analysis import ClusterAnalyzer, LatentAnalyzer
+from arlin.samdp import SAMDP
+import arlin.utils.saving_loading as da_utils
 
 def get_config(config_path: str) -> Dict[str, Any]:
     """
@@ -100,7 +100,7 @@ def get_data(cfg: Dict[str, Any],
     if load_embeddings:
         embeddings = da_utils.load_data(file_path=embeddings_path)
     else:
-        embeddings = latent_analysis.generate_embeddings(dataset=dataset,
+        embeddings = generate_embeddings(dataset=dataset,
                                                         activation_key=embed_cfg['activation_key'],
                                                         perplexity=embed_cfg['perplexity'],
                                                         n_train_iter=embed_cfg['n_train_iter'],
@@ -112,7 +112,7 @@ def get_data(cfg: Dict[str, Any],
     if load_clusters: 
         clusters = da_utils.load_data(file_path=clusters_path)
     else:
-        clusters = latent_analysis.generate_clusters(dataset=dataset,
+        clusters = generate_clusters(dataset=dataset,
                                                      embeddings=embeddings,
                                                      num_clusters=cluster_cfg['num_clusters'])
         
@@ -121,7 +121,7 @@ def get_data(cfg: Dict[str, Any],
     return embeddings, clusters
         
 def graph_latent_analytics(run_dir:str, embeddings, clusters, dataset):
-    grapher = LatentGrapher(embeddings, dataset)
+    grapher = LatentAnalyzer(embeddings, dataset)
     
     embeddings_data = grapher.embeddings_graph_data()
     cluster_data = grapher.clusters_graph_data(clusters)
@@ -140,10 +140,10 @@ def graph_latent_analytics(run_dir:str, embeddings, clusters, dataset):
                  ]:
         path = os.path.join(base_path, data[1])
         
-        analytics_graphing.graph_individual_data(path, data[0])
+        viz.graph_individual_data(path, data[0])
     
     combined_path = os.path.join(base_path, 'combined_analytics.png')
-    analytics_graphing.graph_multiple_data(file_path=combined_path,
+    viz.graph_multiple_data(file_path=combined_path,
                                            figure_title='Latent Analytics', 
                                            graph_datas=[db_data, 
                                                         conf_data, 
@@ -151,7 +151,7 @@ def graph_latent_analytics(run_dir:str, embeddings, clusters, dataset):
                                                         ep_prog_data])
 
 def graph_cluster_analytics(run_dir: str, dataset, clusters):
-    grapher = ClusterGrapher(dataset, clusters)
+    grapher = ClusterAnalyzer(dataset, clusters)
     
     cluster_conf = grapher.cluster_confidence()
     cluster_rewards = grapher.cluster_rewards()
@@ -163,10 +163,10 @@ def graph_cluster_analytics(run_dir: str, dataset, clusters):
                  [cluster_values, 'cluster_values.png']
                  ]:
         path = os.path.join(base_path, data[1])
-        analytics_graphing.graph_individual_data(path, data[0])
+        viz.graph_individual_data(path, data[0])
     
     combined_path = os.path.join(base_path, 'combined_analytics.png')
-    analytics_graphing.graph_multiple_data(file_path=combined_path, 
+    viz.graph_multiple_data(file_path=combined_path, 
                                            figure_title='Cluster Analytics', 
                                            graph_datas=[cluster_rewards, cluster_values])
 

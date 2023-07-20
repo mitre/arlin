@@ -1,11 +1,11 @@
 import numpy as np
 import statistics
+from matplotlib.patches import Patch
 
-from arlin.dataset.xrl_dataset import XRLDataset
-from arlin.data_analysis.analytics_graphing import GraphData
-from arlin.data_analysis.graphers.colors import COLORS
+from arlin.dataset import XRLDataset
+from arlin.analysis.visualization import GraphData
 
-class ClusterGrapher():
+class ClusterAnalyzer():
     
     def __init__(self,
                  dataset: XRLDataset,
@@ -17,8 +17,6 @@ class ClusterGrapher():
         
         start_clusters = set(self.clusters[self.dataset.start_indices])
         done_clusters = set(self.clusters[self.dataset.done_indices])
-        
-        _, counts = np.unique(clusters, return_counts=True)
         
         self.cluster_stage_colors = []
         
@@ -53,11 +51,19 @@ class ClusterGrapher():
         
         title = "Cluster Confidence Analysis"
         
+        handles = [Patch(color='g'),
+                   Patch(color='r'),
+                   Patch(color='k')]
+        labels = ['Initial', 'Terminal', 'Intermediate']
+        leg_title = "Cluster Stage"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        
         cluster_conf_data = GraphData(
             x=[i for i in range(self.num_clusters)],
             y=means,
             title=title,
             colors=self.cluster_stage_colors,
+            legend=legend,
             error_bars=stdevs,
             xlabel='Cluster ID',
             ylabel='Mean Highest Action Confidence',
@@ -87,11 +93,19 @@ class ClusterGrapher():
         
         title = "Cluster Reward Analysis"
         
+        handles = [Patch(color='g'),
+                   Patch(color='r'),
+                   Patch(color='k')]
+        labels = ['Initial', 'Terminal', 'Intermediate']
+        leg_title = "Cluster Stage"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        
         cluster_reward_data = GraphData(
             x=[i for i in range(self.num_clusters)],
             y=means,
             title=title,
             colors=self.cluster_stage_colors,
+            legend=legend,
             error_bars=stdevs,
             xlabel='Cluster ID',
             ylabel='Mean Total Reward',
@@ -121,11 +135,19 @@ class ClusterGrapher():
         
         title = "Cluster Value Analysis"
         
+        handles = [Patch(color='g'),
+                   Patch(color='r'),
+                   Patch(color='k')]
+        labels = ['Initial', 'Terminal', 'Intermediate']
+        leg_title = "Cluster Stage"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        
         cluster_reward_data = GraphData(
             x=[i for i in range(self.num_clusters)],
             y=means,
             title=title,
             colors=self.cluster_stage_colors,
+            legend=legend,
             error_bars=stdevs,
             xlabel='Cluster ID',
             ylabel='Mean Value',

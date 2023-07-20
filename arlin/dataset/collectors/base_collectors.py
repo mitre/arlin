@@ -4,7 +4,6 @@ import gymnasium as gym
 import numpy as np
 
 from arlin.dataset.collectors import BaseDatapoint
-from arlin.dataset.collectors.datapoints import *
 
 class BaseDataCollector(ABC):
     def __init__(self, 
@@ -13,7 +12,7 @@ class BaseDataCollector(ABC):
     
     @abstractmethod
     def collect_internal_data(self, 
-                              observation: np.ndarray) -> Tuple[type[BaseDatapoint], int]:
+                              observation: np.ndarray) -> Tuple[Type[BaseDatapoint], int]:
         pass
 
 class RandomDataCollector(BaseDataCollector):
@@ -25,6 +24,6 @@ class RandomDataCollector(BaseDataCollector):
         self.env = environment
         
     def collect_internal_data(self,
-                              observation: np.ndarray) -> Tuple[type[BaseDatapoint], int]:
+                              observation: np.ndarray) -> Tuple[Type[BaseDatapoint], int]:
         action = self.env.action_space.sample()
         return self.datapoint_cls(), action
