@@ -140,7 +140,7 @@ class LatentAnalyzer():
         Generate data necessary for creating initial/terminal state graphs.
         """
 
-        colors = [COLORS[0] if i else '#F5F5F5' for i in self.dataset.dones]
+        colors = [COLORS[0] if i else '#F5F5F5' for i in self.dataset.terminateds]
         for i in self.dataset.start_indices:
             colors[i] = COLORS[1] 
         title = "Initial and Terminal States"

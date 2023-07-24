@@ -42,11 +42,11 @@ def generate_embeddings(
 
 def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
     cluster_on_start = dataset.critic_values[dataset.start_indices].reshape(-1, 1)
-    cluster_on_done = dataset.total_rewards[dataset.done_indices].reshape(-1, 1)
+    cluster_on_term = dataset.total_rewards[dataset.term_indices].reshape(-1, 1)
     
-    mask = np.ones([len(dataset.dones)], dtype=bool)
+    mask = np.ones([len(dataset.terminateds)], dtype=bool)
     mask[dataset.start_indices] = False
-    mask[dataset.done_indices] = False
+    mask[dataset.term_indices] = False
     
     embeddings = embeddings[mask]
     actions = np.expand_dims(dataset.actions[mask], axis=-1)
@@ -64,7 +64,7 @@ def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
                                  total_rewards,
                                  confidences], axis=-1)
     
-    return cluster_on, mask, cluster_on_start, cluster_on_done
+    return cluster_on, mask, cluster_on_start, cluster_on_term
 
 def generate_clusters(
     dataset: XRLDataset,
@@ -79,7 +79,7 @@ def generate_clusters(
     (cluster_on, 
      cluster_on_mask, 
      cluster_on_start, 
-     cluster_on_done) = _get_cluster_ons(dataset, embeddings)
+     cluster_on_term) = _get_cluster_ons(dataset, embeddings)
     
     if len(cluster_on_start) == 0:
         logging.warning('No start indices found in dataset.')
@@ -88,12 +88,12 @@ def generate_clusters(
         start_clusters = MeanShift().fit(cluster_on_start)
         start_clusters = start_clusters.labels_
     
-    if len(cluster_on_done) == 0:
+    if len(cluster_on_term) == 0:
         logging.warning('No terminal indices found in dataset.')
-        done_clusters = []
+        term_clusters = []
     else:
-        done_clusters = MeanShift().fit(cluster_on_done)
-        done_clusters = done_clusters.labels_
+        term_clusters = MeanShift().fit(cluster_on_term)
+        term_clusters = term_clusters.labels_
         
     if num_clusters > len(cluster_on):
         raise ValueError(f'Not enough datapoints {len(cluster_on)} to create {num_clusters} clusters.')
@@ -105,12 +105,12 @@ def generate_clusters(
     n_start_clusters = len(set(start_clusters))
     
     start_clusters = np.array([x+n_clusters for x in start_clusters], dtype=int)
-    done_clusters = np.array([x+n_start_clusters+n_clusters for x in done_clusters], dtype=int)
+    term_clusters = np.array([x+n_start_clusters+n_clusters for x in term_clusters], dtype=int)
     
-    clusters = np.empty([len(dataset.dones)], dtype=int)
+    clusters = np.empty([len(dataset.terminateds)], dtype=int)
     clusters[cluster_on_mask] = mid_clusters
     clusters[dataset.start_indices] = start_clusters
-    clusters[dataset.done_indices] = done_clusters
+    clusters[dataset.term_indices] = term_clusters
     
     end = time.time()
     logging.info(f"\tSuccessfully generated clusters in {end - start} seconds.")

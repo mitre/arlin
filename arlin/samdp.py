@@ -6,7 +6,8 @@ import copy
 import os
 from prettytable import PrettyTable
 import matplotlib.pyplot as plt
-from typing import Dict, Tuple, List, Optional, Any
+from typing import Dict, Tuple, List, Any
+from matplotlib.patches import Patch
 
 from arlin.analysis.visualization.colors import COLORS
 from arlin.dataset.xrl_dataset import XRLDataset
@@ -35,9 +36,9 @@ class SAMDP():
                                  self.num_clusters])
         
         for i in range(len(self.clusters) - 1):
-            done = self.dataset.dones[i]
+            terminated = self.dataset.terminateds[i]
             
-            if not done:
+            if not terminated:
                 cur_cluster = self.clusters[i]
                 action = self.dataset.actions[i]
                 next_cluster = self.clusters[i+1]
@@ -175,16 +176,16 @@ class SAMDP():
     
     def _set_node_edges(self, graph: nx.Graph):
         start_clusters = set(self.clusters[self.dataset.start_indices])
-        done_clusters = set(self.clusters[self.dataset.done_indices])
+        term_clusters = set(self.clusters[self.dataset.term_indices])
         
         node_edges = {}
         for node_id in range(self.num_clusters):
             node_name = f'Cluster {node_id}'
-            if node_id in start_clusters and node_id in done_clusters:
+            if node_id in start_clusters and node_id in term_clusters:
                 node_edges[node_name] = 'y'
             elif node_id in start_clusters:
                 node_edges[node_name] = 'g'
-            elif node_id in done_clusters:
+            elif node_id in term_clusters:
                 node_edges[node_name] = 'r'
             else:
                 node_edges[node_name] = 'k'
@@ -195,9 +196,9 @@ class SAMDP():
 
         pos = {}
         start_clusters = set(self.clusters[self.dataset.start_indices])
-        done_clusters = set(self.clusters[self.dataset.done_indices])
+        term_clusters = set(self.clusters[self.dataset.term_indices])
         initial_nodes = [f'Cluster {i}' for i in start_clusters]
-        terminal_nodes = [f'Cluster {i}' for i in done_clusters]
+        terminal_nodes = [f'Cluster {i}' for i in term_clusters]
         
         bfs_layers = list(nx.bfs_layers(self.graph, initial_nodes))
         
@@ -267,6 +268,13 @@ class SAMDP():
                                    alpha=max(0, min(edge[2]['weight'] + 0.1, 1)),
                                    node_size=4000, 
                                    arrowsize=25)
+        
+        handles = [Patch(color=COLORS[i]) for i in range(self.num_actions)]
+        labels = [f'Action {i}' for i in range(self.num_actions)]
+        leg_title = "Actions"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        plt.legend(**legend)
         
         plt.tight_layout()
         logging.info(f"Saving complete SAMDP graph png to {file_path}...")
@@ -355,6 +363,13 @@ class SAMDP():
                                    alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
                                    node_size=4000, 
                                    arrowsize=25)
+        
+        handles = [Patch(color=COLORS[i]) for i in range(self.num_actions)]
+        labels = [f'Action {i}' for i in range(self.num_actions)]
+        leg_title = "Actions"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        plt.legend(**legend)
         
         plt.tight_layout()
         logging.info(f"Saving most probable SAMDP graph png to {file_path}...")
@@ -525,6 +540,13 @@ class SAMDP():
                                    node_size=4000, 
                                    arrowsize=25)
         
+        handles = [Patch(color=COLORS[i]) for i in range(self.num_actions)]
+        labels = [f'Action {i}' for i in range(self.num_actions)]
+        leg_title = "Actions"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        plt.legend(**legend)
+        
         plt.tight_layout()
         logging.info(f"Saving SAMDP path from {from_cluster} to {to_cluster} png to {file_path}...")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -614,6 +636,13 @@ class SAMDP():
                                    alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
                                    node_size=4000, 
                                    arrowsize=25)
+        
+        handles = [Patch(color=COLORS[i]) for i in range(self.num_actions)]
+        labels = [f'Action {i}' for i in range(self.num_actions)]
+        leg_title = "Actions"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        plt.legend(**legend)
         
         plt.tight_layout()
         logging.info(f"Saving all SAMDP paths to {to_cluster} png to {file_path}...")

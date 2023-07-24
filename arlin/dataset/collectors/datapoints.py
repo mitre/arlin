@@ -8,20 +8,23 @@ class BaseDatapoint():
     observations: Optional[np.ndarray] = None
     actions: Optional[int] = None
     rewards: Optional[float] = None
-    dones: Optional[bool] = None
+    terminateds: Optional[bool] = None
+    truncateds: Optional[bool] = None
     steps: Optional[int] = None
     
     def add_base_data(self,
                       obs: np.ndarray,
                       action: int,
                       reward: float,
-                      done: bool,
+                      terminated: bool,
+                      truncated: bool,
                       step: int):
         
         self.observations = obs
         self.actions = action
         self.rewards = reward
-        self.dones = done
+        self.terminateds = terminated
+        self.truncateds = truncated
         self.steps = step
 
 @dataclass

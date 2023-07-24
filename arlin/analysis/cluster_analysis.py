@@ -16,16 +16,16 @@ class ClusterAnalyzer():
         self.num_clusters = len(np.unique(self.clusters))
         
         start_clusters = set(self.clusters[self.dataset.start_indices])
-        done_clusters = set(self.clusters[self.dataset.done_indices])
+        term_clusters = set(self.clusters[self.dataset.term_indices])
         
         self.cluster_stage_colors = []
         
         for cluster_id in range(self.num_clusters):
-            if cluster_id in start_clusters and cluster_id in done_clusters:
+            if cluster_id in start_clusters and cluster_id in term_clusters:
                 self.cluster_stage_colors.append('y')
             elif cluster_id in start_clusters:
                 self.cluster_stage_colors.append('g')
-            elif cluster_id in done_clusters:
+            elif cluster_id in term_clusters:
                 self.cluster_stage_colors.append('r')
             else:
                 self.cluster_stage_colors.append('k')
