@@ -1,0 +1,59 @@
+:py:mod:`arlin.analysis.latent_analysis`
+========================================
+
+.. py:module:: arlin.analysis.latent_analysis
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.analysis.latent_analysis.LatentAnalyzer
+
+
+
+
+.. py:class:: LatentAnalyzer(embeddings, dataset)
+
+
+   .. py:method:: set_embeddings(embeddings)
+
+
+   .. py:method:: set_dataset(dataset)
+
+
+   .. py:method:: embeddings_graph_data()
+
+      Generate data necessary for creating embedding graphs.
+
+
+   .. py:method:: clusters_graph_data(clusters)
+
+      Generate data necessary for creating cluster graphs.
+
+
+   .. py:method:: decision_boundary_graph_data()
+
+      Generate data necessary for creating decision boundary graphs.
+
+
+   .. py:method:: episode_prog_graph_data()
+
+      Generate data necessary for creating episode progression graphs.
+
+
+   .. py:method:: confidence_data()
+
+      Generate data necessary for creating episode progression graphs.
+
+
+   .. py:method:: initial_terminal_state_data()
+
+      Generate data necessary for creating initial/terminal state graphs.
+
+
+

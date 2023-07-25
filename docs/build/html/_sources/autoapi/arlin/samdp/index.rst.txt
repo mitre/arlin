@@ -1,0 +1,54 @@
+:py:mod:`arlin.samdp`
+=====================
+
+.. py:module:: arlin.samdp
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.samdp.SAMDP
+
+
+
+
+.. py:class:: SAMDP(clusters, dataset)
+
+
+   .. py:method:: save_txt(file_path)
+
+      Create a txt table of the SAMDP.
+
+      :param samdp_counts: The number of times an agent moved from one
+                           cluster to another along with the action taken to get to the latter.
+      :type samdp_counts: np.ndarray
+
+
+   .. py:method:: save_complete_graph(file_path)
+
+
+   .. py:method:: save_simplified_graph(file_path)
+
+
+   .. py:method:: save_likely_paths(file_path)
+
+
+   .. py:method:: save_paths(from_cluster_id, to_cluster_id, file_path, best_path_only = False, verbose=False)
+
+      Find simple paths between two clusters within SAMDP.
+
+      :param from_cluster_id: ID of cluster to start from.
+      :type from_cluster_id: int
+      :param to_cluster_id: ID of cluster to end at.
+      :type to_cluster_id: int
+
+
+   .. py:method:: save_all_paths_to(to_cluster_id, file_path, verbose = False)
+
+
+

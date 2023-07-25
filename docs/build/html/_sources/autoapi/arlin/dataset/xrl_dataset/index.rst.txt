@@ -1,0 +1,45 @@
+:py:mod:`arlin.dataset.xrl_dataset`
+===================================
+
+.. py:module:: arlin.dataset.xrl_dataset
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.dataset.xrl_dataset.XRLDataset
+
+
+
+
+.. py:class:: XRLDataset(environment, collector = RandomDataCollector)
+
+
+   .. py:method:: fill(num_datapoints = 50000)
+
+
+   .. py:method:: collect_episode()
+
+
+   .. py:method:: analyze_dataset()
+
+
+   .. py:method:: get_dict()
+
+
+   .. py:method:: save(file_path)
+
+      Save dictionary of datapoints to the given file_path.
+
+      :param - file_path str: Filepath to save XRL dataset to.
+
+
+   .. py:method:: load(load_path)
+
+
+

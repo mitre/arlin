@@ -1,0 +1,25 @@
+:py:mod:`arlin.analysis`
+========================
+
+.. py:module:: arlin.analysis
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   visualization/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   cluster_analysis/index.rst
+   latent_analysis/index.rst
+
+

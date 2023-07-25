@@ -1,0 +1,25 @@
+:py:mod:`arlin.analysis.visualization.colors`
+=============================================
+
+.. py:module:: arlin.analysis.visualization.colors
+
+
+Module Contents
+---------------
+
+.. py:data:: css4
+
+   
+
+.. py:data:: tableau
+
+   
+
+.. py:data:: base
+
+   
+
+.. py:data:: COLORS
+
+   
+

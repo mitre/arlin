@@ -1,0 +1,115 @@
+:py:mod:`arlin.dataset.collectors.datapoints`
+=============================================
+
+.. py:module:: arlin.dataset.collectors.datapoints
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.dataset.collectors.datapoints.BaseDatapoint
+   arlin.dataset.collectors.datapoints.SB3PPODatapoint
+   arlin.dataset.collectors.datapoints.SB3DQNDatapoint
+
+
+
+
+.. py:class:: BaseDatapoint
+
+
+   .. py:attribute:: observations
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: actions
+      :type: Optional[int]
+
+      
+
+   .. py:attribute:: rewards
+      :type: Optional[float]
+
+      
+
+   .. py:attribute:: terminateds
+      :type: Optional[bool]
+
+      
+
+   .. py:attribute:: truncateds
+      :type: Optional[bool]
+
+      
+
+   .. py:attribute:: steps
+      :type: Optional[int]
+
+      
+
+   .. py:method:: add_base_data(obs, action, reward, terminated, truncated, step)
+
+
+
+.. py:class:: SB3PPODatapoint
+
+
+   Bases: :py:obj:`BaseDatapoint`
+
+   .. py:attribute:: latent_actors
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: latent_critics
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: dist_probs
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: critic_values
+      :type: Optional[float]
+
+      
+
+   .. py:attribute:: pi_features
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: vf_features
+      :type: Optional[numpy.ndarray]
+
+      
+
+
+.. py:class:: SB3DQNDatapoint
+
+
+   Bases: :py:obj:`BaseDatapoint`
+
+   .. py:attribute:: q_vals
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: latent_qs
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: features
+      :type: Optional[numpy.ndarray]
+
+      
+
+

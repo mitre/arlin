@@ -1,0 +1,48 @@
+:py:mod:`arlin.analysis.visualization.visualization`
+====================================================
+
+.. py:module:: arlin.analysis.visualization.visualization
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.analysis.visualization.visualization.GraphData
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   arlin.analysis.visualization.visualization.graph_multiple_data
+   arlin.analysis.visualization.visualization.graph_individual_data
+
+
+
+.. py:class:: GraphData(x, y, title, colors = None, legend = None, cmap = None, error_bars = None, xlabel = None, ylabel = None, showall = False)
+
+
+   .. py:method:: get_data()
+
+
+
+.. py:function:: graph_multiple_data(file_path, figure_title, graph_datas, horizontal = True)
+
+
+.. py:function:: graph_individual_data(filename, data)
+
+   Graph given GraphData to a single plot and save a PNG to the given file.
+
+   :param data: Data necessary to graph and individual plot.
+   :type data: GraphData
+   :param filename: Name for the PNG file.
+   :type filename: str
+
+

@@ -1,0 +1,32 @@
+:py:mod:`arlin.analysis.cluster_analysis`
+=========================================
+
+.. py:module:: arlin.analysis.cluster_analysis
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.analysis.cluster_analysis.ClusterAnalyzer
+
+
+
+
+.. py:class:: ClusterAnalyzer(dataset, clusters)
+
+
+   .. py:method:: cluster_confidence()
+
+
+   .. py:method:: cluster_rewards()
+
+
+   .. py:method:: cluster_values()
+
+
+

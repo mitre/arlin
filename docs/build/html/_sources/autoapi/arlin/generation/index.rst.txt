@@ -1,0 +1,26 @@
+:py:mod:`arlin.generation`
+==========================
+
+.. py:module:: arlin.generation
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   arlin.generation.generate_embeddings
+   arlin.generation.generate_clusters
+
+
+
+.. py:function:: generate_embeddings(dataset, activation_key, perplexity, n_train_iter, output_dim = 2, seed = 12345)
+
+
+.. py:function:: generate_clusters(dataset, embeddings, num_clusters)
+
+
