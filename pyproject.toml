@@ -1,11 +1,15 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "arlin"
-version = "0.1.0"
+version = "1.0.0"
 description = "Adversarial Reinforcement Learning for Model Interrogation"
 authors = ["Alex Tapley <atapley@mitre.org>"]
 readme = "README.md"
 keywords = ["python", "reinforcement learning", "adversarial", "explainable"]
-repository = "https://gitlab.mitre.org/ecrp/arlin"
+repository = "https://gitlab.mitre.org/advxai/arlin"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -21,9 +25,37 @@ networkx = "^3.1"
 ptable = "^0.9.2"
 gymnasium = "^0.28.1"
 tslearn = "^0.6.1"
-gym = "^0.26.2"
 shimmy = "^1.1.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.3.0"
+certifi = "^2022.6.15"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+pre-commit = "^2.19.0"
+pytest = "^7.1.2"
+bandit = "^1.7.4"
+types-setuptools = "^65.3.0"
+no-implicit-optional = "^1.0"
+mypy = "0.991"
+
+[tool.poetry.group.coverage.dependencies]
+pytest-cov = "^3.0.0"
+
+[tool.poetry.group.docs.dependencies]
 sphinx = "^6"
 sphinx-autoapi = "^2.1.1"
 myst-parser = "^2.0.0"
 sphinx-rtd-theme = "^1.2.2"
+
+[tool.black]
+line-length = 90
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+line_length = 90
+lines_after_imports = 2
+lines_between_sections = 1
+honor_noqa = true
+skip_gitignore = true
