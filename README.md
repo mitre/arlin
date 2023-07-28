@@ -118,13 +118,13 @@ eval "$(pyenv init -)"
 Now we can build a python environment with `pyenv`:
 
 ```bash
-pyenv install 3.10.10
+pyenv install 3.9.17
 ```
 
 Now select the pyenv python with one of the following commands:
-1. `pyenv global 3.10.10`: sets python as global system system_default.
-2. `pyenv local 3.10.10`: sets python version as local default (do this inside `/arlin/`).
-3. `pyenv shell 3.10.10`: sets python version as default for current shell session.
+1. `pyenv global 3.9.17`: sets python as global system system_default.
+2. `pyenv local 3.9.17`: sets python version as local default (do this inside `/arlin/`).
+3. `pyenv shell 3.9.17`: sets python version as default for current shell session.
 
 > Note: Python base interpreter requires some additional modules. Those are not installed with e.g. Ubuntu 18.04 as default. Hence the need to select a pyenv python version that does come prepackaged with those additional modules before poetry installation in the next step.
 
@@ -147,7 +147,7 @@ Set up the virtual environment with poetry:
 
 ```bash
 poetry config virtualenvs.in-project true # stores virtualenv in project directory
-poetry env use 3.10.10 # if you want to use a different python version you can choose here; but you must have that python version installed
+poetry env use 3.9.17 # if you want to use a different python version you can choose here; but you must have that python version installed
 poetry shell
 poetry install
 ```
