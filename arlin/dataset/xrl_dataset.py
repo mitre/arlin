@@ -19,15 +19,16 @@ class XRLDataset():
         self.env = environment
         self.collector = collector
         
+        self.num_datapoints = 0
+        self.analyzed = False
+        
         for field in dataclasses.fields(self.collector.datapoint_cls):
             if not hasattr(self, field.name):
                 setattr(self, field.name, np.array([]))
         
         self.analyzed = False
     
-    def fill(self, 
-             num_datapoints: int = 50000) -> None:
-        
+    def fill(self, num_datapoints: int = 50000) -> None:
         logging.info(f'Collecting {num_datapoints} datapoints.')
         collected_datapoints = 0
         num_episodes = 0
@@ -47,13 +48,14 @@ class XRLDataset():
                 f" Collected: {len(datapoints)} |"\
                     f" Total: {collected_datapoints}.")
             
-        self._append_datapoints(datapoints)
-        
         logging.info(f'Collected {collected_datapoints} datapoints total.')
         if collected_datapoints > num_datapoints:
             num_extra = collected_datapoints - num_datapoints
             logging.debug(f'{num_extra} datapoints have been collected"\
                 " for cleaner MDP creation.')
+        
+        self._analyze_dataset()
+        self.num_datapoints += collected_datapoints
 
     def collect_episode(self) -> Tuple[List[Type[BaseDatapoint]], bool]:
         ep_datapoints = []
@@ -74,9 +76,8 @@ class XRLDataset():
         return ep_datapoints, trunc
 
     def _append_datapoints(self, 
-                                datapoints: List[Type[BaseDatapoint]]
-                                ) -> Dict[str, np.ndarray]:
-        
+                           datapoints: List[Type[BaseDatapoint]]
+                           ) -> Dict[str, np.ndarray]:
         field_names = [i.name for i in dataclasses.fields(self.collector.datapoint_cls)]
         
         data_dict = {i: [] for i in field_names}
@@ -99,10 +100,23 @@ class XRLDataset():
                 updated_value = np.concatenate([cur_value, new_data]) 
                 setattr(self, field_name, updated_value)
     
-    def analyze_dataset(self):
+    def _init_analyze(self):
+        self.analyzed = True
+        logging.info("Initializing analytics variables.")
+        self.total_rewards = np.array([]).astype('float')
+        self.start_indices = np.array([]).astype('int')
+        self.term_indices = np.array([]).astype('int')
+        self.trunc_indices = np.array([]).astype('int')
+        self.unique_state_indices = np.array([]).astype('int')
+        self.state_mapping = np.array([]).astype('int')
+        
+        self.steps = self.steps.astype('float')
+    
+    def _analyze_dataset(self):
+        if not self.analyzed:
+            self._init_analyze()
+            
         logging.info('Extracting necessary additional data from dataset.')
-        logging.info("\tSetting self.num_datapoints.")
-        self.num_datapoints = len(self.observations)
         self._set_total_rewards()
         self._set_episode_prog_indices()
         self._normalize_steps()
@@ -116,14 +130,15 @@ class XRLDataset():
         total_rewards = []
         
         cur_total = 0
-        for i in range(self.num_datapoints):
+        for i in range(self.num_datapoints, len(self.rewards)):
             cur_total += self.rewards[i]
             total_rewards.append(cur_total)
             
-            if self.terminateds[i] or self.truncateds[0]:
+            if self.terminateds[i] or self.truncateds[i]:
                 cur_total = 0
         
-        self.total_rewards = np.array(total_rewards)
+        self.total_rewards = np.concatenate([self.total_rewards, 
+                                             np.array(total_rewards)])
     
     def _set_episode_prog_indices(self):
         """Extract episode start and termination indices from the dataset.
@@ -133,35 +148,42 @@ class XRLDataset():
         logging.info('\tSetting self.term_indices.')
         logging.info('\tSetting self.trunc_indices.')
         
-        start_indices = np.where(self.steps == 0)[0]
-        term_indices = np.where(self.terminateds == 1)[0]
-        trunc_indices = np.where(self.truncateds == 1)[0]
+        trunc_steps = self.steps[self.num_datapoints:len(self.steps)]
+        trunc_terms = self.terminateds[self.num_datapoints:len(self.terminateds)]
+        trunc_truncs = self.truncateds[self.num_datapoints:len(self.truncateds)]
         
-        self.start_indices = start_indices
-        self.term_indices = term_indices
-        self.trunc_indices = trunc_indices
+        start_indices = np.where(trunc_steps == 0)[0] + self.num_datapoints
+        term_indices = np.where(trunc_terms == 1)[0] + self.num_datapoints
+        trunc_indices = np.where(trunc_truncs == 1)[0] + self.num_datapoints
         
-        if len(self.start_indices) == 0:
+        self.start_indices = np.concatenate([self.start_indices, start_indices])
+        self.term_indices = np.concatenate([self.term_indices, term_indices])
+        self.trunc_indices = np.concatenate([self.trunc_indices, trunc_indices])
+        
+        if len(start_indices) == 0:
             logging.warning('No start indices identified.')
         
-        if len(self.term_indices) == 0:
+        if len(term_indices) == 0:
             logging.warning('No terminated indices identified.')
             
-        if len(self.trunc_indices) == 0:
+        if len(trunc_indices) == 0:
             logging.warning('No truncated indices identified.')
     
     def _normalize_steps(self):
         logging.info("\tNormalizing self.steps.")
-        self.steps = self.steps.astype('float')
+        trunc_steps = self.steps[self.num_datapoints:len(self.steps)]
         
-        key_indices = list(self.start_indices) + [len(self.terminateds)]
+        start_indices = np.where(trunc_steps == 0)[0]
+        
+        key_indices = list(start_indices) + [len(trunc_steps)]
         for i in range(len(key_indices) - 1):
-            ep_len = key_indices[i+1] - key_indices[i]
+            ep_len = int(key_indices[i+1] - key_indices[i])
             
             for j in range(ep_len):
-                idx = key_indices[i] + j
+                idx = int(key_indices[i] + j)
                 
-                self.steps[idx] = self.steps[idx] / ep_len
+                trunc_steps[idx] = trunc_steps[idx] / ep_len
+        self.steps[self.num_datapoints:len(self.steps)] = trunc_steps
     
     def _set_distinct_state_data(self):
         """Extract the unique state indices and corresponding state mapping to identify
