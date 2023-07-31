@@ -30,7 +30,7 @@ version (1.0.0)
 MITRE 2023
 ```
 
-⎈ **TOC** ⎈
+**TOC**
 
 - [Developer Installation](#developer-installation)
   - [Ubuntu Setup](#ubuntu-setup)
