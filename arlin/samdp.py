@@ -484,6 +484,11 @@ class SAMDP():
                                               from_cluster, 
                                               to_cluster))
         
+        if len(paths) == 0:
+            logging.info(f"\tNo paths found from {from_cluster} to {to_cluster}.")
+            plt.close()
+            return
+        
         updated_paths = []
         full_edge_list = []
         edge_list = []
@@ -591,7 +596,8 @@ class SAMDP():
                                                   to_cluster))
 
         if len(paths) == 0:
-            logging.info(f"\tNo paths found  to {to_cluster}.")
+            logging.info(f"\tNo paths found to {to_cluster}.")
+            plt.close()
             return
         
         updated_paths = []
