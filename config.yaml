@@ -3,6 +3,7 @@ DATASET_CREATION:
   environment: &env 'LunarLander-v2'
   num_datapoints: &n_dp 50000
   random: False
+  model_path: NULL
 
 GET_DATA:
   algo_str: *algo_str
