@@ -69,7 +69,8 @@ def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
 def generate_clusters(
     dataset: XRLDataset,
     embeddings: np.ndarray,
-    num_clusters: int
+    num_clusters: int,
+    seed: Optional[int] = None
 ) -> np.ndarray:
     
     logging.info(f"Generating {num_clusters} clusters.")
@@ -98,7 +99,9 @@ def generate_clusters(
     if num_clusters > len(cluster_on):
         raise ValueError(f'Not enough datapoints {len(cluster_on)} to create {num_clusters} clusters.')
         
-    mid_clusters = KMeans(n_clusters=num_clusters, n_init='auto').fit(cluster_on)
+    mid_clusters = KMeans(n_clusters=num_clusters,
+                          random_state=seed, 
+                          n_init='auto').fit(cluster_on)
     mid_clusters = mid_clusters.labels_
     
     n_clusters = len(set(mid_clusters))
