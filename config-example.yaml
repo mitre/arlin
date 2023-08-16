@@ -1,8 +1,9 @@
 DATASET_CREATION:
   algo_str: &algo_str ppo
   environment: &env 'LunarLander-v2'
-  num_datapoints: &n_dp 50000
+  num_datapoints: &n_dp 100
   random: False
+  model_path: NULL
 
 GET_DATA:
   algo_str: *algo_str
@@ -10,8 +11,8 @@ GET_DATA:
   num_datapoints: *n_dp
   EMBEDDINGS:
     activation_key: latent_actors
-    perplexity: 500
-    n_train_iter: 4000
+    perplexity: 5
+    n_train_iter: 400
   CLUSTERS:
     method: kmeans
     num_clusters: 16
