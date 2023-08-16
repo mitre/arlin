@@ -5,6 +5,14 @@ from matplotlib.patches import Patch
 from arlin.dataset import XRLDataset
 from arlin.analysis.visualization import GraphData
 
+import gymnasium as gym
+
+from typing import List
+from prettytable import PrettyTable
+import os
+import logging
+from PIL import Image
+
 class ClusterAnalyzer():
     
     def __init__(self,
@@ -29,6 +37,78 @@ class ClusterAnalyzer():
                 self.cluster_stage_colors.append('r')
             else:
                 self.cluster_stage_colors.append('k')
+    
+    def _save_renders(self, cluster_states: np.ndarray, save_dir: str):
+        
+        im = Image.fromarray(images[0])
+        for i in range(1, len(images)):
+            im2 = Image.fromarray(images[i])
+            
+            im = Image.blend(im, im2, 0.25)
+        im.save(os.path.join(save_dir, "image_overlay.png"))
+    
+    def cluster_state_analysis(self, 
+                               cluster_id: int,
+                               env: gym.Env,
+                               save_dir_path: str) -> List[GraphData]:
+        
+        obs_highs = env.observation_space.high
+        obs_lows = env.observation_space.low
+        obs_dim = env.observation_space.shape[0]
+        
+        cluster_indices = np.where(self.clusters == cluster_id)[0]
+        
+        cluster_states = self.dataset.observations[cluster_indices]
+        cluster_size = len(cluster_states)
+        
+        data = np.empty([cluster_size, obs_dim])
+        for e, state in enumerate(cluster_states):
+            for i in range(obs_dim):
+                data[e][i] = state[i]
+        
+        means = np.round(np.mean(data, axis=0), 4)
+        stdevs = np.round(np.std(data, axis=0), 4)
+        
+        cluster_steps = self.dataset.steps[cluster_indices]
+        
+        step_mean = round(statistics.mean(cluster_steps), 2)
+        try:
+            step_stdev = round(statistics.stdev(cluster_steps), 2)
+        except:
+            step_stdev = 0
+        
+        table = PrettyTable()
+        table.title = "State Analysis by Cluster"
+        
+        table.field_names = ["Obs Dim", "Dim Range", "Mean", "Stdev"]
+        
+        for dim in range(obs_dim):
+            mean = round(means[dim], 4)
+            stdev = round(stdevs[dim], 4)
+            row = [
+                f"Obs Dim {dim}", 
+                f"[{obs_lows[dim]}, {obs_highs[dim]}]",
+                f"{mean}",
+                f"{stdev}"
+                ]
+            table.add_row(row)
+        
+        txt_data = [f"Cluster {cluster_id}", 
+                    f"Cluster Size: {len(cluster_states)}",
+                    f"Average Step: {step_mean}", 
+                    f"Step Variance: {step_stdev}"]
+        
+        txt_data.append(str(table))
+        txt_data = "\n".join(txt_data)
+        
+        cluster_run = os.path.join(save_dir_path, f"cluster_{cluster_id}")
+        os.makedirs(cluster_run, exist_ok=True)
+        text_file_path = os.path.join(cluster_run, "txt_analysis.txt")
+        with open(text_file_path, 'w') as f:
+            f.write(txt_data)      
+        logging.info(f"State analysis of cluster {cluster_id} saved to {cluster_run}.")  
+        
+        # self._save_renders(cluster_states, cluster_run)
 
     def cluster_confidence(self) -> GraphData:
         

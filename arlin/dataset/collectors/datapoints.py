@@ -11,6 +11,7 @@ class BaseDatapoint():
     terminateds: Optional[bool] = None
     truncateds: Optional[bool] = None
     steps: Optional[int] = None
+    renders: Optional[np.ndarray] = None
     
     def add_base_data(self,
                       obs: np.ndarray,
@@ -18,7 +19,8 @@ class BaseDatapoint():
                       reward: float,
                       terminated: bool,
                       truncated: bool,
-                      step: int):
+                      step: int,
+                      render: np.ndarray):
         
         self.observations = obs
         self.actions = action
@@ -26,6 +28,7 @@ class BaseDatapoint():
         self.terminateds = terminated
         self.truncateds = truncated
         self.steps = step
+        self.renders = render
 
 @dataclass
 class SB3PPODatapoint(BaseDatapoint):

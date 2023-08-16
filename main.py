@@ -60,7 +60,7 @@ def dataset_creation(cfg: Dict[str, Any], load_dataset: bool = False):
     else:
         env_cfg = {}
             
-    env = gym.make(cfg['environment'], **env_cfg)
+    env = gym.make(cfg['environment'], render_mode='rgb_array', **env_cfg)
     
     path = cfg['model_path']
     if path is None:
@@ -80,7 +80,6 @@ def dataset_creation(cfg: Dict[str, Any], load_dataset: bool = False):
         dataset.load(dataset_path)
     else:
         dataset.fill(num_datapoints=cfg['num_datapoints'])
-        dataset.analyze_dataset()
         dataset.save(file_path=dataset_path)
     
     return dataset
@@ -113,8 +112,8 @@ def get_data(cfg: Dict[str, Any],
         clusters = da_utils.load_data(file_path=clusters_path)
     else:
         clusters = generate_clusters(dataset=dataset,
-                                                     embeddings=embeddings,
-                                                     num_clusters=cluster_cfg['num_clusters'])
+                                     embeddings=embeddings,
+                                     num_clusters=cluster_cfg['num_clusters'])
         
         da_utils.save_data(data=clusters, file_path=clusters_path)
     
@@ -152,6 +151,11 @@ def graph_latent_analytics(run_dir:str, embeddings, clusters, dataset):
 
 def graph_cluster_analytics(run_dir: str, dataset, clusters):
     grapher = ClusterAnalyzer(dataset, clusters)
+    
+    for i in range(grapher.num_clusters):
+        grapher.cluster_state_analysis(i, 
+                                       gym.make('LunarLander-v2'), 
+                                       os.path.join(run_dir, "cluster_state_analysis"))
     
     cluster_conf = grapher.cluster_confidence()
     cluster_rewards = grapher.cluster_rewards()

@@ -6,6 +6,7 @@ import gymnasium as gym
 from tqdm import tqdm
 import dataclasses
 from typing import Dict, List, Type, Tuple
+import time
 
 from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector, BaseDatapoint
 
@@ -61,14 +62,16 @@ class XRLDataset():
         ep_datapoints = []
         obs, _ = self.env.reset()
         step = 0
+        image = self.env.render()
         while True:
             datapoint, action =  self.collector.collect_internal_data(observation=obs)
                 
             new_obs, reward, term, trunc, _ = self.env.step(action)
-            datapoint.add_base_data(obs, action, reward, term, trunc, step)
+            datapoint.add_base_data(obs, action, reward, term, trunc, step, image)
             ep_datapoints.append(datapoint)
             step += 1
             obs = new_obs
+            image = self.env.render()
             
             if term or trunc:
                 break
@@ -234,8 +237,14 @@ class XRLDataset():
         
         logging.info(f"Saving datapoints to {file_path}...")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        start = time.time()
         with open(file_path, 'wb') as handle:
             pickle.dump(self.get_dict(), handle, protocol=pickle.HIGHEST_PROTOCOL)
+        end = time.time()
+        
+        file_size = round(os.path.getsize(file_path)>>20, 2)
+        logging.info(f"\tFile size: {file_size} MB")
+        logging.info(f"\tSaved dataset in {(end - start) % 60} minutes.")
             
     def load(self, load_path: str) -> None:
         dataset_file = open(load_path,'rb')

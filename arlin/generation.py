@@ -4,9 +4,8 @@ from arlin.dataset.xrl_dataset import XRLDataset
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, MeanShift
 
+from typing import Optional
 import time
-
-np.random.seed(1234)
 
 def generate_embeddings(
     dataset: XRLDataset,
@@ -36,7 +35,7 @@ def generate_embeddings(
     
     end = time.time()
     
-    logging.info(f"\tSuccessfully generated embeddings in {end - start} seconds.")
+    logging.info(f"\tSuccessfully generated embeddings in {(end - start) % 60} minutes.")
     
     return np.array(embeddings)
 
