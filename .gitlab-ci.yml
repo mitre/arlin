@@ -1,3 +1,13 @@
+image: "python:3.9"
+
+before_script:
+  - python --version
+  - curl -sSkL https://install.python-poetry.org | python -
+  - export PATH=$PATH:$HOME/.local/bin
+  - poetry --version
+  # - DEBIAN_FRONTEND=noninteractive apt update
+  # - DEBIAN_FRONTEND=noninteractive apt -y install libgl1-mesa-dev
+
 stages:
   - Documentation
 
@@ -7,6 +17,7 @@ stages:
 
 .pages:
   script:
+    - poetry env use python3.9
     - poetry install --only docs
     - poetry run sphinx-build -d docs/build/doctrees docs/source docs/build/html
     - mv docs/build/html public/
@@ -14,30 +25,25 @@ stages:
 test-pages:
   stage: Documentation
   tags:
-    - lslab2
+    - pages
   extends: .pages
-  needs: []
   artifacts:
     expose_as: 'HTML Documentation'
     paths:
       - public/
     expire_in: 1 week
-  only:
-    refs:
-      - merge_requests
-    changes:
-      - "**/*.py"
-      - docs/**/*
-      - poetry.lock
+  # only:
+  #   changes:
+  #     - "**/*.py"
+  #     - docs/**/*
+  #     - poetry.lock
 
 pages:
   stage: Documentation
   tags:
-    - lslab2
+    - pages
   extends: .pages
   artifacts:
     paths:
       - public
-  only:
-    - tags
 
