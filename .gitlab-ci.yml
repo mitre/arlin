@@ -24,18 +24,13 @@ stages:
 
 test-pages:
   stage: Documentation
-  tags:
-    - lslab2
   extends: .pages
-  needs: []
   artifacts:
     expose_as: 'HTML Documentation'
     paths:
       - public/
     expire_in: 1 week
   only:
-    # refs:
-    #   - merge_requests
     changes:
       - "**/*.py"
       - docs/**/*
@@ -47,6 +42,4 @@ pages:
   artifacts:
     paths:
       - public
-  # only:
-  #   - tags
 
