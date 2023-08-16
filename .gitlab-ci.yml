@@ -24,20 +24,24 @@ stages:
 
 test-pages:
   stage: Documentation
+  tags:
+    - pages
   extends: .pages
   artifacts:
     expose_as: 'HTML Documentation'
     paths:
       - public/
     expire_in: 1 week
-  only:
-    changes:
-      - "**/*.py"
-      - docs/**/*
-      - poetry.lock
+  # only:
+  #   changes:
+  #     - "**/*.py"
+  #     - docs/**/*
+  #     - poetry.lock
 
 pages:
   stage: Documentation
+  tags:
+    - pages
   extends: .pages
   artifacts:
     paths:
