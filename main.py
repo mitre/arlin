@@ -80,7 +80,7 @@ def dataset_creation(cfg: Dict[str, Any], load_dataset: bool = False):
         dataset.load(dataset_path)
     else:
         dataset.fill(num_datapoints=cfg['num_datapoints'])
-        dataset.analyze_dataset()
+        dataset.fill(num_datapoints=cfg['num_datapoints'])
         dataset.save(file_path=dataset_path)
     
     return dataset
