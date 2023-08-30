@@ -252,8 +252,6 @@ class XRLDataset():
         # with open(file_path, 'wb') as handle:
         #     pickle.dump(self.get_dict(), handle, protocol=pickle.HIGHEST_PROTOCOL)
         
-        print()
-        
         np.savez_compressed(file_path, **self.get_dict())
         end = time.time()
         
