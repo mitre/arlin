@@ -7,6 +7,7 @@ from tqdm import tqdm
 import dataclasses
 from typing import Dict, List, Type, Tuple
 import time
+import jsonlines
 
 from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector, BaseDatapoint
 
@@ -15,17 +16,19 @@ class XRLDataset():
     
     def __init__(self,
                  environment: gym.Env,
-                 collector: BaseDataCollector = RandomDataCollector):
+                 collector: BaseDataCollector = RandomDataCollector,
+                 seed: int = 12345):
         
         self.env = environment
         self.collector = collector
+        self.seed = seed
         
         self.num_datapoints = 0
         self.analyzed = False
         
         for field in dataclasses.fields(self.collector.datapoint_cls):
             if not hasattr(self, field.name):
-                setattr(self, field.name, np.array([]))
+                setattr(self, field.name, np.array([], dtype=np.float64))
         
         self.analyzed = False
     
@@ -33,21 +36,22 @@ class XRLDataset():
         logging.info(f'Collecting {num_datapoints} datapoints.')
         collected_datapoints = 0
         num_episodes = 0
+        datapoint_list = []
         while collected_datapoints < num_datapoints:
-            datapoints, trunc = self.collect_episode()
-            
+            datapoints, trunc = self.collect_episode(seed=self.seed + num_episodes)
             if trunc:
+                num_episodes += 1
                 logging.debug("\tSkipping episode due to truncation.")
                 continue
             
-            self._append_datapoints(datapoints)
+            datapoint_list += datapoints
             
             collected_datapoints += len(datapoints)
             num_episodes += 1
 
             logging.info(f"\tEpisode {num_episodes} |"\
                 f" Collected: {len(datapoints)} |"\
-                    f" Total: {collected_datapoints}.")
+                    f" Total: {collected_datapoints}")
             
         logging.info(f'Collected {collected_datapoints} datapoints total.')
         if collected_datapoints > num_datapoints:
@@ -55,23 +59,26 @@ class XRLDataset():
             logging.debug(f'{num_extra} datapoints have been collected"\
                 " for cleaner MDP creation.')
         
+        self._append_datapoints(datapoint_list)
+        
         self._analyze_dataset()
         self.num_datapoints += collected_datapoints
-
-    def collect_episode(self) -> Tuple[List[Type[BaseDatapoint]], bool]:
+    
+    def collect_episode(self, seed: int) -> Tuple[List[Type[BaseDatapoint]], bool]:
         ep_datapoints = []
-        obs, _ = self.env.reset()
+        obs, _ = self.env.reset(seed=seed)
         step = 0
-        image = self.env.render()
+        render = self.env.render()
+        
         while True:
             datapoint, action =  self.collector.collect_internal_data(observation=obs)
                 
             new_obs, reward, term, trunc, _ = self.env.step(action)
-            datapoint.add_base_data(obs, action, reward, term, trunc, step, image)
+            datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
+            render = self.env.render()
             ep_datapoints.append(datapoint)
             step += 1
             obs = new_obs
-            image = self.env.render()
             
             if term or trunc:
                 break
@@ -81,6 +88,7 @@ class XRLDataset():
     def _append_datapoints(self, 
                            datapoints: List[Type[BaseDatapoint]]
                            ) -> Dict[str, np.ndarray]:
+        start = time.time()
         field_names = [i.name for i in dataclasses.fields(self.collector.datapoint_cls)]
         
         data_dict = {i: [] for i in field_names}
@@ -102,18 +110,21 @@ class XRLDataset():
             else:
                 updated_value = np.concatenate([cur_value, new_data]) 
                 setattr(self, field_name, updated_value)
+        end = time.time()
+        
+        logging.debug(f"Converting datapoints took {(end - start) / 60} minutes.")
     
     def _init_analyze(self):
         self.analyzed = True
         logging.info("Initializing analytics variables.")
-        self.total_rewards = np.array([]).astype('float')
-        self.start_indices = np.array([]).astype('int')
-        self.term_indices = np.array([]).astype('int')
-        self.trunc_indices = np.array([]).astype('int')
-        self.unique_state_indices = np.array([]).astype('int')
-        self.state_mapping = np.array([]).astype('int')
+        self.total_rewards = np.array([], dtype=np.float64)
+        self.start_indices = np.array([], dtype=np.int8)
+        self.term_indices = np.array([], dtype=np.int8)
+        self.trunc_indices = np.array([], dtype=np.int8)
+        self.unique_state_indices = np.array([], dtype=np.int8)
+        self.state_mapping = np.array([], dtype=np.int8)
         
-        self.steps = self.steps.astype('float')
+        self.steps = self.steps.astype('float32')
     
     def _analyze_dataset(self):
         if not self.analyzed:
@@ -232,24 +243,26 @@ class XRLDataset():
             - file_path str: Filepath to save XRL dataset to.
         """
         
-        if not file_path[-4:] == '.pkl':
-            file_path += '.pkl'
+        if not file_path[-4:] == '.npz':
+            file_path += '.npz'
         
         logging.info(f"Saving datapoints to {file_path}...")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         start = time.time()
-        with open(file_path, 'wb') as handle:
-            pickle.dump(self.get_dict(), handle, protocol=pickle.HIGHEST_PROTOCOL)
+        # with open(file_path, 'wb') as handle:
+        #     pickle.dump(self.get_dict(), handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
+        print()
+        
+        np.savez_compressed(file_path, **self.get_dict())
         end = time.time()
         
         file_size = round(os.path.getsize(file_path)>>20, 2)
-        logging.info(f"\tFile size: {file_size} MB")
-        logging.info(f"\tSaved dataset in {(end - start) % 60} minutes.")
+        logging.debug(f"\tFile size: {file_size} MB")
+        logging.debug(f"\tSaved dataset in {(end - start) % 60} minutes.")
             
     def load(self, load_path: str) -> None:
-        dataset_file = open(load_path,'rb')
-        dataset = pickle.load(dataset_file)
-        dataset_file.close()
+        dataset = np.load(load_path)
         
         for key in dataset:
             setattr(self, key, dataset[key])

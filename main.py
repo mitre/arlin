@@ -157,31 +157,31 @@ def graph_cluster_analytics(run_dir: str, dataset, clusters):
                                        gym.make('LunarLander-v2'), 
                                        os.path.join(run_dir, "cluster_state_analysis"))
     
-    cluster_conf = grapher.cluster_confidence()
-    cluster_rewards = grapher.cluster_rewards()
-    cluster_values = grapher.cluster_values()
+    # cluster_conf = grapher.cluster_confidence()
+    # cluster_rewards = grapher.cluster_rewards()
+    # cluster_values = grapher.cluster_values()
     
-    base_path = os.path.join(run_dir, 'cluster_analytics')
-    for data in [[cluster_conf, 'cluster_confidence.png'], 
-                 [cluster_rewards, 'cluster_rewards.png'],
-                 [cluster_values, 'cluster_values.png']
-                 ]:
-        path = os.path.join(base_path, data[1])
-        viz.graph_individual_data(path, data[0])
+    # base_path = os.path.join(run_dir, 'cluster_analytics')
+    # for data in [[cluster_conf, 'cluster_confidence.png'], 
+    #              [cluster_rewards, 'cluster_rewards.png'],
+    #              [cluster_values, 'cluster_values.png']
+    #              ]:
+    #     path = os.path.join(base_path, data[1])
+    #     viz.graph_individual_data(path, data[0])
     
-    combined_path = os.path.join(base_path, 'combined_analytics.png')
-    viz.graph_multiple_data(file_path=combined_path, 
-                                           figure_title='Cluster Analytics', 
-                                           graph_datas=[cluster_rewards, cluster_values])
+    # combined_path = os.path.join(base_path, 'combined_analytics.png')
+    # viz.graph_multiple_data(file_path=combined_path, 
+    #                         figure_title='Cluster Analytics', 
+    #                         graph_datas=[cluster_conf, cluster_values, cluster_rewards])
 
 def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     samdp = SAMDP(clusters, dataset)
     
     base_path = os.path.join(run_dir, 'samdp')
     
-    complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
-    likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
-    simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
+    # complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
+    # likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
+    # simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
     
     path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
     
@@ -189,24 +189,24 @@ def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
                      cfg['to_cluster'], 
                      f'{path_path}.png')
     
-    samdp.save_paths(cfg['from_cluster'], 
-                     cfg['to_cluster'], 
-                     f'{path_path}_verbose.png', 
-                     verbose=True)
+    # samdp.save_paths(cfg['from_cluster'], 
+    #                  cfg['to_cluster'], 
+    #                  f'{path_path}_verbose.png', 
+    #                  verbose=True)
     
     samdp.save_paths(cfg['from_cluster'], 
                      cfg['to_cluster'], 
                      f'{path_path}_bp.png', 
                      best_path_only=True)
     
-    samdp.save_all_paths_to(cfg['to_cluster'], 
-                            os.path.join(base_path, f"samdp_paths_to_{cfg['to_cluster']}_verbose.png"),
-                            verbose=True)
+    # samdp.save_all_paths_to(cfg['to_cluster'], 
+    #                         os.path.join(base_path, f"samdp_paths_to_{cfg['to_cluster']}_verbose.png"),
+    #                         verbose=True)
     
     samdp.save_all_paths_to(cfg['to_cluster'], 
                             os.path.join(base_path, f"samdp_paths_to_{cfg['to_cluster']}.png"))
     
-    samdp.save_txt(f'{base_path}/samdp.txt')
+    # samdp.save_txt(f'{base_path}/samdp.txt')
 
 def main(args, cfg: Dict[str, Any]) -> None:
     dataset = dataset_creation(cfg['DATASET_CREATION'], load_dataset=args.ld)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 
-from typing import Optional
+from typing import Optional, List
 
 @dataclass
 class BaseDatapoint():
@@ -10,7 +10,7 @@ class BaseDatapoint():
     rewards: Optional[float] = None
     terminateds: Optional[bool] = None
     truncateds: Optional[bool] = None
-    steps: Optional[int] = None
+    steps: Optional[float] = None
     renders: Optional[np.ndarray] = None
     
     def add_base_data(self,
@@ -19,7 +19,7 @@ class BaseDatapoint():
                       reward: float,
                       terminated: bool,
                       truncated: bool,
-                      step: int,
+                      step: float,
                       render: np.ndarray):
         
         self.observations = obs

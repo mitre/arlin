@@ -1,7 +1,8 @@
 import numpy as np
 import logging
 from arlin.dataset.xrl_dataset import XRLDataset
-from sklearn.manifold import TSNE
+# from sklearn.manifold import TSNE
+from MulticoreTSNE import MulticoreTSNE as TSNE
 from sklearn.cluster import KMeans, MeanShift
 
 from typing import Optional
@@ -21,6 +22,7 @@ def generate_embeddings(
     start = time.time()
     
     embedder = TSNE(
+        n_jobs=4,
         n_components=output_dim, 
         perplexity=perplexity,
         n_iter=n_train_iter,

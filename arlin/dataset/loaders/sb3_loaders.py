@@ -1,5 +1,6 @@
 import arlin.utils as utils
 import logging
+import os
 
 from stable_baselines3.common.base_class import BaseAlgorithm
 from huggingface_sb3 import load_from_hub
@@ -36,6 +37,7 @@ def load_sb_model(path: str, algo_str: str) -> BaseAlgorithm:
     Returns:
         BaseAlgorithm: Trained SB3 model
     """
+    logging.info(f"Loading {algo_str} model {os.path.basename(path)} with stable_baselines3...")
     algorithm = utils.get_sb3_algo(algo_str.lower())
     model = algorithm.load(path)
     
