@@ -87,22 +87,25 @@ def generate_clusters(
         logging.warning('No start indices found in dataset.')
         start_clusters = []
     else:
-        start_clusters = MeanShift().fit(cluster_on_start)
+        start_algo = MeanShift()
+        start_clusters = start_algo.fit(cluster_on_start)
         start_clusters = start_clusters.labels_
     
     if len(cluster_on_term) == 0:
         logging.warning('No terminal indices found in dataset.')
         term_clusters = []
     else:
-        term_clusters = MeanShift().fit(cluster_on_term)
+        term_algo = MeanShift()
+        term_clusters = term_algo.fit(cluster_on_term)
         term_clusters = term_clusters.labels_
         
     if num_clusters > len(cluster_on):
         raise ValueError(f'Not enough datapoints {len(cluster_on)} to create {num_clusters} clusters.')
-        
-    mid_clusters = KMeans(n_clusters=num_clusters,
+    
+    mid_algo = KMeans(n_clusters=num_clusters,
                           random_state=seed, 
-                          n_init='auto').fit(cluster_on)
+                          n_init='auto')
+    mid_clusters = mid_algo.fit(cluster_on)
     mid_clusters = mid_clusters.labels_
     
     n_clusters = len(set(mid_clusters))
@@ -119,4 +122,4 @@ def generate_clusters(
     end = time.time()
     logging.info(f"\tSuccessfully generated clusters in {end - start} seconds.")
     
-    return clusters
+    return clusters, start_algo, term_algo, mid_algo

@@ -249,8 +249,6 @@ class XRLDataset():
         logging.info(f"Saving datapoints to {file_path}...")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         start = time.time()
-        # with open(file_path, 'wb') as handle:
-        #     pickle.dump(self.get_dict(), handle, protocol=pickle.HIGHEST_PROTOCOL)
         
         np.savez_compressed(file_path, **self.get_dict())
         end = time.time()
