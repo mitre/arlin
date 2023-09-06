@@ -12,7 +12,7 @@ GET_DATA:
   EMBEDDINGS:
     activation_key: latent_actors
     perplexity: 225
-    n_train_iter: 4000
+    n_train_iter: 2000
   CLUSTERS:
     method: kmeans
     num_clusters: 16

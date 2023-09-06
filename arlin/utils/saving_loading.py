@@ -18,7 +18,7 @@ def save_data(data: Any, file_path: str) -> None:
     logging.info(f"Saving data to {file_path}...")
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     
-    np.save(file_path, data=data)
+    np.save(file_path, data)
     
     logging.info("\tData saved successfully.")
 

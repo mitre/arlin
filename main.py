@@ -8,7 +8,7 @@ import gymnasium as gym
 
 import arlin.dataset.loaders as loaders
 from arlin.dataset import XRLDataset
-from arlin.dataset.collectors import SB3PPODataCollector, SB3PPODatapoint
+from arlin.dataset.collectors import SB3PPODataCollector, SB3PPODatapoint, RandomDataCollector, BaseDatapoint
 
 from arlin.generation import generate_clusters, generate_embeddings
 import arlin.analysis.visualization as viz
@@ -70,8 +70,9 @@ def dataset_creation(cfg: Dict[str, Any], load_dataset: bool = False):
     else:
         model = loaders.load_sb_model(path=path, algo_str=cfg['algo_str'])
             
-    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
-                                    policy=model.policy)
+    # collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
+    #                                 policy=model.policy)
+    collector = RandomDataCollector(datapoint_cls=BaseDatapoint, env=env)
     dataset = XRLDataset(env, collector=collector)
     
     dataset_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}-test.pkl"
