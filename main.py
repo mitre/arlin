@@ -70,12 +70,12 @@ def dataset_creation(cfg: Dict[str, Any], load_dataset: bool = False):
     else:
         model = loaders.load_sb_model(path=path, algo_str=cfg['algo_str'])
             
-    # collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
-    #                                 policy=model.policy)
-    collector = RandomDataCollector(datapoint_cls=BaseDatapoint, env=env)
+    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
+                                    policy=model.policy)
+    # collector = RandomDataCollector(datapoint_cls=BaseDatapoint, environment=env)
     dataset = XRLDataset(env, collector=collector)
     
-    dataset_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}-test.pkl"
+    dataset_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}/{cfg['algo_str']}-{cfg['num_datapoints']}.npz"
     
     if load_dataset:
         dataset.load(dataset_path)
@@ -94,8 +94,9 @@ def get_data(cfg: Dict[str, Any],
     cluster_cfg = cfg['CLUSTERS']
     
     base_path = f"/nfs/lslab2/arlin/data_zoo/{cfg['environment']}"
-    embeddings_path = f"{base_path}/embeddings/{cfg['algo_str']}-{cfg['num_datapoints']}/{embed_cfg['activation_key']}/embeddings.pkl"
-    clusters_path = f"{base_path}/clusters/{cfg['algo_str']}-{cfg['num_datapoints']}/{cluster_cfg['num_clusters']}'.pkl"
+    embeddings_path = f"{base_path}/embeddings/{cfg['algo_str']}-{cfg['num_datapoints']}/{embed_cfg['activation_key']}/embeddings.npy"
+    clusters_path = f"{base_path}/clusters/{cfg['algo_str']}-{cfg['num_datapoints']}/{cluster_cfg['num_clusters']}'.npy"
+    cluster_algo_path = f"{base_path}/clusters/{cfg['algo_str']}-{cfg['num_datapoints']}/{cluster_cfg['num_clusters']}-algos'.npy"
     
     if load_embeddings:
         embeddings = da_utils.load_data(file_path=embeddings_path)
@@ -112,11 +113,11 @@ def get_data(cfg: Dict[str, Any],
     if load_clusters: 
         clusters = da_utils.load_data(file_path=clusters_path)
     else:
-        clusters = generate_clusters(dataset=dataset,
-                                     embeddings=embeddings,
+        clusters, start_algo, term_algo, mid_algo = generate_clusters(dataset=dataset,
                                      num_clusters=cluster_cfg['num_clusters'])
         
         da_utils.save_data(data=clusters, file_path=clusters_path)
+        da_utils.save_data(data=[start_algo, term_algo, mid_algo], file_path=cluster_algo_path)
     
     return embeddings, clusters
         
@@ -153,27 +154,27 @@ def graph_latent_analytics(run_dir:str, embeddings, clusters, dataset):
 def graph_cluster_analytics(run_dir: str, dataset, clusters):
     grapher = ClusterAnalyzer(dataset, clusters)
     
-    for i in range(grapher.num_clusters):
-        grapher.cluster_state_analysis(i, 
-                                       gym.make('LunarLander-v2'), 
-                                       os.path.join(run_dir, "cluster_state_analysis"))
+    # for i in range(grapher.num_clusters):
+    #     grapher.cluster_state_analysis(i, 
+    #                                    gym.make('LunarLander-v2'), 
+    #                                    os.path.join(run_dir, "cluster_state_analysis"))
     
-    # cluster_conf = grapher.cluster_confidence()
-    # cluster_rewards = grapher.cluster_rewards()
-    # cluster_values = grapher.cluster_values()
+    cluster_conf = grapher.cluster_confidence()
+    cluster_rewards = grapher.cluster_rewards()
+    cluster_values = grapher.cluster_values()
     
-    # base_path = os.path.join(run_dir, 'cluster_analytics')
-    # for data in [[cluster_conf, 'cluster_confidence.png'], 
-    #              [cluster_rewards, 'cluster_rewards.png'],
-    #              [cluster_values, 'cluster_values.png']
-    #              ]:
-    #     path = os.path.join(base_path, data[1])
-    #     viz.graph_individual_data(path, data[0])
+    base_path = os.path.join(run_dir, 'cluster_analytics')
+    for data in [[cluster_conf, 'cluster_confidence.png'], 
+                 [cluster_rewards, 'cluster_rewards.png'],
+                 [cluster_values, 'cluster_values.png']
+                 ]:
+        path = os.path.join(base_path, data[1])
+        viz.graph_individual_data(path, data[0])
     
-    # combined_path = os.path.join(base_path, 'combined_analytics.png')
-    # viz.graph_multiple_data(file_path=combined_path, 
-    #                         figure_title='Cluster Analytics', 
-    #                         graph_datas=[cluster_conf, cluster_values, cluster_rewards])
+    combined_path = os.path.join(base_path, 'combined_analytics.png')
+    viz.graph_multiple_data(file_path=combined_path, 
+                            figure_title='Cluster Analytics', 
+                            graph_datas=[cluster_conf, cluster_values, cluster_rewards])
 
 def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     samdp = SAMDP(clusters, dataset)
@@ -181,8 +182,8 @@ def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     base_path = os.path.join(run_dir, 'samdp')
     
     # complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
-    # likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
-    # simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
+    likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
+    simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
     
     path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
     

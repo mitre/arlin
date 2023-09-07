@@ -7,7 +7,6 @@ from tqdm import tqdm
 import dataclasses
 from typing import Dict, List, Type, Tuple
 import time
-import jsonlines
 
 from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector, BaseDatapoint
 

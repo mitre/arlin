@@ -41,7 +41,7 @@ def generate_embeddings(
     
     return np.array(embeddings)
 
-def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
+def _get_cluster_ons(dataset: XRLDataset):
     cluster_on_start = dataset.critic_values[dataset.start_indices].reshape(-1, 1)
     cluster_on_term = dataset.total_rewards[dataset.term_indices].reshape(-1, 1)
     
@@ -49,18 +49,17 @@ def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
     mask[dataset.start_indices] = False
     mask[dataset.term_indices] = False
     
-    embeddings = embeddings[mask]
+    latents = dataset.latent_actors[mask] 
     actions = np.expand_dims(dataset.actions[mask], axis=-1)
     values = np.expand_dims(dataset.critic_values[mask], axis=-1)
-    steps = np.expand_dims(dataset.steps[mask], axis=-1)
+    # steps = np.expand_dims(dataset.steps[mask], axis=-1)
     rewards = np.expand_dims(dataset.rewards[mask], axis=-1)
     total_rewards = np.expand_dims(dataset.total_rewards[mask], axis=-1)
     confidences = np.expand_dims(np.amax(dataset.dist_probs, axis=1)[mask], axis=-1)
     
-    cluster_on = np.concatenate([embeddings,
+    cluster_on = np.concatenate([latents,
                                  actions,
                                  values,
-                                 steps,
                                  rewards,
                                  total_rewards,
                                  confidences], axis=-1)
@@ -69,7 +68,6 @@ def _get_cluster_ons(dataset: XRLDataset, embeddings: np.ndarray):
 
 def generate_clusters(
     dataset: XRLDataset,
-    embeddings: np.ndarray,
     num_clusters: int,
     seed: Optional[int] = None
 ) -> np.ndarray:
@@ -81,7 +79,7 @@ def generate_clusters(
     (cluster_on, 
      cluster_on_mask, 
      cluster_on_start, 
-     cluster_on_term) = _get_cluster_ons(dataset, embeddings)
+     cluster_on_term) = _get_cluster_ons(dataset)
     
     if len(cluster_on_start) == 0:
         logging.warning('No start indices found in dataset.')

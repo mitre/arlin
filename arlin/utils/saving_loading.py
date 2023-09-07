@@ -22,7 +22,7 @@ def save_data(data: Any, file_path: str) -> None:
     
     logging.info("\tData saved successfully.")
 
-def load_data(file_path: str) -> Any:
+def load_data(file_path: str, allow_pickle:bool = False) -> Any:
     """Load and return data from given file path:
     
     Args:
@@ -36,7 +36,7 @@ def load_data(file_path: str) -> Any:
             raise ValueError("Can only load .npy files")
             
     logging.info(f"Loading data from {file_path}...")
-    data = np.load(file_path)
+    data = np.load(file_path, allow_pickle=allow_pickle)
     
     logging.info("\tData loaded successfully.")
     
