@@ -13,7 +13,7 @@ def save_data(data: Any, file_path: str) -> None:
     """
     
     if not file_path[-4:] == '.npy':
-            file_path += '.npy'
+        file_path += '.npy'
             
     logging.info(f"Saving data to {file_path}...")
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -33,7 +33,7 @@ def load_data(file_path: str, allow_pickle:bool = False) -> Any:
     """
     
     if not file_path[-4:] == '.npy':
-            raise ValueError("Can only load .npy files")
+        raise ValueError("Can only load .npy files")
             
     logging.info(f"Loading data from {file_path}...")
     data = np.load(file_path, allow_pickle=allow_pickle)

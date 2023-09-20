@@ -182,14 +182,14 @@ def samdp(run_dir: str, cfg: Dict[str, Any], clusters, dataset):
     base_path = os.path.join(run_dir, 'samdp')
     
     # complete_graph = samdp.save_complete_graph(f'{base_path}/samdp_complete.png')
-    likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
+    # likely_graph = samdp.save_likely_paths(f'{base_path}/samdp_likely.png')
     simplified_graph = samdp.save_simplified_graph(f'{base_path}/samdp_simplified.png')
     
     path_path = os.path.join(base_path, f"samdp_path_{cfg['from_cluster']}_{cfg['to_cluster']}")
     
-    samdp.save_paths(cfg['from_cluster'], 
-                     cfg['to_cluster'], 
-                     f'{path_path}.png')
+    # samdp.save_paths(cfg['from_cluster'], 
+    #                  cfg['to_cluster'], 
+    #                  f'{path_path}.png')
     
     # samdp.save_paths(cfg['from_cluster'], 
     #                  cfg['to_cluster'], 

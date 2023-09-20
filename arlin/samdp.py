@@ -273,7 +273,7 @@ class SAMDP():
         labels = [f'Action {i}' for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": 'upper left'})
         plt.legend(**legend)
         
         plt.tight_layout()
@@ -368,7 +368,7 @@ class SAMDP():
         labels = [f'Action {i}' for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": 'upper left'})
         plt.legend(**legend)
         
         plt.tight_layout()
@@ -549,7 +549,7 @@ class SAMDP():
         labels = [f'Action {i}' for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": 'upper left'})
         plt.legend(**legend)
         
         plt.tight_layout()
@@ -647,7 +647,7 @@ class SAMDP():
         labels = [f'Action {i}' for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.05, 1.0), "loc": 'upper left'})
+        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": 'upper left'})
         plt.legend(**legend)
         
         plt.tight_layout()
