@@ -29,9 +29,7 @@ failure within a trained model. ARLIN utilizes [matplotlib](https://matplotlib.o
 process and provide meaningful vulnerability identification and analysis to researchers. 
 The modular library is structured to easily support custom architecture, algorithm, 
 framework, and analytics modifications and provides a well-documented and tested API for 
-XRL research development and model assurance. To our knowledge, ARLIN is the first 
-open-sourced Python toolkit focused on utilizing explainability techniques to assure RL 
-models prior to deployment.
+XRL research development and model assurance.
 
 Key functionalities of the ARLIN library include:
 - Creation of an XRL dataset with user-defined datapoints from a trained policy with the 
@@ -82,7 +80,7 @@ agent's policy along with available paths between given clusters.
     ```bash
     cd arlin
     poetry shell
-    poetry install
+    poetry install --no-dev
     ```
 
     *Note: To re-enter the environment after this step, run `poetry shell`.*
