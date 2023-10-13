@@ -8,11 +8,11 @@
 
 import os
 
-project = 'ARLIN - Adversarial Reinforcement Learning Model Interrogation'
+project = 'ARLIN - Assured Reinforcement Learning Model Interrogation'
 copyright = '2023, MITRE'
 author = 'Alex Tapley'
 
-version = "0.1"
+version = "1.0"
 
 # The full version, including alpha/beta/rc tags
 if os.environ.get("CI_COMMIT_TAG"):

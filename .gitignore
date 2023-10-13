@@ -163,3 +163,4 @@ cython_debug/
 outputs
 examples/data
 examples/models
+main.py

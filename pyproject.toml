@@ -27,7 +27,6 @@ shimmy = "^1.2.1"
 ipykernel = "^6.25.0"
 jupyter = "^1.0.0"
 pillow = "^10.0.0"
-jsonlines = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
