@@ -5,11 +5,11 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "arlin"
 version = "1.0.0"
-description = "Adversarial Reinforcement Learning for Model Interrogation"
+description = "Assured Reinforcement Learning for Model Interrogation"
 authors = ["Alex Tapley <atapley@mitre.org>"]
 readme = "README.md"
-keywords = ["python", "reinforcement learning", "adversarial", "explainable"]
-repository = "https://gitlab.mitre.org/advxai/arlin"
+keywords = ["python", "reinforcement learning", "adversarial", "explainable", "assurance"]
+repository = "https://github.com/mitre/arlin"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
