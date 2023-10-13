@@ -20,6 +20,15 @@ Classes
 .. py:class:: ClusterAnalyzer(dataset, clusters)
 
 
+   .. py:method:: cluster_state_img_analysis(cluster_renders, num_samples, cluster_dir)
+
+
+   .. py:method:: cluster_state_analysis(cluster_id, env, save_dir_path, num_img_samples = 10)
+
+
+   .. py:method:: cluster_state_text_analysis(cluster_indices, cluster_states, env, save_dir)
+
+
    .. py:method:: cluster_confidence()
 
 

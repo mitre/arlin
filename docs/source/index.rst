@@ -34,6 +34,7 @@ analysis.
 
 .. toctree::
    :maxdepth: 2
+
    tutorials/index
    contributing
 

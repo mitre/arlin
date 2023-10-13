@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>arlin.generation &mdash; ARLIN - Adversarial Reinforcement Learning Model Interrogation latest documentation</title>
+  <title>arlin.generation &mdash; ARLIN - Assured Reinforcement Learning Model Interrogation latest documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
@@ -33,11 +33,11 @@
 
 
           <a href="../../../index.html" class="icon icon-home">
-            ARLIN - Adversarial Reinforcement Learning Model Interrogation
+            ARLIN - Assured Reinforcement Learning Model Interrogation
               <img src="../../../_static/arlin_logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.1
+                1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -47,8 +47,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/adversarial.html">Adversarial Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/explainable.html">Explainability Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">arlin</span></code></a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../index.html#subpackages">Subpackages</a></li>
@@ -69,7 +71,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">ARLIN - Adversarial Reinforcement Learning Model Interrogation</a>
+          <a href="../../../index.html">ARLIN - Assured Reinforcement Learning Model Interrogation</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -100,7 +102,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#arlin.generation.generate_embeddings" title="arlin.generation.generate_embeddings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_embeddings</span></code></a>(dataset, activation_key, ...[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#arlin.generation.generate_clusters" title="arlin.generation.generate_clusters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_clusters</span></code></a>(dataset, embeddings, num_clusters)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#arlin.generation.generate_clusters" title="arlin.generation.generate_clusters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_clusters</span></code></a>(dataset, num_clusters[, seed])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -112,32 +114,32 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<a class="reference internal" href="../dataset/xrl_dataset/index.html#arlin.dataset.xrl_dataset.XRLDataset" title="arlin.dataset.xrl_dataset.XRLDataset"><em>arlin.dataset.xrl_dataset.XRLDataset</em></a>) – </p></li>
-<li><p><strong>activation_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – </p></li>
-<li><p><strong>perplexity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – </p></li>
-<li><p><strong>n_train_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – </p></li>
-<li><p><strong>output_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – </p></li>
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – </p></li>
+<li><p><strong>activation_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – </p></li>
+<li><p><strong>perplexity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+<li><p><strong>n_train_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+<li><p><strong>output_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)">numpy.ndarray</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)">numpy.ndarray</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="arlin.generation.generate_clusters">
-<span class="sig-prename descclassname"><span class="pre">arlin.generation.</span></span><span class="sig-name descname"><span class="pre">generate_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_clusters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.generation.generate_clusters" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">arlin.generation.</span></span><span class="sig-name descname"><span class="pre">generate_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.generation.generate_clusters" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<a class="reference internal" href="../dataset/xrl_dataset/index.html#arlin.dataset.xrl_dataset.XRLDataset" title="arlin.dataset.xrl_dataset.XRLDataset"><em>arlin.dataset.xrl_dataset.XRLDataset</em></a>) – </p></li>
-<li><p><strong>embeddings</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><em>numpy.ndarray</em></a>) – </p></li>
-<li><p><strong>num_clusters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – </p></li>
+<li><p><strong>num_clusters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)">numpy.ndarray</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)">numpy.ndarray</a></p>
 </dd>
 </dl>
 </dd></dl>

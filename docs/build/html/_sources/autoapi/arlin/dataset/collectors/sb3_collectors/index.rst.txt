@@ -23,6 +23,9 @@ Classes
 
    Bases: :py:obj:`arlin.dataset.collectors.BaseDataCollector`
 
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
    .. py:method:: collect_internal_data(observation)
 
 
@@ -31,5 +34,8 @@ Classes
 
 
    Bases: :py:obj:`arlin.dataset.collectors.BaseDataCollector`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
 
    .. py:method:: collect_internal_data(observation)

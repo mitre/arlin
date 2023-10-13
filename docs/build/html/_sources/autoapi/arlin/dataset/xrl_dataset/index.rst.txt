@@ -17,16 +17,13 @@ Classes
 
 
 
-.. py:class:: XRLDataset(environment, collector = RandomDataCollector)
+.. py:class:: XRLDataset(environment, collector = RandomDataCollector, seed = 12345)
 
 
-   .. py:method:: fill(num_datapoints = 50000)
+   .. py:method:: fill(num_datapoints = 50000, randomness = 1.0)
 
 
-   .. py:method:: collect_episode()
-
-
-   .. py:method:: analyze_dataset()
+   .. py:method:: collect_episode(seed, randomness = 0.0)
 
 
    .. py:method:: get_dict()

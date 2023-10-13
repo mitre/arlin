@@ -28,7 +28,7 @@ Functions
    :type - file_path: str
 
 
-.. py:function:: load_data(file_path)
+.. py:function:: load_data(file_path, allow_pickle = False)
 
    Load and return data from given file path:
 
