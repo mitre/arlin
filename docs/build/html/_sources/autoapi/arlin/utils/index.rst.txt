@@ -12,5 +12,3 @@ Submodules
 
    saving_loading/index.rst
    sb3_utils/index.rst
-
-

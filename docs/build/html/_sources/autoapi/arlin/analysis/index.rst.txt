@@ -21,5 +21,3 @@ Submodules
 
    cluster_analysis/index.rst
    latent_analysis/index.rst
-
-

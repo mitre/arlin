@@ -28,5 +28,3 @@ Functions
 
    :returns: Algorithm class for the specified algorithm.
    :rtype: BaseAlgorithm
-
-

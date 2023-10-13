@@ -37,5 +37,3 @@ Functions
 
    :returns: Loaded data
    :rtype: - Any
-
-

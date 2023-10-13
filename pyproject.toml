@@ -46,12 +46,12 @@ sphinx-rtd-theme = "^1.2.2"
 pytest-cov = "^4.1.0"
 
 [tool.black]
-line-length = 88
+line-length = 90
 target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
-line_length = 88
+line_length = 90
 lines_after_imports = 2
 lines_between_sections = 1
 honor_noqa = true

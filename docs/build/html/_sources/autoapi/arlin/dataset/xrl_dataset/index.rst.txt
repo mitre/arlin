@@ -40,6 +40,3 @@ Classes
 
 
    .. py:method:: load(load_path)
-
-
-

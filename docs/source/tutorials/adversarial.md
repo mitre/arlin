@@ -1,7 +1,7 @@
 # Adversarial Tutorial
 
 ARLIN can be used from an adversarial standpoint to identify the optimal timing for
-attacks against a policy. Most adversarial methods focus on attacking at a given 
+attacks against a policy. Most adversarial methods focus on attacking at a given
 frequency, or by measuring internal metrics from the model and choose actions based on
 which actions are seen as "the worst" by the model.
 
@@ -40,7 +40,7 @@ but still effective.
 ```python
 from arlin.samdp import SAMDP
 
-samdp.save_terminal_paths('./paths_into_23.png`, 
+samdp.save_terminal_paths('./paths_into_23.png`,
                             best_path=True,
                             term_cluster_id=23)
 ```
@@ -51,13 +51,13 @@ samdp.save_terminal_paths('./paths_into_23.png`,
 </p>
 
 Figure 2 shows us the clusters that are connected to our target cluster, Cluster 23, along
-with the actions that are most likely to result in the agent moving into our target 
-cluster. We can use this from an adversarial perspective to manipulate the agent into 
+with the actions that are most likely to result in the agent moving into our target
+cluster. We can use this from an adversarial perspective to manipulate the agent into
 moving into our target cluster, resulting in mission failure.
 
 By using ARLIN to analyze the policy, we identify the potential paths to Cluster 23 as
 taking action 2 when in Cluster 7, action 3 when in Clusters 16, 0, and 8, and action 1
-when in Clusters 11 and 12. During the course of the episode, we monitor the current 
+when in Clusters 11 and 12. During the course of the episode, we monitor the current
 cluster of the agent. Once the agent reaches one of the identified clusters, we influence
 the agent to take the specified action. This results in an attack that follows the policy
 for majority of the episode, and only attacks when it results in a failure that is normal

@@ -8,9 +8,10 @@
 
 import os
 
-project = 'ARLIN - Assured Reinforcement Learning Model Interrogation'
-copyright = '2023, MITRE'
-author = 'Alex Tapley'
+
+project = "ARLIN - Assured Reinforcement Learning Model Interrogation"
+copyright = "2023, MITRE"
+author = "Alex Tapley"
 
 version = "1.0"
 
@@ -40,21 +41,25 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
     "stable-baselines3": ("https://stable-baselines3.readthedocs.io/en/master/", None),
-    "sklearn": ("https://scikit-learn.org/stable/", None)
+    "sklearn": ("https://scikit-learn.org/stable/", None),
 }
 
 # Autodoc settings
 autodoc_typehints = "description"
 
 # Autoapi settings
-autoapi_options = ["members", "undoc-members", "show-inheritance", "show-module-summary"]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+]
 autoapi_python_class_content = "both"
 autoapi_type = "python"
 autoapi_dirs = ["../../arlin/"]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = ["**/_tests"]
-
 
 
 # -- Options for HTML output -------------------------------------------------

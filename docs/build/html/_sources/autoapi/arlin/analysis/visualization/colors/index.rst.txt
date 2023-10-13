@@ -9,17 +9,14 @@ Module Contents
 
 .. py:data:: css4
 
-   
+
 
 .. py:data:: tableau
 
-   
+
 
 .. py:data:: base
 
-   
+
 
 .. py:data:: COLORS
-
-   
-
