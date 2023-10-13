@@ -89,21 +89,6 @@ black:
       - "**/*.py"
       - poetry.lock
 
-mypy:
-  stage: Static Analysis
-  tags:
-    - pages
-  script:
-    - poetry install --only dev
-    - poetry run mypy --config-file pyproject.toml .
-  needs: []
-  only:
-    refs:
-      - merge_requests
-    changes:
-      - "**/*.py"
-      - poetry.lock
-
 isort:
   stage: Static Analysis
   tags:

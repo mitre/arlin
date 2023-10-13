@@ -100,44 +100,14 @@ locally (before pushing to your remote branch and running the pipeline) you can 
 following command in the root directory:
 
 ```shell
-poetry run pytest
+pytest tests/
 ```
 
-This will search for all `test_*.py` files and run the tests held in those files.
+This will run all of the tests within the `tests/` directory.
 
 ## Adding Packages & Modules
 
 If you add a package or module, make sure to create a unit test for it and preferably all
-classes and functions within it. When creating a package (directory with Python modules),
-add a `_tests` directory that mirrors the package directory. See the example below:
-
-```
-arlin
-├── dataset
-│   ├── analysis
-│   │── __init__.py
-│   │── _tests
-│   │   │── __init__.py
-│   │   │── test_cluster_analysis.py
-│   │   │── test_latent_analysis.py
-│   │── cluster_analysis.py
-│   │── latent_analysis.py
-```
-
-In the `analysis` package, there are two modules, `cluster_analysis` and
-`latent_analysis`. These are mirrored in the `_tests` directory as
-`test_cluster_analysis.py` and `test_latent_analysis.py`. And inside each of those, there
-is a mirrored `Test` class for every class in each module:
-
-### cluster_analysis.py
-```python
-class ClusterAnalyzer():
-```
-
-### test_cluster_analysis.py
-```python
-class TestClusterAnalyzer(unittest.TestCase):
-```
-
-And *usually*, there is a test for every testable function in that class. Try to adhere
-to this standard when creating new packages, modules, classes, and functions.
+classes and functions within it. The tests are within the `tests/` directory and should
+be named as `test_X.py` where `X` is the file you are testing. Try to adhere to this
+standard when creating new packages, modules, classes, and functions.
