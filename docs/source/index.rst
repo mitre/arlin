@@ -10,7 +10,7 @@ The ARLIN (Assured Reinforcement Learning Model Interrogation) Toolkit is a rese
 library written in Python that provides explainability outputs and vulnerability
 detection for Deep Reinforcement Learning (DRL) models, specifically designed to increase
 model assurance and identify potential points of failure within a trained model.
-ARLIN utilizes `matplotlib <https://matplotlib.org/stable/>`_ and
+ARLIN utilizes `matplotlib <https://matplotlib.org/stable/>` and
 `networkx <https://networkx.org/documentation/stable/>` to visualize a trained RL model’s
 decision making process and provide meaningful vulnerability identification and analysis
 to researchers. The modular library is structured to easily support custom architecture,
