@@ -126,10 +126,23 @@ negative reward but has high confidence in the action it needs to take, pointing
 a movement the policy feels is necessary for mission success.
 
 ### Analysis of Terminal Clusters
-We have 4 potential terminal clusters: Clusters 22 - 26.
-
+We have 4 potential terminal clusters: Clusters 22 - 25. Two clusters are successful 
+missions - Clusters 22 and 25. Both have similar statistics, but Cluster 25 has a lower
+variance, typically pointing to a smaller cluster. This means Cluster 25 is likely a 
+rarer success that Cluster 22. Two clusters are failure missions - Clusters 23 and 24. 
+Cluster 23 has a low expected return and a low reward - this tells us this is likely an
+expected failure since the model is expecting to get a low result and gets a low result.
+However, Cluster 24 has a higher value and low reward which means the model was expecting
+to get a higher reward and actually got a lower one. This tells us Cluster 24 represents
+an unexpected failure.
 
 <p align="center">
   <img src="../../images/explainable/samdp_simplified.png" />
   Figure 3. SAMDP of the policy used to create the XRLDataset.
 </p>
+
+The above analysis shows us a holistic view of the policy through an SAMDP 
+(semi-aggregated Markov decision process). The initial states show on the left of the 
+visualization while the terminal states are on the right. This graphic is the simplified
+SAMDP, meaning the actions to bring the policy from Cluster A to Cluster B are not shown 
+and we instead only focus on the movement between clusters.
