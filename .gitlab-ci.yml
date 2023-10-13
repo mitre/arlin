@@ -56,7 +56,7 @@ pages:
 flake8:
   stage: Static Analysis
   tags:
-    - analysis
+    - pages
   script:
     - poetry install --only dev
     - poetry run flake8 .
@@ -72,7 +72,7 @@ flake8:
 black:
   stage: Static Analysis
   tags:
-    - analysis
+    - pages
   script:
     - poetry install --only dev
     - poetry run black --check ./
@@ -87,7 +87,7 @@ black:
 mypy:
   stage: Static Analysis
   tags:
-    - analysis
+    - pages
   script:
     - poetry install --only dev
     - poetry run mypy --config-file pyproject.toml .
@@ -102,7 +102,7 @@ mypy:
 isort:
   stage: Static Analysis
   tags:
-    - analysis
+    - pages
   script:
     - poetry install --only dev
     - poetry run isort --check --profile black --trailing-comma -m=3 .
@@ -121,7 +121,7 @@ isort:
 bandit:
   stage: Security
   tags:
-    - security
+    - pages
   script:
     - poetry install --only dev
     - poetry run bandit -r .
