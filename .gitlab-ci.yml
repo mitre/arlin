@@ -36,6 +36,8 @@ test-pages:
       - public/
     expire_in: 1 week
   only:
+    refs:
+      - merge_requests
     changes:
       - "**/*.py"
       - docs/**/*
@@ -46,6 +48,8 @@ pages:
   tags:
     - pages
   extends: .pages
+  refs:
+    - merge_requests
   artifacts:
     paths:
       - public

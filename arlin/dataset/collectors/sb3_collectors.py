@@ -8,6 +8,8 @@ from arlin.dataset.collectors import BaseDataCollector, BaseDatapoint
 
 
 class SB3PPODataCollector(BaseDataCollector):
+    """Data collector for a model trained with PPO in stable-baselines3."""
+
     def __init__(self, datapoint_cls: Type[BaseDatapoint], policy: BasePolicy):
         super().__init__(datapoint_cls=datapoint_cls)
         self.policy = policy
@@ -45,6 +47,8 @@ class SB3PPODataCollector(BaseDataCollector):
 
 
 class SB3DQNDataCollector(BaseDataCollector):
+    """Data collector for a model trained with DQN in stable-baselines3."""
+
     def __init__(self, datapoint_cls: Type[BaseDatapoint], policy: BasePolicy):
         super().__init__(datapoint_cls=datapoint_cls)
         self.policy = policy

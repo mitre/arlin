@@ -6,22 +6,27 @@ from arlin.dataset import XRLDataset
 
 
 class LatentAnalyzer:
+    """Class to analyze latent embeddings and generate data to visualize."""
+
     def __init__(self, embeddings: np.ndarray, dataset: XRLDataset):
+        """Initialize an instance of a LatentAnalyzer
+
+        Args:
+            embeddings (np.ndarray): Generated embeddings
+            dataset (XRLDataset): XRLDataset created from an RL policy
+        """
         self.embeddings = embeddings
         self.dataset = dataset
         self.num_embeddings = len(self.embeddings)
         self.x = embeddings[:, 0]
         self.y = embeddings[:, 1]
 
-    def set_embeddings(self, embeddings: np.ndarray) -> None:
-        self.embeddings = embeddings
-
-    def set_dataset(self, dataset: XRLDataset) -> None:
-        self.dataset = dataset
-
     def embeddings_graph_data(self) -> GraphData:
         """
         Generate data necessary for creating embedding graphs.
+
+        Returns:
+            GraphData: Data to visualize
         """
 
         colors = ["#5A5A5A"] * self.num_embeddings
@@ -34,6 +39,9 @@ class LatentAnalyzer:
     def clusters_graph_data(self, clusters: np.ndarray) -> GraphData:
         """
         Generate data necessary for creating cluster graphs.
+
+        Returns:
+            GraphData: Data to visualize
         """
         num_clusters = len(np.unique(clusters))
         colors = [COLORS[i] for i in clusters]
@@ -53,6 +61,9 @@ class LatentAnalyzer:
     def decision_boundary_graph_data(self) -> GraphData:
         """
         Generate data necessary for creating decision boundary graphs.
+
+        Returns:
+            GraphData: Data to visualize
         """
         colors = [COLORS[i] for i in self.dataset.actions]
         title = "Decision Boundaries for Taken Actions"
@@ -72,6 +83,9 @@ class LatentAnalyzer:
     def episode_prog_graph_data(self) -> GraphData:
         """
         Generate data necessary for creating episode progression graphs.
+
+        Returns:
+            GraphData: Data to visualize
         """
 
         try:
@@ -89,6 +103,9 @@ class LatentAnalyzer:
     def confidence_data(self) -> GraphData:
         """
         Generate data necessary for creating episode progression graphs.
+
+        Returns:
+            GraphData: Data to visualize
         """
 
         try:
@@ -110,8 +127,10 @@ class LatentAnalyzer:
         return conf_data
 
     def initial_terminal_state_data(self) -> GraphData:
-        """
-        Generate data necessary for creating initial/terminal state graphs.
+        """Generate data necessary for creating initial/terminal state graphs.
+
+        Returns:
+            GraphData: Data to visualize
         """
 
         colors = [COLORS[0] if i else "#F5F5F5" for i in self.dataset.terminateds]

@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 
@@ -19,6 +19,19 @@ def generate_embeddings(
     output_dim: int = 2,
     seed: int = 12345,
 ) -> np.ndarray:
+    """Generate TSNE embeddings from the given XRLDataset.
+
+    Args:
+        dataset (XRLDataset): XRLDataset generated from an RL policy.
+        activation_key (str): Data that we want to embed on.
+        perplexity (int): Perplexity value for TSNE
+        n_train_iter (int): Number of training iterations for TSNE
+        output_dim (int, optional): Output dimensions of the embeddings. Defaults to 2.
+        seed (int, optional): Seed for TSNE. Defaults to 12345.
+
+    Returns:
+        np.ndarray: TSNE embeddings
+    """
     logging.info(f"Generating embeddings from dataset.{activation_key}.")
 
     start = time.time()
@@ -45,10 +58,19 @@ def generate_embeddings(
     return np.array(embeddings)
 
 
-def _get_cluster_ons(dataset: XRLDataset):
-    # cluster_on_start = dataset.critic_values[dataset.start_indices].reshape(-1, 1)
-    # cluster_on_term = dataset.rewards[dataset.term_indices].reshape(-1, 1)
+def _get_cluster_ons(
+    dataset: XRLDataset,
+) -> Tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    """Get the data that we want to cluster on for initial, intermediate, and terminal.
 
+    Args:
+        dataset (XRLDataset): XRLDataset with the data to cluster on.
+
+    Returns:
+        Tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+        Data to cluster for intermediate states, mask to identify intermediate states,
+        Data to cluster for initial states, data to cluster for terminal states
+    """
     start_latents = dataset.latent_actors[dataset.start_indices]
     term_latents = dataset.latent_actors[dataset.term_indices]
 
@@ -90,7 +112,22 @@ def _get_cluster_ons(dataset: XRLDataset):
 
 def generate_clusters(
     dataset: XRLDataset, num_clusters: int, seed: Optional[int] = None
-) -> np.ndarray:
+) -> Tuple(np.ndarray, object, object, object):
+    """Generate clusters from the given XRLDataset.
+
+    Args:
+        dataset (XRLDataset): XRLDataset to cluster on.
+        num_clusters (int): Number of intermediate clusters to find.
+        seed (Optional[int], optional): Seed for clustering. Defaults to None.
+
+    Raises:
+        ValueError: Not enough datapoints given (< num_clusters)
+
+    Returns:
+        Tuple(np.ndarray, object, object, object):
+        Cluster values for each datapoint, initial cluster estimator, intermediate cluster
+        estimator, terminal cluster estimator
+    """
     logging.info(f"Generating {num_clusters} clusters.")
 
     start = time.time()
