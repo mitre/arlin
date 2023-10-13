@@ -29,12 +29,12 @@ jupyter = "^1.0.0"
 pillow = "^10.0.0"
 
 [tool.poetry.group.dev.dependencies]
+bandit = "^1.7.5"
 black = "^23.7.0"
 flake8 = "^6.0.0"
 isort = "^5.12.0"
 pre-commit = "^3.3.3"
 pytest = "^7.4.0"
-mypy = "^1.4.1"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^6"

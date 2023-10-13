@@ -9,7 +9,10 @@ before_script:
   # - DEBIAN_FRONTEND=noninteractive apt -y install libgl1-mesa-dev
 
 stages:
+  - Static Analysis
+  - Security
   - Documentation
+
 
 #################
 # Documentation #
@@ -46,3 +49,86 @@ pages:
   artifacts:
     paths:
       - public
+
+###################
+# Static Analysis #
+###################
+flake8:
+  stage: Static Analysis
+  tags:
+    - lslab2
+  script:
+    - poetry install --only dev
+    - poetry run flake8 .
+  needs: []
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - "**/*.py"
+      - poetry.lock
+      - .flake8
+
+black:
+  stage: Static Analysis
+  tags:
+    - lslab2
+  script:
+    - poetry install --only dev
+    - poetry run black --check ./
+  needs: []
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - "**/*.py"
+      - poetry.lock
+
+mypy:
+  stage: Static Analysis
+  tags:
+    - lslab2
+  script:
+    - poetry install --only dev
+    - poetry run mypy --config-file pyproject.toml .
+  needs: []
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - "**/*.py"
+      - poetry.lock
+
+isort:
+  stage: Static Analysis
+  tags:
+    - lslab2
+  script:
+    - poetry install --only dev
+    - poetry run isort --check --profile black --trailing-comma -m=3 .
+  needs: []
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - "**/*.py"
+      - poetry.lock
+
+
+############
+# Security #
+############
+bandit:
+  stage: Security
+  tags:
+    - lslab2
+  script:
+    - poetry install --only dev
+    - poetry run bandit -r .
+  needs: []
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - "**/*.py"
+      - poetry.lock
