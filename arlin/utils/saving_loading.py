@@ -29,6 +29,7 @@ def load_data(file_path: str, allow_pickle: bool = False) -> Any:
 
     Args:
         - file_path (str): Path to load file from
+        - allow_pickle (bool): Whether or not to allow pickling in loading
 
     Returns:
         - Any: Loaded data

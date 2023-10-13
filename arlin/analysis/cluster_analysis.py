@@ -15,7 +15,15 @@ from arlin.dataset import XRLDataset
 
 
 class ClusterAnalyzer:
+    """Class to analyze latent clusters and generate data to visualize."""
+
     def __init__(self, dataset: XRLDataset, clusters: np.ndarray):
+        """Initialize an instance of a ClusterAnalyzer.
+
+        Args:
+            dataset (XRLDataset): XRLDataset created from an RL policy
+            clusters (np.ndarray): Generated clusters
+        """
         self.dataset = dataset
         self.clusters = clusters
         self.num_clusters = len(np.unique(self.clusters))
@@ -35,9 +43,16 @@ class ClusterAnalyzer:
             else:
                 self.cluster_stage_colors.append("k")
 
-    def cluster_state_img_analysis(
+    def _cluster_state_img_analysis(
         self, cluster_renders: np.ndarray, num_samples: int, cluster_dir: str
-    ):
+    ) -> None:
+        """Save images of sampled states from a cluster.
+
+        Args:
+            cluster_renders (np.ndarray): Renders from states in a cluster.
+            num_samples (int): Number of samples to save renders of.
+            cluster_dir (str): Directory to save renders to.
+        """
         os.makedirs(os.path.join(cluster_dir, "images"), exist_ok=True)
         save_dir = os.path.join(cluster_dir, "images")
 
@@ -55,7 +70,15 @@ class ClusterAnalyzer:
         env: gym.Env,
         save_dir_path: str,
         num_img_samples: int = 10,
-    ):
+    ) -> None:
+        """Generate state analytics from a given cluster including renders and metrics.
+
+        Args:
+            cluster_id (int): Cluster to analyze the states of
+            env (gym.Env): Environment this policy was trained in.
+            save_dir_path (str): Directory to save data to.
+            num_img_samples (int, optional): Number of renders to save. Defaults to 10.
+        """
         cluster_run = os.path.join(save_dir_path, f"cluster_{cluster_id}")
         os.makedirs(cluster_run, exist_ok=True)
 
@@ -64,19 +87,27 @@ class ClusterAnalyzer:
         cluster_renders = self.dataset.renders[cluster_indices]
 
         logging.info(f"State analysis of cluster {cluster_id} saved to {cluster_run}.")
-        self.cluster_state_text_analysis(
+        self._cluster_state_text_analysis(
             cluster_indices, cluster_states, env, cluster_run
         )
         logging.info(f"Saving {num_img_samples} images from Cluster {cluster_id}.")
-        self.cluster_state_img_analysis(cluster_renders, num_img_samples, cluster_run)
+        self._cluster_state_img_analysis(cluster_renders, num_img_samples, cluster_run)
 
-    def cluster_state_text_analysis(
+    def _cluster_state_text_analysis(
         self,
         cluster_indices: np.ndarray,
         cluster_states: List[np.ndarray],
         env: gym.Env,
         save_dir: str,
     ) -> None:
+        """Save a text table of metrics for a given cluster.
+
+        Args:
+            cluster_indices (np.ndarray): Indices for the given cluster.
+            cluster_states (List[np.ndarray]): States from the given cluster.
+            env (gym.Env): Environment the policy was trained in.
+            save_dir (str): Directory to save the metrics to.
+        """
         obs_highs = env.observation_space.high
         obs_lows = env.observation_space.low
         obs_dim = env.observation_space.shape[0]
@@ -130,6 +161,11 @@ class ClusterAnalyzer:
             f.write(txt_data)
 
     def cluster_confidence(self) -> GraphData:
+        """Get data of the average confidence of each cluster.
+
+        Returns:
+            GraphData: Data to visualize
+        """
         cluster_conf = [[] for _ in range(self.num_clusters)]
 
         for e, i in enumerate(self.clusters):
@@ -169,6 +205,11 @@ class ClusterAnalyzer:
         return cluster_conf_data
 
     def cluster_rewards(self) -> GraphData:
+        """Get data of the average reward of each cluster.
+
+        Returns:
+            GraphData: Data to visualize
+        """
         cluster_reward = [[] for _ in range(self.num_clusters)]
 
         for e, i in enumerate(self.clusters):
@@ -208,6 +249,11 @@ class ClusterAnalyzer:
         return cluster_reward_data
 
     def cluster_values(self) -> GraphData:
+        """Get data of the average value of each cluster.
+
+        Returns:
+            GraphData: Data to visualize
+        """
         cluster_value = [[] for _ in range(self.num_clusters)]
 
         for e, i in enumerate(self.clusters):

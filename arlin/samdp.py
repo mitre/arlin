@@ -16,7 +16,15 @@ from arlin.dataset.xrl_dataset import XRLDataset
 
 
 class SAMDP:
+    """Class for an SAMDP of an RL policy."""
+
     def __init__(self, clusters: np.ndarray, dataset: XRLDataset):
+        """Intialize an SAMDP object.
+
+        Args:
+            clusters (np.ndarray): Generated cluster data.
+            dataset (XRLDataset): XRLDataset from an RL policy.
+        """
         self.clusters = clusters
         self.dataset = dataset
 
@@ -24,6 +32,11 @@ class SAMDP:
         self.graph = self._generate_graph()
 
     def _generate(self) -> SAMDP:
+        """Generate an SAMDP.
+
+        Returns:
+            SAMDP: Numpy array representation of the SAMDP.
+        """
         logging.info("Generating SAMDP.")
         self.num_actions = len(np.unique(self.dataset.actions))
         self.num_clusters = len(np.unique(self.clusters))
@@ -69,11 +82,10 @@ class SAMDP:
         return samdp
 
     def save_txt(self, file_path: str) -> None:
-        """Create a txt table of the SAMDP.
+        """Create a text table representation of the SAMDP.
 
         Args:
-            samdp_counts (np.ndarray): The number of times an agent moved from one
-                cluster to another along with the action taken to get to the latter.
+            file_path (str): Path to save the text SAMDP to.
         """
         samdp_data = ["SAMDP"]
         for from_cluster_id in range(self.num_clusters):
@@ -141,6 +153,14 @@ class SAMDP:
         return self.graph
 
     def _generate_simplified_graph(self) -> nx.Graph:
+        """Generate a simplified version of the SAMDP.
+
+        In this graph, specific actions are not shown in the connections between nodes.
+        Instead, a black line shows the connections between nodes.
+
+        Returns:
+            nx.Graph: Simplified version of the SAMDP with less informative connections.
+        """
         G = nx.MultiDiGraph()
         G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
 
@@ -164,16 +184,34 @@ class SAMDP:
         return G
 
     def _set_node_attributes(self, graph: nx.Graph):
+        """Set the attributes of each node in the graph.
+
+        Args:
+            graph (nx.Graph): Graph object
+        """
         self._set_node_colors(graph)
         self._set_node_edges(graph)
 
     def _set_node_colors(self, graph: nx.Graph):
+        """Set the colors of each node in the graph.
+
+        Args:
+            graph (nx.Graph): Graph object
+        """
         node_colors = {}
         for i in range(self.num_clusters):
             node_colors[f"Cluster {i}"] = COLORS[i]
         nx.set_node_attributes(graph, node_colors, "color")
 
     def _set_node_edges(self, graph: nx.Graph):
+        """Set the colors for the edges of each node in the graph.
+
+        Initial nodes have a green border, intermediate have a black border, and terminal
+        have a red border.
+
+        Args:
+            graph (nx.Graph): Graph object
+        """
         start_clusters = set(self.clusters[self.dataset.start_indices])
         term_clusters = set(self.clusters[self.dataset.term_indices])
 
@@ -191,7 +229,15 @@ class SAMDP:
 
         nx.set_node_attributes(graph, node_edges, "edge_color")
 
-    def _generate_bfs_pos(self):
+    def _generate_bfs_pos(self) -> Dict[nx.Graph.node, Tuple[int, int]]:
+        """Generate the positioning for each node in the graph by breadth first search.
+
+        Initial nodes are on the left, termainl nodes on the right, and intermediate
+        nodes in between.
+
+        Returns:
+            Dict[Node, Tuple[int, int]]: Positions for each node in the graph.
+        """
         pos = {}
         start_clusters = set(self.clusters[self.dataset.start_indices])
         term_clusters = set(self.clusters[self.dataset.term_indices])
@@ -217,7 +263,19 @@ class SAMDP:
 
         return pos
 
-    def _generate_edge_arcs(self, pos, edges: List):
+    def _generate_edge_arcs(self, pos, edges: List) -> List[float]:
+        """Generate the arcs for the connections between nodes.
+
+        Connections have arcs if they overlap with other connections or go through
+        nodes.
+
+        Args:
+            pos (Dict[Node, Tuple[int, int]]): Positions of each node in the graph.
+            edges (List): List of edges
+
+        Returns:
+            List[float]: List of edge arcs.
+        """
         edge_arcs = []
         for edge in edges:
             from_node_x, from_node_y = pos[edge[0]]
@@ -237,7 +295,15 @@ class SAMDP:
 
         return edge_arcs
 
-    def save_complete_graph(self, file_path: str):
+    def save_complete_graph(self, file_path: str) -> nx.Graph:
+        """Save the complete SAMDP as a matplotlib graph.
+
+        Args:
+            file_path (str): Path to save the graph image to.
+
+        Returns:
+            nx.Graph: Complete SAMDP graph
+        """
         _ = plt.figure(figsize=(40, 20))
         plt.title("Complete SAMDP")
 
@@ -285,7 +351,17 @@ class SAMDP:
 
         return self.graph
 
-    def save_simplified_graph(self, file_path: str):
+    def save_simplified_graph(self, file_path: str) -> nx.Graph:
+        """Save a simplified version of the SAMDP graph.
+
+        Edges do not include information about the action taken.
+
+        Args:
+            file_path (str): Path to save the SAMDP graph to.
+
+        Returns:
+            nx.Graph: Simplified SAMDP graph
+        """
         _ = plt.figure(figsize=(40, 20))
         plt.title("Simplified SAMDP")
 
@@ -329,7 +405,15 @@ class SAMDP:
 
         return G
 
-    def save_likely_paths(self, file_path: str):
+    def save_likely_paths(self, file_path: str) -> nx.Graph:
+        """Save a graph where only the most likely edges are shown.
+
+        Args:
+            file_path (str): Path to save graph image to.
+
+        Returns:
+            nx.Graph: Graph object with only most likely edges
+        """
         _ = plt.figure(figsize=(40, 20))
         plt.title("Most Probable SAMDP")
 
@@ -397,18 +481,20 @@ class SAMDP:
         from_cluster: str,
         to_cluster: str,
         paths: List[Tuple[str, str, int, Dict[str, Any]]],
-    ) -> Dict[int, float]:
+    ) -> Tuple[Dict[int, float], List]:
         """Calculate the probability of each path being taken.
 
         Args:
+            from_cluster (str): Cluster to move from
+            to_cluster (str): Cluster to move to
             paths (List[Tuple[str, str, int, Dict[str, Any]]]): All simple paths from
             one cluster to another.
 
         Returns:
-            Dict[int, float]: Dictionary with actions as keys and highest probability
-                to reach target from current node.
+            Dict[int, float], List: Dictionary with actions as keys and highest
+            probability to reach target from current node, List of edges that make up the
+            most probably path between clusters
         """
-
         if len(paths) == 0:
             logging.info(f"\tNo paths found from {from_cluster} to {to_cluster}.")
             return {}, []
@@ -467,11 +553,16 @@ class SAMDP:
         best_path_only: bool = False,
         verbose=False,
     ):
-        """Find simple paths between two clusters within SAMDP.
+        """Save all paths from one cluster to another.
 
         Args:
-            from_cluster_id (int): ID of cluster to start from.
-            to_cluster_id (int): ID of cluster to end at.
+            from_cluster_id (int): Cluster to move from
+            to_cluster_id (int): Cluster to move to
+            file_path (str): Path to save image to
+            best_path_only (bool, optional): Do we only want to show the best path.
+                Defaults to False.
+            verbose (bool, optional): Do we want to show the complete edges instead of the
+                simplified. Defaults to False.
         """
         from_cluster = f"Cluster {from_cluster_id}"
         to_cluster = f"Cluster {to_cluster_id}"
@@ -587,6 +678,15 @@ class SAMDP:
         best_path: bool = False,
         term_cluster_id: Optional[int] = None,
     ):
+        """Save all paths into all terminal nodes.
+
+        Args:
+            file_path (str): Path to save image to
+            best_path (bool, optional): Do we only want to show the best paths between
+                nodes. Defaults to False.
+            term_cluster_id (Optional[int], optional): Cluster ID that we want to limit
+                paths to instead of all paths. Defaults to None.
+        """
         graph = copy.deepcopy(self.graph)
 
         term_nodes = []
@@ -686,6 +786,14 @@ class SAMDP:
     def save_all_paths_to(
         self, to_cluster_id: int, file_path: str, verbose: bool = False
     ):
+        """Save all possible paths from an initial node to given node.
+
+        Args:
+            to_cluster_id (int): Cluster we want to get to
+            file_path (str): Path to save image to
+            verbose (bool, optional): Do we want to show complete graph edges instead of
+                simplified. Defaults to False.
+        """
         to_cluster = f"Cluster {to_cluster_id}"
 
         if to_cluster not in self.graph.nodes():

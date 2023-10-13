@@ -8,6 +8,8 @@ import numpy as np
 
 
 class GraphData:
+    """Class to save data that can be graphed in matplotlib."""
+
     def __init__(
         self,
         x: np.ndarray,
@@ -21,6 +23,24 @@ class GraphData:
         ylabel: Optional[str] = None,
         showall: bool = False,
     ):
+        """Initialize a GraphData object.
+
+        Args:
+            x (np.ndarray): X axis data
+            y (np.ndarray): Y axis data
+            title (str): Title of the graph
+            colors (Optional[List[str]], optional): Point color for each datapoint.
+                Defaults to None.
+            legend (Optional[Dict], optional): Add a legend to the side of the graph.
+                Defaults to None.
+            cmap (Optional[str], optional): Add a colorbar to the side of the graph.
+                Defaults to None.
+            error_bars (Optional[List[float]], optional): Error bars for each datapoint.
+                Defaults to None.
+            xlabel (Optional[str], optional): Xlabels for the graph. Defaults to None.
+            ylabel (Optional[str], optional): Ylabels for the graph. Defaults to None.
+            showall (bool, optional): Show all axis in the figure. Defaults to False.
+        """
         self.x = x
         self.y = y
         self.title = title
@@ -33,6 +53,11 @@ class GraphData:
         self.showall = showall
 
     def get_data(self) -> Dict[str, Any]:
+        """Get the data from within this GraphData.
+
+        Returns:
+            Dict[str, Any]: Dictionary with all stored class information.
+        """
         data = {
             "x": self.x,
             "y": self.y,
@@ -50,6 +75,15 @@ class GraphData:
 
 
 def _find_subplot_dims(num_plots: int, horizontal: bool) -> Tuple[int, int]:
+    """Find the optimal dimensions needed for the subplot.
+
+    Args:
+        num_plots (int): Number of plots to graph.
+        horizontal (bool): Should the figure be wider or taller?
+
+    Returns:
+        Tuple[int, int]: Height dimension, Width dimension
+    """
     # if number is a square number
     if num_plots == isqrt(num_plots) ** 2:
         return sqrt(num_plots), sqrt(num_plots)
@@ -75,7 +109,16 @@ def graph_multiple_data(
     figure_title: str,
     graph_datas: List[GraphData],
     horizontal: bool = True,
-):
+) -> None:
+    """Graph multiple GraphDatas in the same figure.
+
+    Args:
+        file_path (str): Path to save figure to.
+        figure_title (str): Title of the combination graph.
+        graph_datas (List[GraphData]): GraphDatast to graph together.
+        horizontal (bool, optional): Whether the figure should be wider than it is tall.
+        Defaults to True.
+    """
     num_plots = len(graph_datas)
     nrows, ncols = _find_subplot_dims(num_plots, horizontal)
 
@@ -142,7 +185,7 @@ def graph_multiple_data(
 def graph_individual_data(
     filename: str,
     data: GraphData,
-):
+) -> None:
     """Graph given GraphData to a single plot and save a PNG to the given file.
 
     Args:

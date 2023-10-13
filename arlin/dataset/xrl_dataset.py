@@ -12,12 +12,22 @@ from arlin.dataset.collectors import BaseDataCollector, BaseDatapoint, RandomDat
 
 
 class XRLDataset:
+    """Class to store experiences from running a policy in an environment."""
+
     def __init__(
         self,
         environment: gym.Env,
         collector: BaseDataCollector = RandomDataCollector,
         seed: int = 12345,
     ):
+        """Initialize an XRLDataset.
+
+        Args:
+            environment (gym.Env): Environment to run the policy in.
+            collector (BaseDataCollector, optional): Collector we want to use to collect
+                our data. Defaults to RandomDataCollector.
+            seed (int, optional): Sed for episode creation. Defaults to 12345.
+        """
         self.env = environment
         self.collector = collector
         self.seed = seed
@@ -31,10 +41,23 @@ class XRLDataset:
 
         self.analyzed = False
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """Number of transitions in the dataset.
+
+        Returns:
+            int: Number of transitions in the dataset
+        """
         return self.num_datapoints
 
-    def fill(self, num_datapoints: int = 50000, randomness: float = 1.0) -> None:
+    def fill(self, num_datapoints: int = 50000, randomness: float = 0.0) -> None:
+        """Add transitions to this dataset.
+
+        Args:
+            num_datapoints (int, optional): Number of datapoints to add.
+                Defaults to 50000.
+            randomness (float, optional): How much randomness do we want when taking
+                actions. Defaults to 0.0.
+        """
         logging.info(f"Collecting {num_datapoints} datapoints.")
         collected_datapoints = 0
         num_episodes = 0
@@ -75,6 +98,17 @@ class XRLDataset:
     def collect_episode(
         self, seed: int, randomness: float = 0.0
     ) -> Tuple[List[Type[BaseDatapoint]], bool]:
+        """Collect datapoints from a single episode.
+
+        Args:
+            seed (int): Seed for the episode.
+            randomness (float, optional): How much randomness do we want when taking
+                actions. Defaults to 0.0.
+
+        Returns:
+            Tuple[List[Type[BaseDatapoint]], bool]: Datapoints, whether this episode was
+                truncated or not
+        """
         ep_datapoints = []
         obs, _ = self.env.reset(seed=seed)
         step = 0
@@ -105,9 +139,12 @@ class XRLDataset:
             self._episode_lens += [step] * len(ep_datapoints)
         return ep_datapoints, trunc
 
-    def _append_datapoints(
-        self, datapoints: List[Type[BaseDatapoint]]
-    ) -> Dict[str, np.ndarray]:
+    def _append_datapoints(self, datapoints: List[Type[BaseDatapoint]]):
+        """Append the given datapoints to the dataset.
+
+        Args:
+            datapoints (List[Type[BaseDatapoint]]): Datapoints to add to the dataset
+        """
         start = time.time()
         field_names = [i.name for i in dataclasses.fields(self.collector.datapoint_cls)]
 
@@ -134,6 +171,7 @@ class XRLDataset:
         logging.debug(f"Converting datapoints took {(end - start) / 60} minutes.")
 
     def _init_analyze(self):
+        """Initialize the additional analysis metrics."""
         self.analyzed = True
         logging.info("Initializing analytics variables.")
         self.total_rewards = np.array([], dtype=np.float64)
@@ -146,6 +184,7 @@ class XRLDataset:
         self.steps = self.steps.astype("float32")
 
     def _analyze_dataset(self):
+        """Add additional analysis metrics to the dataset that we can't collect."""
         if not self.analyzed:
             self._init_analyze()
 
@@ -158,6 +197,7 @@ class XRLDataset:
         self.analyzed = True
 
     def _set_total_rewards(self):
+        """Add information about the total reward received at each step."""
         logging.info("\tSetting self.total_rewards.")
 
         total_rewards = []
@@ -201,6 +241,7 @@ class XRLDataset:
             logging.warning("No truncated indices identified.")
 
     def _normalize_steps(self):
+        """Normalize the steps between 0 and 1 depending on time in episode taken."""
         logging.info("\tNormalizing self.steps.")
         # Only get the data from the most recent fill
         cur_fill_steps = deepcopy(self.steps[self.num_datapoints : len(self.steps)])
@@ -230,6 +271,11 @@ class XRLDataset:
         self.state_mapping = state_mapping
 
     def get_dict(self) -> Dict[str, List[np.ndarray]]:
+        """Get a dictionary representation of this dataset.
+
+        Returns:
+            Dict[str, List[np.ndarray]]: Dictionary representation of this dataset.
+        """
         out_dict = {}
 
         for field in dataclasses.fields(self.collector.datapoint_cls):
@@ -268,6 +314,11 @@ class XRLDataset:
         logging.debug(f"\tSaved dataset in {(end - start) % 60} minutes.")
 
     def load(self, load_path: str) -> None:
+        """Load a XRLDataset from the given path.
+
+        Args:
+            load_path (str): Path to saved XRLDataset.
+        """
         dataset = np.load(load_path)
 
         for key in dataset:
