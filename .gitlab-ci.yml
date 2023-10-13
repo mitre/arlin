@@ -48,8 +48,9 @@ pages:
   tags:
     - pages
   extends: .pages
-  refs:
-    - merge_requests
+  only:
+    refs:
+      - merge_requests
   artifacts:
     paths:
       - public
