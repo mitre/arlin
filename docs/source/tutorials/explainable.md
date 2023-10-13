@@ -9,83 +9,88 @@ Below is a simple example of ARLIN being used for explainability analysis.
 *Note: Not all available methods are shown.*
 
 ```python
-    import os
-    import gymnasium as gym
-    import numpy as np
-    import logging
-    import warnings
+import os
+import gymnasium as gym
+import numpy as np
+import logging
+import warnings
 
-    import arlin.dataset.loaders as loaders
-    from arlin.dataset import XRLDataset
-    from arlin.dataset.collectors import SB3PPODataCollector, SB3PPODatapoint
+import arlin.dataset.loaders as loaders
+from arlin.dataset import XRLDataset
+from arlin.dataset.collectors import SB3PPODataCollector, SB3PPODatapoint
 
-    from arlin.generation import generate_clusters, generate_embeddings
-    import arlin.analysis.visualization as viz
-    from arlin.analysis import ClusterAnalyzer, LatentAnalyzer
-    from arlin.samdp import SAMDP
-    import arlin.utils.saving_loading as sl_utils
+from arlin.generation import generate_clusters, generate_embeddings
+import arlin.analysis.visualization as viz
+from arlin.analysis import ClusterAnalyzer, LatentAnalyzer
+from arlin.samdp import SAMDP
+import arlin.utils.saving_loading as sl_utils
 
-    # Create environment
-    env = gym.make("LunarLander-v2")
-    
-    # Load the SB3 model from Huggingface
-    model = loaders.load_hf_sb_model(repo_id="sb3/ppo-LunarLander-v2",
-                                     filename="ppo-LunarLander-v2.zip",
-                                     algo_str="ppo")
-    
-    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
-                                    policy=model.policy)
-    
-    # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
-    
-    # Fill the dataset with 50k datapoints and add in additional analysis datapoints
-    dataset.fill(num_datapoints=50000)
+# Create environment
+env = gym.make("LunarLander-v2")
 
-    embeddings = generate_embeddings(dataset=dataset,
-                                     activation_key='latent_actors',
-                                     perplexity=500,
-                                     n_train_iter=1500,
-                                     output_dim=2,
-                                     seed=12345)
+# Load the SB3 model from Huggingface
+model = loaders.load_hf_sb_model(repo_id="sb3/ppo-LunarLander-v2",
+                                  filename="ppo-LunarLander-v2.zip",
+                                  algo_str="ppo")
 
-    clusters, _, _, _ = generate_clusters(dataset=dataset, 
-                                          num_clusters=20)
+# Create the datapoint collector for SB3 PPO Datapoints with the model's policy
+collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint,
+                                policy=model.policy)
 
-    # Create a grapher to generate data used for analysis.
-    grapher = LatentAnalyzer(embeddings, dataset)
-    
-    # Generate latent analysis data for visualization
-    ep_prog_data = grapher.episode_prog_graph_data()
-    conf_data = grapher.confidence_data()
-    decision_boundaries = grapher.decision_boundary_graph_data()
-    
-    # Graph multiple analytics as subplots in one plot
-    viz.graph_multiple_data(file_path='./latent_analysis.png',
-                            figure_title='Latent Analytics', 
-                            graph_datas=[ep_prog_data, 
-                                         conf_data, 
-                                         decision_boundaries])
-    
-    # Generate cluster analysis data for visualization
-    cluster_conf = grapher.cluster_confidence()
-    cluster_rewards = grapher.cluster_rewards()
-    cluster_values = grapher.cluster_values()
-    
-    # Graph multiple subplots in one plot
-    viz.graph_multiple_data(file_path='./cluster_analysis.png', 
-                            figure_title='Cluster Analytics', 
-                            graph_datas=[cluster_conf,
-                                         cluster_values,
-                                         cluster_rewards])
+# Instantiate the XRL Dataset
+dataset = XRLDataset(env, collector=collector)
 
-    simplified_graph = samdp.save_simplified_graph('./simplified_samdp.png')
+# Fill the dataset with 50k datapoints and add in additional analysis datapoints
+dataset.fill(num_datapoints=50000)
+
+embeddings = generate_embeddings(dataset=dataset,
+                                  activation_key='latent_actors',
+                                  perplexity=500,
+                                  n_train_iter=1500,
+                                  output_dim=2,
+                                  seed=12345)
+
+clusters, _, _, _ = generate_clusters(dataset=dataset, 
+                                      num_clusters=20)
+
+# Create a grapher to generate data used for analysis.
+grapher = LatentAnalyzer(embeddings, dataset)
+
+# Generate latent analysis data for visualization
+ep_prog_data = grapher.episode_prog_graph_data()
+conf_data = grapher.confidence_data()
+decision_boundaries = grapher.decision_boundary_graph_data()
+
+# Graph multiple analytics as subplots in one plot
+viz.graph_multiple_data(file_path='./latent_analysis.png',
+                        figure_title='Latent Analytics', 
+                        graph_datas=[ep_prog_data, 
+                                      conf_data, 
+                                      decision_boundaries])
+
+# Generate cluster analysis data for visualization
+cluster_conf = grapher.cluster_confidence()
+cluster_rewards = grapher.cluster_rewards()
+cluster_values = grapher.cluster_values()
+
+# Graph multiple subplots in one plot
+viz.graph_multiple_data(file_path='./cluster_analysis.png', 
+                        figure_title='Cluster Analytics', 
+                        graph_datas=[cluster_conf,
+                                      cluster_values,
+                                      cluster_rewards])
+
+for i in [9, 23, 24]:
+  grapher.cluster_state_analysis(i,
+                                  env, 
+                                  f'./state_analysis_{i}.png')
+
+simplified_graph = samdp.save_simplified_graph('./simplified_samdp.png')
 ```
 
 <p align="center">
   <img src="../../images/explainable/latent_analytics.png" />
-  Figure 1. Analysis of the XRLDataset latent space.
+  <b>Figure 1.</b> Analysis of the XRLDataset latent space.
 </p>
 
 With the above latent analysis (Figure 1), we can gain information about the latent space 
@@ -96,7 +101,7 @@ taking thecorrect action at a given point in the latent space), and decision bou
 
 <p align="center">
   <img src="../../images/explainable/cluster_analytics.png" />
-  Figure 2. Analysis of the XRLDatset clusters.
+  <b>Figure 2.</b> Analysis of the XRLDatset clusters.
 </p>
 
 The above cluster analysis (Figure 2) gives information about the different clusters 
@@ -137,12 +142,24 @@ to get a higher reward and actually got a lower one. This tells us Cluster 24 re
 an unexpected failure.
 
 <p align="center">
-  <img src="../../images/explainable/samdp_simplified.png" />
-  Figure 3. SAMDP of the policy used to create the XRLDataset.
+  <img src="../../images/explainable/state_analysis.png" />
+  <b>Figure 3.</b> State analysis of Clusters 9, 23, and 24 (left to right).
 </p>
 
-The above analysis shows us a holistic view of the policy through an SAMDP 
+Figure 3 shows screenshots of the environment from within 3 separate clusters: Clusters 9,
+23, and 24. These screenshots confirm our analysis from above proving that Cluster 9 is
+a late-stage corrective maneuver (moving towards middle of flags), Cluster 23 is an 
+expected failure (hard landing), and Cluster 24 is an unexpected failure (moving out of
+bounds).
+
+<p align="center">
+  <img src="../../images/explainable/samdp_simplified.png" />
+  <b>Figure 4.</b> SAMDP of the policy used to create the XRLDataset.
+</p>
+
+The above analysis (Figure 4) shows us a holistic view of the policy through an SAMDP 
 (semi-aggregated Markov decision process). The initial states show on the left of the 
 visualization while the terminal states are on the right. This graphic is the simplified
 SAMDP, meaning the actions to bring the policy from Cluster A to Cluster B are not shown 
 and we instead only focus on the movement between clusters.
+
