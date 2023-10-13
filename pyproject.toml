@@ -56,3 +56,6 @@ lines_after_imports = 2
 lines_between_sections = 1
 honor_noqa = true
 skip_gitignore = true
+
+[tool.bandit]
+skips = ["B101", "B311"]
