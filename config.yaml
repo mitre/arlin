@@ -18,5 +18,5 @@ GET_DATA:
     num_clusters: 16
 
 SAMDP:
-  from_cluster: 13
+  from_cluster: 17
   to_cluster: 20

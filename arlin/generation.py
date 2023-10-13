@@ -42,27 +42,43 @@ def generate_embeddings(
     return np.array(embeddings)
 
 def _get_cluster_ons(dataset: XRLDataset):
-    cluster_on_start = dataset.critic_values[dataset.start_indices].reshape(-1, 1)
-    cluster_on_term = dataset.total_rewards[dataset.term_indices].reshape(-1, 1)
+    # cluster_on_start = dataset.critic_values[dataset.start_indices].reshape(-1, 1)
+    # cluster_on_term = dataset.rewards[dataset.term_indices].reshape(-1, 1)
+    
+    start_latents = dataset.latent_actors[dataset.start_indices]
+    term_latents = dataset.latent_actors[dataset.term_indices]
+    
+    start_values = np.expand_dims(dataset.critic_values[dataset.start_indices], axis=-1)
+    start_rewards = np.expand_dims(dataset.rewards[dataset.start_indices], axis=-1)
+    term_values = np.expand_dims(dataset.critic_values[dataset.term_indices], axis=-1)
+    term_rewards = np.expand_dims(dataset.rewards[dataset.term_indices], axis=-1)
+    term_total_rewards = np.expand_dims(dataset.total_rewards[dataset.term_indices], axis=-1)
     
     mask = np.ones([len(dataset.terminateds)], dtype=bool)
     mask[dataset.start_indices] = False
     mask[dataset.term_indices] = False
     
-    latents = dataset.latent_actors[mask] 
-    # actions = np.expand_dims(dataset.actions[mask], axis=-1)
+    latents = dataset.latent_actors[mask]
     values = np.expand_dims(dataset.critic_values[mask], axis=-1)
-    # steps = np.expand_dims(dataset.steps[mask], axis=-1)
     rewards = np.expand_dims(dataset.rewards[mask], axis=-1)
-    # total_rewards = np.expand_dims(dataset.total_rewards[mask], axis=-1)
-    confidences = np.expand_dims(np.amax(dataset.dist_probs, axis=1)[mask], axis=-1)
     
     cluster_on = np.concatenate([latents,
-                                #  actions,
                                  values,
                                  rewards,
-                                #  total_rewards,
-                                 confidences], axis=-1)
+                                 ], axis=-1)
+    
+    cluster_on_start = np.concatenate([
+        start_latents,
+        start_values,
+        start_rewards
+    ], axis=-1)
+    
+    cluster_on_term = np.concatenate([
+        term_latents,
+        term_total_rewards,
+        term_rewards,
+        term_values
+    ], axis=-1)
     
     return cluster_on, mask, cluster_on_start, cluster_on_term
 

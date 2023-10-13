@@ -181,7 +181,7 @@ class ClusterAnalyzer():
         cluster_reward = [[] for _ in range(self.num_clusters)]
         
         for e, i in enumerate(self.clusters):
-            total_rew = self.dataset.total_rewards[e].astype(np.float64)
+            total_rew = self.dataset.rewards[e].astype(np.float64)
             cluster_reward[i].append(total_rew)
             
         means = []
@@ -212,7 +212,7 @@ class ClusterAnalyzer():
             legend=legend,
             error_bars=stdevs,
             xlabel='Cluster ID',
-            ylabel='Mean Total Reward',
+            ylabel='Mean Reward',
             showall=True
         )
         

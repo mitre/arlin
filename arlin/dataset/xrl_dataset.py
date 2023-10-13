@@ -1,12 +1,11 @@
-import pickle
 import numpy as np
 import logging
 import os
 import gymnasium as gym
-from tqdm import tqdm
 import dataclasses
 from typing import Dict, List, Type, Tuple
 import time
+from copy import deepcopy
 
 from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector, BaseDatapoint
 
@@ -31,15 +30,21 @@ class XRLDataset():
         
         self.analyzed = False
     
-    def fill(self, num_datapoints: int = 50000) -> None:
+    def __len__(self):
+        return self.num_datapoints
+    
+    def fill(self, 
+             num_datapoints: int = 50000,
+             randomness: float = 1.0) -> None:
         logging.info(f'Collecting {num_datapoints} datapoints.')
         collected_datapoints = 0
         num_episodes = 0
         datapoint_list = []
+        self._episode_lens = []
         while collected_datapoints < num_datapoints:
-            datapoints, trunc = self.collect_episode(seed=self.seed + num_episodes)
+            datapoints, trunc = self.collect_episode(seed=self.seed + num_episodes, 
+                                                     randomness=randomness)
             if trunc:
-                num_episodes += 1
                 logging.debug("\tSkipping episode due to truncation.")
                 continue
             
@@ -63,25 +68,37 @@ class XRLDataset():
         self._analyze_dataset()
         self.num_datapoints += collected_datapoints
     
-    def collect_episode(self, seed: int) -> Tuple[List[Type[BaseDatapoint]], bool]:
+    def collect_episode(self, 
+                        seed: int,
+                        randomness: float = 0.0) -> Tuple[List[Type[BaseDatapoint]], bool]:
         ep_datapoints = []
         obs, _ = self.env.reset(seed=seed)
         step = 0
         render = self.env.render()
+        rng = np.random.default_rng(seed)
         
         while True:
-            datapoint, action =  self.collector.collect_internal_data(observation=obs)
-                
+            take_rand_action = rng.random() <= randomness
+            if take_rand_action:
+                action = self.env.action_space.sample() 
+            else:
+                 datapoint, action =  self.collector.collect_internal_data(observation=obs)
+                  
             new_obs, reward, term, trunc, _ = self.env.step(action)
-            datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
-            render = self.env.render()
-            ep_datapoints.append(datapoint)
+            
+            if not take_rand_action:
+                datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
+                ep_datapoints.append(datapoint)
+                render = self.env.render()
+                
             step += 1
             obs = new_obs
             
             if term or trunc:
                 break
         
+        if term:
+            self._episode_lens += [step] * len(ep_datapoints)
         return ep_datapoints, trunc
 
     def _append_datapoints(self, 
@@ -184,19 +201,15 @@ class XRLDataset():
     
     def _normalize_steps(self):
         logging.info("\tNormalizing self.steps.")
-        trunc_steps = self.steps[self.num_datapoints:len(self.steps)]
+        # Only get the data from the most recent fill
+        cur_fill_steps = deepcopy(self.steps[self.num_datapoints:len(self.steps)])
+        normalized_steps = []
         
-        start_indices = np.where(trunc_steps == 0)[0]
+        for i in range(len(cur_fill_steps)):
+            step = cur_fill_steps[i]
+            normalized_steps.append(step / self._episode_lens[i])
         
-        key_indices = list(start_indices) + [len(trunc_steps)]
-        for i in range(len(key_indices) - 1):
-            ep_len = int(key_indices[i+1] - key_indices[i])
-            
-            for j in range(ep_len):
-                idx = int(key_indices[i] + j)
-                
-                trunc_steps[idx] = trunc_steps[idx] / ep_len
-        self.steps[self.num_datapoints:len(self.steps)] = trunc_steps
+        self.steps[self.num_datapoints:len(self.steps)] = normalized_steps
     
     def _set_distinct_state_data(self):
         """Extract the unique state indices and corresponding state mapping to identify

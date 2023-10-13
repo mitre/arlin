@@ -6,7 +6,7 @@ import copy
 import os
 from prettytable import PrettyTable
 import matplotlib.pyplot as plt
-from typing import Dict, Tuple, List, Any
+from typing import Dict, Tuple, List, Any, Optional
 from matplotlib.patches import Patch
 
 from arlin.analysis.visualization.colors import COLORS
@@ -558,6 +558,102 @@ class SAMDP():
         plt.savefig(file_path, format="PNG")
         plt.close()
     
+    def save_terminal_paths(self, 
+                            file_path: str,
+                            best_path: bool = False,
+                            term_cluster_id: Optional[int] = None):
+        graph = copy.deepcopy(self.graph)
+        
+        term_nodes = []
+        for node in graph.nodes(data=True):
+            if node[1]['edge_color'] == 'r':
+                term_nodes.append(node[0])
+        
+        if term_cluster_id is not None:
+            cluster_node = f"Cluster {term_cluster_id}"
+            
+            if cluster_node not in term_nodes:
+                logging.info(f'Cluster {term_cluster_id} is not a terminal cluster.')
+                return
+            
+            term_nodes = [cluster_node]
+        
+        _ = plt.figure(figsize=(40,20))
+        plt.title(f'All SAMDP connections to terminal cluster {term_cluster_id}')
+        logging.info(f'Finding connections to terminal cluster {term_cluster_id}...')
+        
+        edges = []
+        for node in self.graph.nodes():
+            out_edges = self.graph.out_edges(node, data=True, keys=True)
+            
+            for action in range(self.num_actions):
+                action_edges = [i for i in out_edges if i[3]['action'] == action]
+                if not action_edges == []:
+                    best_edge = sorted(action_edges, key=lambda x: x[3]['weight'])[-1]
+                    edges.append(best_edge)
+        
+        if best_path:
+            edge_list = []
+            full_edge_list = []
+            for node in term_nodes:
+                full_in_edges = graph.in_edges(node, data=True, keys=True)
+                
+                s = sorted(full_in_edges, key= lambda x : x[3]['weight'], reverse=True)
+
+                node_set = set()
+                full_edges = []
+                edges = []
+                for edge in s:
+                    if edge[0] in node_set:
+                        pass
+                    else:
+                        full_edges.append((edge))
+                        edges.append((edge[0], edge[1], edge[2]))
+                        node_set.add(edge[0])
+                
+                edge_list += edges
+                full_edge_list += full_edges
+            
+        subgraph = self.graph.edge_subgraph(edge_list)
+        
+        pos = self._generate_bfs_pos()
+        edge_arcs = self._generate_edge_arcs(pos, edge_list)
+        
+        colors = [node[1]['color'] for node in subgraph.nodes(data=True)]
+        node_edges = [node[1]['edge_color'] for node in subgraph.nodes(data=True)]
+        
+        nx.draw_networkx_nodes(subgraph, 
+                               pos,
+                               node_size=4100,
+                               node_color=colors,
+                               edgecolors=node_edges,
+                               linewidths=5)
+        
+        nx.draw_networkx_labels(subgraph, pos, font_color='whitesmoke')
+        
+        for i, edge in enumerate(full_edge_list):
+            nx.draw_networkx_edges(subgraph, 
+                                   pos, 
+                                   edgelist=[edge], 
+                                   connectionstyle=f"arc3,rad={edge_arcs[i]}",
+                                   edge_color=edge[3]['color'],
+                                #    alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
+                                   node_size=4000, 
+                                   arrowsize=25)
+        
+        handles = [Patch(color=COLORS[i]) for i in range(self.num_actions)]
+        labels = [f'Action {i}' for i in range(self.num_actions)]
+        leg_title = "Actions"
+        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": 'upper left'})
+        plt.legend(**legend)
+        
+        plt.tight_layout()
+        logging.info(f"Saving all SAMDP paths to terminal clusters png to {file_path}...")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        plt.savefig(file_path, format="PNG")
+        plt.close()
+    
     def save_all_paths_to(self, 
                           to_cluster_id: int, 
                           file_path: str,
@@ -569,7 +665,7 @@ class SAMDP():
             return
         
         _ = plt.figure(figsize=(40,20))
-        plt.title(f'All SAMDP Paths to {to_cluster} to {to_cluster}')
+        plt.title(f'All SAMDP Paths to {to_cluster}')
         
         logging.info(f'Finding paths to {to_cluster}...')
         

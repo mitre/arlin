@@ -67,7 +67,7 @@ def _find_subplot_dims(num_plots: int, horizontal: bool) -> Tuple[int, int]:
     if horizontal:
         return dim_short, dim_long
     else:
-        return dim_short, dim_long
+        return dim_long, dim_short
 
 def graph_multiple_data(
     file_path: str,
@@ -108,6 +108,7 @@ def graph_multiple_data(
                 axis.axis('off')
             else:
                 axis.set_xticks(data.x)
+                axis.set_xticklabels(axis.get_xticks(), rotation = 90)
                 axis.set_xlabel(data.xlabel)
                 axis.set_ylabel(data.ylabel)
             
@@ -160,6 +161,7 @@ def graph_individual_data(
         plt.axis('off')
     else:
         plt.xticks(data.x)
+        plt.xticks(rotation=90)
         plt.xlabel(data.xlabel)
         plt.ylabel(data.ylabel)
         
