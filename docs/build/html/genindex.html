@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; ARLIN - Adversarial Reinforcement Learning Model Interrogation latest documentation</title>
+  <title>Index &mdash; ARLIN - Assured Reinforcement Learning Model Interrogation latest documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -30,11 +30,11 @@
 
 
           <a href="index.html" class="icon icon-home">
-            ARLIN - Adversarial Reinforcement Learning Model Interrogation
+            ARLIN - Assured Reinforcement Learning Model Interrogation
               <img src="_static/arlin_logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.1
+                1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -44,8 +44,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/adversarial.html">Adversarial Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/explainable.html">Explainability Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
 </ul>
 
@@ -55,7 +57,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">ARLIN - Adversarial Reinforcement Learning Model Interrogation</a>
+          <a href="index.html">ARLIN - Assured Reinforcement Learning Model Interrogation</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -103,13 +105,18 @@
 </li>
       <li><a href="autoapi/arlin/dataset/collectors/datapoints/index.html#arlin.dataset.collectors.datapoints.BaseDatapoint.add_base_data">add_base_data() (arlin.dataset.collectors.datapoints.BaseDatapoint method)</a>
 </li>
-      <li><a href="autoapi/arlin/dataset/xrl_dataset/index.html#arlin.dataset.xrl_dataset.XRLDataset.analyze_dataset">analyze_dataset() (arlin.dataset.xrl_dataset.XRLDataset method)</a>
-</li>
       <li>
     arlin
 
       <ul>
         <li><a href="autoapi/arlin/index.html#module-arlin">module</a>
+</li>
+      </ul></li>
+      <li>
+    arlin._version
+
+      <ul>
+        <li><a href="autoapi/arlin/_version/index.html#module-arlin._version">module</a>
 </li>
       </ul></li>
       <li>
@@ -271,12 +278,20 @@
 </li>
       <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_rewards">cluster_rewards() (arlin.analysis.cluster_analysis.ClusterAnalyzer method)</a>
 </li>
+      <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_analysis">cluster_state_analysis() (arlin.analysis.cluster_analysis.ClusterAnalyzer method)</a>
+</li>
+      <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_img_analysis">cluster_state_img_analysis() (arlin.analysis.cluster_analysis.ClusterAnalyzer method)</a>
+</li>
+      <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_text_analysis">cluster_state_text_analysis() (arlin.analysis.cluster_analysis.ClusterAnalyzer method)</a>
+</li>
       <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_values">cluster_values() (arlin.analysis.cluster_analysis.ClusterAnalyzer method)</a>
 </li>
       <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#arlin.analysis.cluster_analysis.ClusterAnalyzer">ClusterAnalyzer (class in arlin.analysis.cluster_analysis)</a>
 </li>
       <li><a href="autoapi/arlin/analysis/latent_analysis/index.html#arlin.analysis.latent_analysis.LatentAnalyzer.clusters_graph_data">clusters_graph_data() (arlin.analysis.latent_analysis.LatentAnalyzer method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/arlin/dataset/xrl_dataset/index.html#arlin.dataset.xrl_dataset.XRLDataset.collect_episode">collect_episode() (arlin.dataset.xrl_dataset.XRLDataset method)</a>
 </li>
       <li><a href="autoapi/arlin/dataset/collectors/base_collectors/index.html#arlin.dataset.collectors.base_collectors.BaseDataCollector.collect_internal_data">collect_internal_data() (arlin.dataset.collectors.base_collectors.BaseDataCollector method)</a>
@@ -289,8 +304,6 @@
         <li><a href="autoapi/arlin/dataset/collectors/sb3_collectors/index.html#arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector.collect_internal_data">(arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/arlin/analysis/visualization/colors/index.html#arlin.analysis.visualization.colors.COLORS">COLORS (in module arlin.analysis.visualization.colors)</a>
 </li>
       <li><a href="autoapi/arlin/analysis/latent_analysis/index.html#arlin.analysis.latent_analysis.LatentAnalyzer.confidence_data">confidence_data() (arlin.analysis.latent_analysis.LatentAnalyzer method)</a>
@@ -403,6 +416,8 @@
       <ul>
         <li><a href="autoapi/arlin/index.html#module-arlin">arlin</a>
 </li>
+        <li><a href="autoapi/arlin/_version/index.html#module-arlin._version">arlin._version</a>
+</li>
         <li><a href="autoapi/arlin/analysis/index.html#module-arlin.analysis">arlin.analysis</a>
 </li>
         <li><a href="autoapi/arlin/analysis/cluster_analysis/index.html#module-arlin.analysis.cluster_analysis">arlin.analysis.cluster_analysis</a>
@@ -476,6 +491,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/arlin/dataset/collectors/datapoints/index.html#arlin.dataset.collectors.datapoints.BaseDatapoint.renders">renders (arlin.dataset.collectors.datapoints.BaseDatapoint attribute)</a>
+</li>
       <li><a href="autoapi/arlin/dataset/collectors/datapoints/index.html#arlin.dataset.collectors.datapoints.BaseDatapoint.rewards">rewards (arlin.dataset.collectors.datapoints.BaseDatapoint attribute)</a>
 </li>
   </ul></td>
@@ -502,6 +519,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/arlin/samdp/index.html#arlin.samdp.SAMDP.save_terminal_paths">save_terminal_paths() (arlin.samdp.SAMDP method)</a>
+</li>
       <li><a href="autoapi/arlin/samdp/index.html#arlin.samdp.SAMDP.save_txt">save_txt() (arlin.samdp.SAMDP method)</a>
 </li>
       <li><a href="autoapi/arlin/dataset/collectors/sb3_collectors/index.html#arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector">SB3DQNDataCollector (class in arlin.dataset.collectors.sb3_collectors)</a>

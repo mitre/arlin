@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>arlin.dataset.collectors.sb3_collectors &mdash; ARLIN - Adversarial Reinforcement Learning Model Interrogation latest documentation</title>
+  <title>arlin.dataset.collectors.sb3_collectors &mdash; ARLIN - Assured Reinforcement Learning Model Interrogation latest documentation</title>
       <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../../_static/graphviz.css" type="text/css" />
@@ -33,11 +33,11 @@
 
 
           <a href="../../../../../index.html" class="icon icon-home">
-            ARLIN - Adversarial Reinforcement Learning Model Interrogation
+            ARLIN - Assured Reinforcement Learning Model Interrogation
               <img src="../../../../../_static/arlin_logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.1
+                1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
@@ -47,8 +47,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/adversarial.html">Adversarial Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/explainable.html">Explainability Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">arlin</span></code></a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../../../index.html#subpackages">Subpackages</a><ul class="current">
@@ -70,7 +72,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../../../index.html">ARLIN - Adversarial Reinforcement Learning Model Interrogation</a>
+          <a href="../../../../../index.html">ARLIN - Assured Reinforcement Learning Model Interrogation</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -101,10 +103,10 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector" title="arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SB3PPODataCollector</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector" title="arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SB3DQNDataCollector</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
 </table>
@@ -112,6 +114,8 @@
 <dt class="sig sig-object py" id="arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arlin.dataset.collectors.sb3_collectors.</span></span><span class="sig-name descname"><span class="pre">SB3PPODataCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoint_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">arlin.dataset.collectors.BaseDataCollector</span></code></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -125,10 +129,10 @@
 <span class="sig-name descname"><span class="pre">collect_internal_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector.collect_internal_data" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><em>numpy.ndarray</em></a>) – </p>
+<dd class="field-odd"><p><strong>observation</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)">type</a>[arlin.dataset.collectors.BaseDatapoint], <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a>]</p>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.12)">type</a>[arlin.dataset.collectors.BaseDatapoint], <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -139,6 +143,8 @@
 <dt class="sig sig-object py" id="arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arlin.dataset.collectors.sb3_collectors.</span></span><span class="sig-name descname"><span class="pre">SB3DQNDataCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoint_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">arlin.dataset.collectors.BaseDataCollector</span></code></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -152,10 +158,10 @@
 <span class="sig-name descname"><span class="pre">collect_internal_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector.collect_internal_data" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><em>numpy.ndarray</em></a>) – </p>
+<dd class="field-odd"><p><strong>observation</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)">type</a>[arlin.dataset.collectors.BaseDatapoint], <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a>]</p>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.12)">type</a>[arlin.dataset.collectors.BaseDatapoint], <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>arlin.analysis.cluster_analysis &mdash; ARLIN - Adversarial Reinforcement Learning Model Interrogation latest documentation</title>
+  <title>arlin.analysis.cluster_analysis &mdash; ARLIN - Assured Reinforcement Learning Model Interrogation latest documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
@@ -33,11 +33,11 @@
 
 
           <a href="../../../../index.html" class="icon icon-home">
-            ARLIN - Adversarial Reinforcement Learning Model Interrogation
+            ARLIN - Assured Reinforcement Learning Model Interrogation
               <img src="../../../../_static/arlin_logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.1
+                1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -47,8 +47,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/adversarial.html">Adversarial Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/explainable.html">Explainability Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">arlin</span></code></a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../../index.html#subpackages">Subpackages</a><ul class="current">
@@ -70,7 +72,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../../index.html">ARLIN - Adversarial Reinforcement Learning Model Interrogation</a>
+          <a href="../../../../index.html">ARLIN - Assured Reinforcement Learning Model Interrogation</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -111,10 +113,57 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<em>arlin.dataset.XRLDataset</em>) – </p></li>
-<li><p><strong>clusters</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><em>numpy.ndarray</em></a>) – </p></li>
+<li><p><strong>clusters</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_img_analysis">
+<span class="sig-name descname"><span class="pre">cluster_state_img_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_renders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_img_analysis" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_renders</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p></li>
+<li><p><strong>num_samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+<li><p><strong>cluster_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_analysis">
+<span class="sig-name descname"><span class="pre">cluster_state_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_img_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_analysis" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+<li><p><strong>env</strong> (<em>gymnasium.Env</em>) – </p></li>
+<li><p><strong>save_dir_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – </p></li>
+<li><p><strong>num_img_samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_text_analysis">
+<span class="sig-name descname"><span class="pre">cluster_state_text_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_state_text_analysis" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_indices</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p></li>
+<li><p><strong>cluster_states</strong> (<em>List</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a><em>]</em>) – </p></li>
+<li><p><strong>env</strong> (<em>gymnasium.Env</em>) – </p></li>
+<li><p><strong>save_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_confidence">
 <span class="sig-name descname"><span class="pre">cluster_confidence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.cluster_analysis.ClusterAnalyzer.cluster_confidence" title="Permalink to this definition"></a></dt>

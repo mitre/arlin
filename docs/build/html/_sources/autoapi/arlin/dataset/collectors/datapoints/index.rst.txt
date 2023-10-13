@@ -48,11 +48,16 @@ Classes
 
 
    .. py:attribute:: steps
-      :type: Optional[int]
+      :type: Optional[float]
 
 
 
-   .. py:method:: add_base_data(obs, action, reward, terminated, truncated, step)
+   .. py:attribute:: renders
+      :type: Optional[numpy.ndarray]
+
+
+
+   .. py:method:: add_base_data(obs, action, reward, terminated, truncated, step, render)
 
 
 

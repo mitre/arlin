@@ -48,4 +48,7 @@ Classes
       :type to_cluster_id: int
 
 
+   .. py:method:: save_terminal_paths(file_path, best_path = False, term_cluster_id = None)
+
+
    .. py:method:: save_all_paths_to(to_cluster_id, file_path, verbose = False)
