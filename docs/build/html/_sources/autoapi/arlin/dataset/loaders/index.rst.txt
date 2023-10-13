@@ -11,5 +11,3 @@ Submodules
    :maxdepth: 1
 
    sb3_loaders/index.rst
-
-

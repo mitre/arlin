@@ -13,5 +13,3 @@ Submodules
    base_collectors/index.rst
    datapoints/index.rst
    sb3_collectors/index.rst
-
-

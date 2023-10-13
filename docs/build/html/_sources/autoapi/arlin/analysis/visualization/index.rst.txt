@@ -12,5 +12,3 @@ Submodules
 
    colors/index.rst
    visualization/index.rst
-
-

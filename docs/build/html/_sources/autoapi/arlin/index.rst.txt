@@ -23,5 +23,3 @@ Submodules
 
    generation/index.rst
    samdp/index.rst
-
-

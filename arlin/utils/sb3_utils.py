@@ -1,8 +1,8 @@
-from stable_baselines3.common.base_class import BaseAlgorithm
-from stable_baselines3.ppo import PPO
-from stable_baselines3.dqn import DQN
-
 from typing import Type
+
+from stable_baselines3.common.base_class import BaseAlgorithm
+from stable_baselines3.dqn import DQN
+from stable_baselines3.ppo import PPO
 
 
 def get_sb3_algo(algo_str: str) -> Type[BaseAlgorithm]:

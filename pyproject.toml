@@ -5,11 +5,11 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "arlin"
 version = "1.0.0"
-description = "Adversarial Reinforcement Learning for Model Interrogation"
+description = "Assured Reinforcement Learning for Model Interrogation"
 authors = ["Alex Tapley <atapley@mitre.org>"]
 readme = "README.md"
-keywords = ["python", "reinforcement learning", "adversarial", "explainable"]
-repository = "https://gitlab.mitre.org/advxai/arlin"
+keywords = ["python", "reinforcement learning", "adversarial", "explainable", "assurance"]
+repository = "https://github.com/mitre/arlin"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
@@ -46,12 +46,12 @@ sphinx-rtd-theme = "^1.2.2"
 pytest-cov = "^4.1.0"
 
 [tool.black]
-line-length = 88
+line-length = 90
 target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
-line_length = 88
+line_length = 90
 lines_after_imports = 2
 lines_between_sections = 1
 honor_noqa = true

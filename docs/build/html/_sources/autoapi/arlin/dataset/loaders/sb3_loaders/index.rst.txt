@@ -42,5 +42,3 @@ Functions
 
    :returns: Trained SB3 model
    :rtype: BaseAlgorithm
-
-

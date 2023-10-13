@@ -27,6 +27,3 @@ Classes
 
 
    .. py:method:: cluster_values()
-
-
-

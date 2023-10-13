@@ -54,6 +54,3 @@ Classes
    .. py:method:: initial_terminal_state_data()
 
       Generate data necessary for creating initial/terminal state graphs.
-
-
-

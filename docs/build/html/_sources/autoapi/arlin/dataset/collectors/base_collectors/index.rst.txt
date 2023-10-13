@@ -40,6 +40,3 @@ Classes
    inheritance.
 
    .. py:method:: collect_internal_data(observation)
-
-
-

@@ -25,32 +25,32 @@ Classes
    .. py:attribute:: observations
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: actions
       :type: Optional[int]
 
-      
+
 
    .. py:attribute:: rewards
       :type: Optional[float]
 
-      
+
 
    .. py:attribute:: terminateds
       :type: Optional[bool]
 
-      
+
 
    .. py:attribute:: truncateds
       :type: Optional[bool]
 
-      
+
 
    .. py:attribute:: steps
       :type: Optional[int]
 
-      
+
 
    .. py:method:: add_base_data(obs, action, reward, terminated, truncated, step)
 
@@ -64,32 +64,32 @@ Classes
    .. py:attribute:: latent_actors
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: latent_critics
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: dist_probs
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: critic_values
       :type: Optional[float]
 
-      
+
 
    .. py:attribute:: pi_features
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: vf_features
       :type: Optional[numpy.ndarray]
 
-      
+
 
 
 .. py:class:: SB3DQNDatapoint
@@ -100,16 +100,12 @@ Classes
    .. py:attribute:: q_vals
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: latent_qs
       :type: Optional[numpy.ndarray]
 
-      
+
 
    .. py:attribute:: features
       :type: Optional[numpy.ndarray]
-
-      
-
-

@@ -49,6 +49,3 @@ Classes
 
 
    .. py:method:: save_all_paths_to(to_cluster_id, file_path, verbose = False)
-
-
-

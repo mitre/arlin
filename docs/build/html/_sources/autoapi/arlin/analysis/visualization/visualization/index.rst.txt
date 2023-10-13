@@ -44,5 +44,3 @@ Functions
    :type data: GraphData
    :param filename: Name for the PNG file.
    :type filename: str
-
-

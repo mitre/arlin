@@ -32,11 +32,11 @@ test-pages:
     paths:
       - public/
     expire_in: 1 week
-  # only:
-  #   changes:
-  #     - "**/*.py"
-  #     - docs/**/*
-  #     - poetry.lock
+  only:
+    changes:
+      - "**/*.py"
+      - docs/**/*
+      - poetry.lock
 
 pages:
   stage: Documentation
@@ -46,4 +46,3 @@ pages:
   artifacts:
     paths:
       - public
-

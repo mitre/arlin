@@ -1,27 +1,29 @@
 from dataclasses import dataclass
-import numpy as np
-
 from typing import Optional
 
+import numpy as np
+
+
 @dataclass
-class BaseDatapoint():
+class BaseDatapoint:
     observations: Optional[np.ndarray] = None
     actions: Optional[int] = None
     rewards: Optional[float] = None
     terminateds: Optional[bool] = None
     truncateds: Optional[bool] = None
-    steps: Optional[int] = None
+    steps: Optional[float] = None
     renders: Optional[np.ndarray] = None
-    
-    def add_base_data(self,
-                      obs: np.ndarray,
-                      action: int,
-                      reward: float,
-                      terminated: bool,
-                      truncated: bool,
-                      step: int,
-                      render: np.ndarray):
-        
+
+    def add_base_data(
+        self,
+        obs: np.ndarray,
+        action: int,
+        reward: float,
+        terminated: bool,
+        truncated: bool,
+        step: float,
+        render: np.ndarray,
+    ):
         self.observations = obs
         self.actions = action
         self.rewards = reward
@@ -29,6 +31,7 @@ class BaseDatapoint():
         self.truncateds = truncated
         self.steps = step
         self.renders = render
+
 
 @dataclass
 class SB3PPODatapoint(BaseDatapoint):
@@ -38,6 +41,7 @@ class SB3PPODatapoint(BaseDatapoint):
     critic_values: Optional[float] = None
     pi_features: Optional[np.ndarray] = None
     vf_features: Optional[np.ndarray] = None
+
 
 @dataclass
 class SB3DQNDatapoint(BaseDatapoint):
