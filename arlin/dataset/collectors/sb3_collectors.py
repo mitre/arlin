@@ -4,7 +4,8 @@ import numpy as np
 import torch as th
 from stable_baselines3.common.base_class import BasePolicy
 
-from arlin.dataset.collectors import BaseDataCollector, BaseDatapoint
+from arlin.dataset.collectors import BaseDataCollector
+from arlin.dataset.collectors.datapoints import BaseDatapoint
 
 
 class SB3PPODataCollector(BaseDataCollector):

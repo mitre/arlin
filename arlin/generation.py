@@ -60,7 +60,7 @@ def generate_embeddings(
 
 def _get_cluster_ons(
     dataset: XRLDataset,
-) -> Tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Get the data that we want to cluster on for initial, intermediate, and terminal.
 
     Args:
@@ -112,7 +112,7 @@ def _get_cluster_ons(
 
 def generate_clusters(
     dataset: XRLDataset, num_clusters: int, seed: Optional[int] = None
-) -> Tuple(np.ndarray, object, object, object):
+) -> Tuple[np.ndarray, object, object, object]:
     """Generate clusters from the given XRLDataset.
 
     Args:
@@ -177,4 +177,4 @@ def generate_clusters(
     end = time.time()
     logging.info(f"\tSuccessfully generated clusters in {end - start} seconds.")
 
-    return clusters, start_algo, term_algo, mid_algo
+    return clusters, start_algo, mid_algo, term_algo

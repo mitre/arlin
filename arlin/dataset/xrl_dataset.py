@@ -8,7 +8,8 @@ from typing import Dict, List, Tuple, Type
 import gymnasium as gym
 import numpy as np
 
-from arlin.dataset.collectors import BaseDataCollector, BaseDatapoint, RandomDataCollector
+from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector
+from arlin.dataset.collectors.datapoints import BaseDatapoint
 
 
 class XRLDataset:
