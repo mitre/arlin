@@ -85,8 +85,7 @@ class XRLDataset:
         if collected_datapoints > num_datapoints:
             num_extra = collected_datapoints - num_datapoints
             logging.debug(
-                f'{num_extra} datapoints have been collected"\
-                " for cleaner MDP creation.'
+                f"{num_extra} datapoint(s) have been collected for cleaner MDP creation."
             )
 
         self._append_datapoints(datapoint_list)
@@ -116,6 +115,10 @@ class XRLDataset:
 
         while True:
             take_rand_action = rng.random() <= randomness
+
+            if step == 0:
+                take_rand_action = False
+
             if take_rand_action:
                 action = self.env.action_space.sample()
             else:

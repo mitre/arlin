@@ -79,8 +79,8 @@ class TestXRLDataset:
         assert len(dataset.steps) == dataset.num_datapoints
         assert len(dataset.renders) == dataset.num_datapoints
         assert len(dataset.total_rewards) == dataset.num_datapoints
-        assert dataset.start_indices is not None
-        assert dataset.term_indices is not None
+        assert len(dataset.start_indices) > 0
+        assert len(dataset.term_indices) > 0
         assert dataset.trunc_indices is not None
         assert dataset.unique_state_indices is not None
         assert dataset.state_mapping is not None
@@ -184,6 +184,7 @@ class TestXRLDataset:
 
         dataset._episode_lens = []
         datapoints, _ = dataset._collect_episode(1234)
+        assert len(datapoints) > 0
         dataset._append_datapoints(datapoints)
         dataset._init_analyze()
         dataset._set_episode_prog_indices()
@@ -191,6 +192,9 @@ class TestXRLDataset:
         num_starts = len(np.where(dataset.steps == 0)[0])
         num_terms = len(np.where(dataset.terminateds == 1)[0])
         num_truncs = len(np.where(dataset.truncateds == 1)[0])
+
+        assert num_starts >= 1
+        assert num_terms + num_truncs >= 1
 
         assert len(dataset.start_indices) == num_starts
         assert len(dataset.term_indices) == num_terms
