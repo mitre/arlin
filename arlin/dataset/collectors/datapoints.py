@@ -1,5 +1,6 @@
+import dataclasses
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 
@@ -15,6 +16,22 @@ class BaseDatapoint:
     truncateds: Optional[bool] = None
     steps: Optional[float] = None
     renders: Optional[np.ndarray] = None
+
+    def __eq__(self, other: Any):
+        if not isinstance(other, BaseDatapoint):
+            return False
+
+        self_fields = [i.name for i in dataclasses.fields(self)]
+        other_fields = [i.name for i in dataclasses.fields(other)]
+
+        if not self_fields == other_fields:
+            return False
+
+        for field in self_fields:
+            if not np.array_equal(getattr(self, field), getattr(other, field)):
+                return False
+
+        return True
 
     def add_base_data(
         self,

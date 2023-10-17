@@ -69,7 +69,7 @@ class SB3DQNDataCollector(BaseDataCollector):
 
         datapoint = self.datapoint_cls(
             q_vals=th.squeeze(q_vals).numpy(),
-            latent_q=th.squeeze(latent_q).numpy(),
+            latent_qs=th.squeeze(latent_q).numpy(),
             features=th.squeeze(features).numpy(),
         )
 

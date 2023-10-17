@@ -41,7 +41,7 @@ def load_sb_model(path: str, algo_str: str) -> BaseAlgorithm:
     logging.info(
         f"Loading {algo_str} model {os.path.basename(path)} with stable_baselines3..."
     )
-    algorithm = utils.get_sb3_algo(algo_str.lower())
+    algorithm = utils.get_sb3_algo(algo_str)
     model = algorithm.load(path)
 
     return model

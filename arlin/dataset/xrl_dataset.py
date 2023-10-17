@@ -40,8 +40,6 @@ class XRLDataset:
             if not hasattr(self, field.name):
                 setattr(self, field.name, np.array([], dtype=np.float64))
 
-        self.analyzed = False
-
     def __len__(self) -> int:
         """Number of transitions in the dataset.
 
@@ -65,7 +63,7 @@ class XRLDataset:
         datapoint_list = []
         self._episode_lens = []
         while collected_datapoints < num_datapoints:
-            datapoints, trunc = self.collect_episode(
+            datapoints, trunc = self._collect_episode(
                 seed=self.seed + num_episodes, randomness=randomness
             )
             if trunc:
@@ -92,11 +90,10 @@ class XRLDataset:
             )
 
         self._append_datapoints(datapoint_list)
-
         self._analyze_dataset()
         self.num_datapoints += collected_datapoints
 
-    def collect_episode(
+    def _collect_episode(
         self, seed: int, randomness: float = 0.0
     ) -> Tuple[List[Type[BaseDatapoint]], bool]:
         """Collect datapoints from a single episode.
@@ -112,6 +109,7 @@ class XRLDataset:
         """
         ep_datapoints = []
         obs, _ = self.env.reset(seed=seed)
+        self.env.action_space.seed(seed)
         step = 0
         render = self.env.render()
         rng = np.random.default_rng(seed)
@@ -173,7 +171,6 @@ class XRLDataset:
 
     def _init_analyze(self):
         """Initialize the additional analysis metrics."""
-        self.analyzed = True
         logging.info("Initializing analytics variables.")
         self.total_rewards = np.array([], dtype=np.float64)
         self.start_indices = np.array([], dtype=np.int8)
@@ -324,3 +321,11 @@ class XRLDataset:
 
         for key in dataset:
             setattr(self, key, dataset[key])
+
+        self.num_datapoints = len(dataset["observations"])
+
+        try:
+            getattr(self, "total_rewards")
+            self.analyzed = True
+        except Exception:
+            self.analyzed = False
