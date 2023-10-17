@@ -58,7 +58,19 @@ def generate_embeddings(
     return np.array(embeddings)
 
 
-def _select_key_data(dataset: XRLDataset, keys: List[str], indices: np.array):
+def _select_key_data(
+    dataset: XRLDataset, keys: List[str], indices: np.array
+) -> List[np.ndarray]:
+    """Select data to cluster on from the dataset.
+
+    Args:
+        dataset (XRLDataset): XRLDataset to pull data from
+        keys (List[str]): Keys for data within the dataset to pull
+        indices (np.array): Indices of datapoints to use
+
+    Returns:
+        List[np.ndarray]: Collection of data to concatenate and cluster on
+    """
     key_data = []
     for key in keys:
         val = getattr(dataset, key)[indices]
@@ -81,11 +93,14 @@ def _get_cluster_ons(
 
     Args:
         dataset (XRLDataset): XRLDataset with the data to cluster on.
+        start_cluster_keys (List[str]): Keys to cluster initial states on
+        intermediate_cluster_keys (List[str]): Keys to cluster intermediate states on
+        term_cluster_keys (List[str]): keys to cluster terminal states on
 
     Returns:
         Tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray):
-        Data to cluster for intermediate states, mask to identify intermediate states,
-        Data to cluster for initial states, data to cluster for terminal states
+        Data to cluster for initial states, Data to cluster for intermediate states,
+        data to cluster for terminal states, mask to identify intermediate states
     """
 
     mid_mask = np.ones([len(dataset.terminateds)], dtype=bool)
@@ -115,10 +130,16 @@ def generate_clusters(
 
     Args:
         dataset (XRLDataset): XRLDataset to cluster on.
-        num_clusters (int): Number of intermediate clusters to find.
+        start_cluster_keys (List[str]): Keys to cluster initial states on
+        intermediate_cluster_keys (List[str]): Keys to cluster intermediate states on
+        term_cluster_keys (List[str]): keys to cluster terminal states on
+        num_clusters (int): Number of intermediate clusters to find in intermediate
+            (not intitial or terminal) states
         seed (Optional[int], optional): Seed for clustering. Defaults to None.
 
     Raises:
+        ValueError: No initial states found.
+        ValueError: No terminal states found.
         ValueError: Not enough datapoints given (< num_clusters)
 
     Returns:
