@@ -120,7 +120,6 @@ class XRLDataset:
         rng = np.random.default_rng(seed)
 
         while True:
-            logging.info(step)
             take_rand_action = rng.random() <= randomness
 
             if step == 0:
@@ -326,8 +325,32 @@ class XRLDataset:
 
         Args:
             load_path (str): Path to saved XRLDataset.
+
+        Raises:
+            ValueError: Missing a required dataset key.
+            ValueError: There is no data to load.
+            ValueError: Input keys do not have the same number of datapoints.
         """
         dataset = np.load(load_path)
+
+        lens = set()
+        for key in [
+            "observations",
+            "actions",
+            "rewards",
+            "terminateds",
+            "truncateds",
+            "steps",
+            "renders",
+        ]:
+            if key not in dataset:
+                raise ValueError(f"Invalid dataset - missing {key}.")
+            if len(dataset[key]) == 0:
+                raise ValueError(f"Key {key} has no associated data.")
+            lens.add(len(dataset[key]))
+
+        if len(lens) > 1:
+            raise ValueError("Input keys do not have the same number of datapoints.")
 
         for key in dataset:
             setattr(self, key, dataset[key])

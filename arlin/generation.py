@@ -136,6 +136,9 @@ def generate_clusters(
 ) -> Tuple[np.ndarray, object, object, object]:
     """Generate clusters from the given XRLDataset.
 
+    NOTE: Order of the keys matters - ensure the data passed in during inference time
+    matches the order of the keys passed in during cluster generation.
+
     Args:
         dataset (XRLDataset): XRLDataset to cluster on.
         start_cluster_keys (List[str]): Keys to cluster initial states on

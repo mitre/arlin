@@ -23,6 +23,9 @@ class ClusterAnalyzer:
         Args:
             dataset (XRLDataset): XRLDataset created from an RL policy
             clusters (np.ndarray): Generated clusters
+
+        Raises:
+            ValueError: A cluster has both initial and terminal states within it
         """
         self.dataset = dataset
         self.clusters = clusters
@@ -35,7 +38,10 @@ class ClusterAnalyzer:
 
         for cluster_id in range(self.num_clusters):
             if cluster_id in start_clusters and cluster_id in term_clusters:
-                self.cluster_stage_colors.append("y")
+                raise ValueError(
+                    f"Cluster {cluster_id} is both an initial \
+                    and terminal cluster."
+                )
             elif cluster_id in start_clusters:
                 self.cluster_stage_colors.append("g")
             elif cluster_id in term_clusters:
@@ -56,42 +62,17 @@ class ClusterAnalyzer:
         os.makedirs(os.path.join(cluster_dir, "images"), exist_ok=True)
         save_dir = os.path.join(cluster_dir, "images")
 
-        sample_indices = np.random.randint(
-            low=0, high=len(cluster_renders), size=num_samples
+        rng = np.random.default_rng()
+
+        n_sample = (
+            num_samples if num_samples < len(cluster_renders) else len(cluster_renders)
         )
+
+        sample_indices = rng.choice(len(cluster_renders), size=n_sample, replace=False)
 
         for i in tqdm(sample_indices):
             im = Image.fromarray(cluster_renders[i])
             im.save(os.path.join(save_dir, f"image_{i}.png"))
-
-    def cluster_state_analysis(
-        self,
-        cluster_id: int,
-        env: gym.Env,
-        save_dir_path: str,
-        num_img_samples: int = 10,
-    ) -> None:
-        """Generate state analytics from a given cluster including renders and metrics.
-
-        Args:
-            cluster_id (int): Cluster to analyze the states of
-            env (gym.Env): Environment this policy was trained in.
-            save_dir_path (str): Directory to save data to.
-            num_img_samples (int, optional): Number of renders to save. Defaults to 10.
-        """
-        cluster_run = os.path.join(save_dir_path, f"cluster_{cluster_id}")
-        os.makedirs(cluster_run, exist_ok=True)
-
-        cluster_indices = np.where(self.clusters == cluster_id)[0]
-        cluster_states = self.dataset.observations[cluster_indices]
-        cluster_renders = self.dataset.renders[cluster_indices]
-
-        logging.info(f"State analysis of cluster {cluster_id} saved to {cluster_run}.")
-        self._cluster_state_text_analysis(
-            cluster_indices, cluster_states, env, cluster_run
-        )
-        logging.info(f"Saving {num_img_samples} images from Cluster {cluster_id}.")
-        self._cluster_state_img_analysis(cluster_renders, num_img_samples, cluster_run)
 
     def _cluster_state_text_analysis(
         self,
@@ -160,12 +141,49 @@ class ClusterAnalyzer:
         with open(text_file_path, "w") as f:
             f.write(txt_data)
 
+        logging.info(text_file_path)
+        logging.info(os.path.isfile(text_file_path))
+
+    def cluster_state_analysis(
+        self,
+        cluster_id: int,
+        env: gym.Env,
+        save_dir_path: str,
+        num_img_samples: int = 10,
+    ) -> None:
+        """Generate state analytics from a given cluster including renders and metrics.
+
+        Args:
+            cluster_id (int): Cluster to analyze the states of
+            env (gym.Env): Environment this policy was trained in.
+            save_dir_path (str): Directory to save data to.
+            num_img_samples (int, optional): Number of renders to save. Defaults to 10.
+        """
+        cluster_run = os.path.join(save_dir_path, f"cluster_{cluster_id}")
+        os.makedirs(cluster_run, exist_ok=True)
+
+        cluster_indices = np.where(self.clusters == cluster_id)[0]
+        cluster_states = self.dataset.observations[cluster_indices]
+        cluster_renders = self.dataset.renders[cluster_indices]
+
+        logging.info(f"State analysis of cluster {cluster_id} saved to {cluster_run}.")
+        self._cluster_state_text_analysis(
+            cluster_indices, cluster_states, env, cluster_run
+        )
+        self._cluster_state_img_analysis(cluster_renders, num_img_samples, cluster_run)
+
     def cluster_confidence(self) -> GraphData:
         """Get data of the average confidence of each cluster.
 
         Returns:
             GraphData: Data to visualize
         """
+
+        try:
+            self.dataset.dist_probs
+        except Exception:
+            raise ValueError("Cluster confidence requires key 'dist_probs' in dataset.")
+
         cluster_conf = [[] for _ in range(self.num_clusters)]
 
         for e, i in enumerate(self.clusters):
@@ -186,7 +204,7 @@ class ClusterAnalyzer:
         title = "Cluster Confidence Analysis"
 
         handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
-        labels = ["Initial", "Terminal", "Intermediate"]
+        labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
 
@@ -230,7 +248,7 @@ class ClusterAnalyzer:
         title = "Cluster Reward Analysis"
 
         handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
-        labels = ["Initial", "Terminal", "Intermediate"]
+        labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
 
@@ -254,6 +272,12 @@ class ClusterAnalyzer:
         Returns:
             GraphData: Data to visualize
         """
+
+        try:
+            self.dataset.critic_values
+        except Exception:
+            raise ValueError("Cluster value requires key 'critic_values' in dataset.")
+
         cluster_value = [[] for _ in range(self.num_clusters)]
 
         for e, i in enumerate(self.clusters):
@@ -274,7 +298,7 @@ class ClusterAnalyzer:
         title = "Cluster Value Analysis"
 
         handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
-        labels = ["Initial", "Terminal", "Intermediate"]
+        labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
 

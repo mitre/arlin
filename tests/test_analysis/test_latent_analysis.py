@@ -117,6 +117,7 @@ class TestLatentAnalyzer:
         assert cluster_data.legend["labels"] == [
             f"Cluster {i}" for i in range(n_clusters)
         ]
+        assert len(cluster_data.legend["handles"]) == len(cluster_data.legend["labels"])
         assert cluster_data.cmap is None
         assert cluster_data.xlabel is None
         assert cluster_data.ylabel is None
@@ -134,6 +135,7 @@ class TestLatentAnalyzer:
 
         assert db_data.legend["title"] == "Action Values"
         assert db_data.legend["labels"] == ["0", "1", "2", "3"]
+        assert len(db_data.legend["handles"]) == len(db_data.legend["labels"])
         assert db_data.cmap is None
         assert db_data.xlabel is None
         assert db_data.ylabel is None
@@ -184,6 +186,7 @@ class TestLatentAnalyzer:
 
         assert it_data.legend["title"] == "State Type"
         assert it_data.legend["labels"] == ["Initial", "Terminal"]
+        assert len(it_data.legend["handles"]) == len(it_data.legend["labels"])
         assert it_data.cmap is None
         assert it_data.xlabel is None
         assert it_data.ylabel is None

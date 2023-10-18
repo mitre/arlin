@@ -107,7 +107,7 @@ class TestXRLDataset:
         assert dataset.state_mapping is not None
 
         with pytest.raises(RuntimeError):
-            ppo_dataset.fill(num_datapoints=500, randomness=0.25)
+            ppo_dataset.fill(num_datapoints=50, randomness=0.25)
 
     def test_collect_episode(self, dataset):
         dataset._episode_lens = []
@@ -272,6 +272,11 @@ class TestXRLDataset:
             assert output[field].dtype == getattr(dataset, field).dtype
 
     def test_save_load(self, dataset, collector, env, tmpdir):
+        test_path = os.path.join(tmpdir, "dataset_test.npz")
+        dataset.save(test_path)
+        with pytest.raises(ValueError):
+            dataset.load(test_path)
+
         dataset.fill(num_datapoints=50, randomness=0.25)
         dataset_path_1 = os.path.join(tmpdir, "dataset.npz")
         dataset_path_2 = os.path.join(tmpdir, "dataset_2")
