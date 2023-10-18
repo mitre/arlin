@@ -6,8 +6,9 @@ import numpy as np
 import pytest
 
 from arlin.dataset import XRLDataset
-from arlin.dataset.collectors import RandomDataCollector
-from arlin.dataset.collectors.datapoints import BaseDatapoint
+from arlin.dataset.collectors import RandomDataCollector, SB3PPODataCollector
+from arlin.dataset.collectors.datapoints import BaseDatapoint, SB3PPODatapoint
+from arlin.dataset.loaders import load_hf_sb_model
 
 
 @pytest.fixture
@@ -25,10 +26,30 @@ def collector(env):
 
 
 @pytest.fixture
+def ppo_collector():
+    # Load the SB3 model from Huggingface
+    model = load_hf_sb_model(
+        repo_id="sb3/ppo-LunarLander-v2",
+        filename="ppo-LunarLander-v2.zip",
+        algo_str="ppo",
+    )
+
+    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
+    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint, policy=model.policy)
+    return collector
+
+
+@pytest.fixture
 def dataset(collector, env):
     # Instantiate the XRL Dataset
     dataset = XRLDataset(env, collector=collector)
+    return dataset
 
+
+@pytest.fixture
+def ppo_dataset(ppo_collector, env):
+    # Instantiate the XRL Dataset
+    dataset = XRLDataset(env, collector=ppo_collector)
     return dataset
 
 
@@ -47,7 +68,7 @@ class TestXRLDataset:
                 getattr(dataset, field.name), np.array([], dtype=np.float64)
             )
 
-    def test_fill(self, dataset, env):
+    def test_fill(self, dataset, ppo_dataset):
         assert dataset.num_datapoints == 0
         dataset.fill(num_datapoints=500, randomness=0.25)
         old_val = dataset.num_datapoints
@@ -85,7 +106,10 @@ class TestXRLDataset:
         assert dataset.unique_state_indices is not None
         assert dataset.state_mapping is not None
 
-    def test_collect_episode(self, dataset, env):
+        with pytest.raises(RuntimeError):
+            ppo_dataset.fill(num_datapoints=500, randomness=0.25)
+
+    def test_collect_episode(self, dataset):
         dataset._episode_lens = []
         datapoints_1, truncated_1 = dataset._collect_episode(1234)
 

@@ -68,6 +68,10 @@ def _select_key_data(
         keys (List[str]): Keys for data within the dataset to pull
         indices (np.array): Indices of datapoints to use
 
+    Raise:
+        ValueError: Too many dimensions in key data
+        ValueError: Too few dimensions in key data
+
     Returns:
         List[np.ndarray]: Collection of data to concatenate and cluster on
     """
@@ -75,8 +79,12 @@ def _select_key_data(
     for key in keys:
         val = getattr(dataset, key)[indices]
 
-        if len(val.shape) != 2:
+        if len(val.shape) == 1:
             val = np.expand_dims(val, axis=-1)
+        elif len(val.shape) > 2:
+            raise ValueError(f"Key {key} has too many dimensions - max allowed is 2.")
+        elif len(val.shape) == 0:
+            raise ValueError(f"Key {key} needs at least one dimension, but has 0.")
 
         key_data.append(val)
 
