@@ -65,14 +65,16 @@ class XRLDataset:
         trunc_count = 0
         while collected_datapoints < num_datapoints:
             datapoints, trunc = self._collect_episode(
-                seed=self.seed + num_episodes, randomness=randomness
+                seed=self.seed + num_episodes + trunc_count, randomness=randomness
             )
             if trunc:
                 logging.debug("\tSkipping episode due to truncation.")
                 trunc_count += 1
                 if trunc_count >= 5:
-                    err_str = "Too many truncated episodes in a row identified - \
-                        please try lowering the randomness value."
+                    err_str = (
+                        "Too many truncated episodes in a row identified - "
+                        + "please try lowering the randomness value."
+                    )
                     raise RuntimeError(err_str)
                 continue
             trunc_count = 0
@@ -118,6 +120,8 @@ class XRLDataset:
         step = 0
         render = self.env.render()
         rng = np.random.default_rng(seed)
+        term = False
+        trunc = False
 
         while True:
             take_rand_action = rng.random() <= randomness
