@@ -8,7 +8,8 @@ from typing import Dict, List, Tuple, Type
 import gymnasium as gym
 import numpy as np
 
-from arlin.dataset.collectors import BaseDataCollector, BaseDatapoint, RandomDataCollector
+from arlin.dataset.collectors import BaseDataCollector, RandomDataCollector
+from arlin.dataset.collectors.datapoints import BaseDatapoint
 
 
 class XRLDataset:
@@ -39,8 +40,6 @@ class XRLDataset:
             if not hasattr(self, field.name):
                 setattr(self, field.name, np.array([], dtype=np.float64))
 
-        self.analyzed = False
-
     def __len__(self) -> int:
         """Number of transitions in the dataset.
 
@@ -63,14 +62,22 @@ class XRLDataset:
         num_episodes = 0
         datapoint_list = []
         self._episode_lens = []
+        trunc_count = 0
         while collected_datapoints < num_datapoints:
-            datapoints, trunc = self.collect_episode(
-                seed=self.seed + num_episodes, randomness=randomness
+            datapoints, trunc = self._collect_episode(
+                seed=self.seed + num_episodes + trunc_count, randomness=randomness
             )
             if trunc:
                 logging.debug("\tSkipping episode due to truncation.")
+                trunc_count += 1
+                if trunc_count >= 5:
+                    err_str = (
+                        "Too many truncated episodes in a row identified - "
+                        + "please try lowering the randomness value."
+                    )
+                    raise RuntimeError(err_str)
                 continue
-
+            trunc_count = 0
             datapoint_list += datapoints
 
             collected_datapoints += len(datapoints)
@@ -86,16 +93,14 @@ class XRLDataset:
         if collected_datapoints > num_datapoints:
             num_extra = collected_datapoints - num_datapoints
             logging.debug(
-                f'{num_extra} datapoints have been collected"\
-                " for cleaner MDP creation.'
+                f"{num_extra} datapoint(s) have been collected for cleaner MDP creation."
             )
 
         self._append_datapoints(datapoint_list)
-
         self._analyze_dataset()
         self.num_datapoints += collected_datapoints
 
-    def collect_episode(
+    def _collect_episode(
         self, seed: int, randomness: float = 0.0
     ) -> Tuple[List[Type[BaseDatapoint]], bool]:
         """Collect datapoints from a single episode.
@@ -111,12 +116,19 @@ class XRLDataset:
         """
         ep_datapoints = []
         obs, _ = self.env.reset(seed=seed)
+        self.env.action_space.seed(seed)
         step = 0
         render = self.env.render()
         rng = np.random.default_rng(seed)
+        term = False
+        trunc = False
 
         while True:
             take_rand_action = rng.random() <= randomness
+
+            if step == 0:
+                take_rand_action = False
+
             if take_rand_action:
                 action = self.env.action_space.sample()
             else:
@@ -172,7 +184,6 @@ class XRLDataset:
 
     def _init_analyze(self):
         """Initialize the additional analysis metrics."""
-        self.analyzed = True
         logging.info("Initializing analytics variables.")
         self.total_rewards = np.array([], dtype=np.float64)
         self.start_indices = np.array([], dtype=np.int8)
@@ -318,8 +329,40 @@ class XRLDataset:
 
         Args:
             load_path (str): Path to saved XRLDataset.
+
+        Raises:
+            ValueError: Missing a required dataset key.
+            ValueError: There is no data to load.
+            ValueError: Input keys do not have the same number of datapoints.
         """
         dataset = np.load(load_path)
 
+        lens = set()
+        for key in [
+            "observations",
+            "actions",
+            "rewards",
+            "terminateds",
+            "truncateds",
+            "steps",
+            "renders",
+        ]:
+            if key not in dataset:
+                raise ValueError(f"Invalid dataset - missing {key}.")
+            if len(dataset[key]) == 0:
+                raise ValueError(f"Key {key} has no associated data.")
+            lens.add(len(dataset[key]))
+
+        if len(lens) > 1:
+            raise ValueError("Input keys do not have the same number of datapoints.")
+
         for key in dataset:
             setattr(self, key, dataset[key])
+
+        self.num_datapoints = len(dataset["observations"])
+
+        try:
+            getattr(self, "total_rewards")
+            self.analyzed = True
+        except Exception:
+            self.analyzed = False

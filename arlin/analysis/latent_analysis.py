@@ -88,10 +88,7 @@ class LatentAnalyzer:
             GraphData: Data to visualize
         """
 
-        try:
-            colors = self.dataset.steps
-        except Exception:
-            raise ValueError("Current dataset does not include 'steps' attribute.")
+        colors = self.dataset.steps
         title = "Episode Progression"
 
         episode_prog_data = GraphData(

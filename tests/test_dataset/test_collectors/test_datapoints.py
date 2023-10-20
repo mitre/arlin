@@ -11,11 +11,9 @@ def env():
     return env
 
 
-class TestRandomCollectors:
-    def test_random_collector(self, env):
+class TestBaseDatapoint:
+    def test_add_base_data(self, env):
         collector = RandomDataCollector(BaseDatapoint, env)
-
-        assert collector.datapoint_cls == BaseDatapoint
 
         obs, _ = env.reset()
         datapoint, action = collector.collect_internal_data(obs)
@@ -28,16 +26,15 @@ class TestRandomCollectors:
         assert datapoint.truncateds is None
         assert datapoint.steps is None
         assert datapoint.renders is None
-        assert env.action_space.contains(action)
 
-        new_obs, _, _, _, _ = env.step(action)
-        _, action = collector.collect_internal_data(new_obs)
-        assert env.action_space.contains(action)
+        obs, reward, terminated, truncated, _ = env.step(action)
+        render = env.render()
+        datapoint.add_base_data(obs, action, reward, terminated, truncated, 0, render)
 
-        new_obs, _, _, _, _ = env.step(action)
-        _, action = collector.collect_internal_data(new_obs)
-        assert env.action_space.contains(action)
-
-        new_obs, _, _, _, _ = env.step(action)
-        _, action = collector.collect_internal_data(new_obs)
-        assert env.action_space.contains(action)
+        assert datapoint.observations is not None
+        assert datapoint.actions is not None
+        assert datapoint.rewards is not None
+        assert datapoint.terminateds is not None
+        assert datapoint.truncateds is not None
+        assert datapoint.steps is not None
+        assert datapoint.renders is not None

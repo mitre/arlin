@@ -31,11 +31,11 @@ class SAMDP:
         self.samdp = self._generate()
         self.graph = self._generate_graph()
 
-    def _generate(self) -> SAMDP:
+    def _generate(self) -> np.ndarray:
         """Generate an SAMDP.
 
         Returns:
-            SAMDP: Numpy array representation of the SAMDP.
+            np.ndarray: Numpy array representation of the SAMDP.
         """
         logging.info("Generating SAMDP.")
         self.num_actions = len(np.unique(self.dataset.actions))
@@ -53,8 +53,6 @@ class SAMDP:
 
                 if not cur_cluster == next_cluster:
                     samdp_counts[cur_cluster, action, next_cluster] += 1
-
-        self.samdp_counts = samdp_counts
 
         np.set_printoptions(suppress=True)
         np.seterr(divide="ignore", invalid="ignore")
@@ -75,17 +73,18 @@ class SAMDP:
 
         # Add the total counts row to the samdp_counts
         samdp_counts = np.concatenate([samdp_counts, total_by_cluster], axis=1)
+        self.samdp_counts = samdp_counts
 
         samdp = samdp_counts / expanded_out_edges
         samdp = np.nan_to_num(samdp, nan=0)
 
-        return samdp
+        return samdp[:, :, :]
 
-    def save_txt(self, file_path: str) -> None:
+    def save_txt(self, save_dir: str) -> None:
         """Create a text table representation of the SAMDP.
 
         Args:
-            file_path (str): Path to save the text SAMDP to.
+            save_dir (str): Dir to save the text SAMDP to.
         """
         samdp_data = ["SAMDP"]
         for from_cluster_id in range(self.num_clusters):
@@ -94,8 +93,11 @@ class SAMDP:
 
             headers = [f"Cluster {i}" for i in range(self.num_clusters)]
             table.field_names = ["Action Value"] + headers
-            for action in range(self.num_actions):
-                row = [f"Action {action}"]
+            for action in range(self.num_actions + 1):
+                if action < self.num_actions:
+                    row = [f"Action {action}"]
+                else:
+                    row = ["Total"]
 
                 for to_cluster_id in range(self.num_clusters):
                     value = self.samdp_counts[from_cluster_id, action, to_cluster_id]
@@ -107,8 +109,8 @@ class SAMDP:
 
         samdp_data = "\n".join(samdp_data)
 
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w") as f:
+        os.makedirs(save_dir, exist_ok=True)
+        with open(os.path.join(save_dir, "samdp.txt"), "w") as f:
             f.write(samdp_data)
 
     def _generate_graph(self) -> nx.Graph:
@@ -169,8 +171,7 @@ class SAMDP:
             for to_cluster_id in range(self.num_clusters):
                 to_cluster = f"Cluster {to_cluster_id}"
 
-                prob = self.samdp[from_cluster_id, self.num_actions, to_cluster_id]
-
+                prob = np.sum(self.samdp[from_cluster_id, -1, to_cluster_id])
                 if not prob == 0 and not from_cluster_id == to_cluster_id:
                     G.add_edge(
                         from_cluster,
@@ -218,9 +219,7 @@ class SAMDP:
         node_edges = {}
         for node_id in range(self.num_clusters):
             node_name = f"Cluster {node_id}"
-            if node_id in start_clusters and node_id in term_clusters:
-                node_edges[node_name] = "y"
-            elif node_id in start_clusters:
+            if node_id in start_clusters:
                 node_edges[node_name] = "g"
             elif node_id in term_clusters:
                 node_edges[node_name] = "r"
@@ -256,10 +255,8 @@ class SAMDP:
                 layers[i].append(node)
 
         depth = len(bfs_layers)
-        layers.append([])
         for e, node in enumerate(terminal_nodes):
             pos[node] = (depth, e)
-            layers[depth].append(node)
 
         return pos
 
@@ -281,11 +278,7 @@ class SAMDP:
             from_node_x, from_node_y = pos[edge[0]]
             to_node_x, to_node_y = pos[edge[1]]
 
-            reverse_edge = False
-            for r_edge in edges:
-                if edge[0] == r_edge[1] and edge[1] == r_edge[0]:
-                    reverse_edge = True
-                    break
+            reverse_edge = self.graph.has_edge(edge[1], edge[0])
 
             arc = edge[2]
             if (from_node_x == to_node_x or from_node_y == to_node_y) or reverse_edge:
@@ -405,7 +398,7 @@ class SAMDP:
 
         return G
 
-    def save_likely_paths(self, file_path: str) -> nx.Graph:
+    def save_likely_graph(self, file_path: str) -> nx.Graph:
         """Save a graph where only the most likely edges are shown.
 
         Args:
@@ -440,7 +433,9 @@ class SAMDP:
             for action in range(self.num_actions):
                 action_edges = [i for i in out_edges if i[3]["action"] == action]
                 if not action_edges == []:
-                    best_edge = sorted(action_edges, key=lambda x: x[3]["weight"])[-1]
+                    best_edge = sorted(
+                        action_edges, key=lambda x: (x[3]["weight"], x[2]), reverse=True
+                    )[0]
                     edges.append(best_edge)
 
         edge_arcs = self._generate_edge_arcs(pos, edges)
@@ -476,19 +471,19 @@ class SAMDP:
 
         return graph
 
-    def _calculate_path_probs(
+    def _find_best_path(
         self,
         from_cluster: str,
         to_cluster: str,
-        paths: List[Tuple[str, str, int, Dict[str, Any]]],
+        paths: List[List[Tuple[str, str, int, Dict[str, Any]]]],
     ) -> Tuple[Dict[int, float], List]:
         """Calculate the probability of each path being taken.
 
         Args:
             from_cluster (str): Cluster to move from
             to_cluster (str): Cluster to move to
-            paths (List[Tuple[str, str, int, Dict[str, Any]]]): All simple paths from
-            one cluster to another.
+            paths (List[List[Tuple[str, str, int, Dict[str, Any]]]]): All simple paths
+            from one cluster to another.
 
         Returns:
             Dict[int, float], List: Dictionary with actions as keys and highest
@@ -497,7 +492,7 @@ class SAMDP:
         """
         if len(paths) == 0:
             logging.info(f"\tNo paths found from {from_cluster} to {to_cluster}.")
-            return {}, []
+            return []
 
         probs = {}
         best_paths = {}
@@ -510,7 +505,7 @@ class SAMDP:
                 else:
                     from_node = int(edge[0].split(" ")[-1])
                     to_node = int(edge[1].split(" ")[-1])
-                    edge_prob = self.samdp[from_node][-1][to_node]
+                    edge_prob = np.sum(self.samdp[from_node, -1, to_node])
                 prob = prob * edge_prob
 
             if action in probs:
@@ -526,24 +521,31 @@ class SAMDP:
         )
         for action in probs:
             logging.info(f"\tvia Action {action}: {round(probs[action] * 100, 2)}%")
-            for edge in best_paths[action]:
-                logging.info(
-                    f"\t\t{edge[0]} to {edge[1]} with \
-                    f{round(edge[3]['weight'] * 100, 2)}%"
-                )
+            for i, edge in enumerate(best_paths[action]):
+                if i == 0:
+                    weight = round(edge[3]["weight"] * 100, 2)
+                else:
+                    from_id = int(edge[0].split(" ")[-1])
+                    to_id = int(edge[1].split(" ")[-1])
+                    weight = round(self.samdp[from_id, -1, to_id] * 100, 2)
+                logging.info(f"\t\t{edge[0]} to {edge[1]} with {weight}%")
 
         best_action = max(probs, key=probs.get)
         logging.info(
-            f"\tBest Option: Action {best_action} with \
-                f{round(probs[best_action] * 100, 2)}%"
+            f"\tBest Option: Action {best_action} with "
+            + f"{round(probs[best_action] * 100, 2)}%"
         )
         logging.info("\tBest Path:")
-        for edge in best_paths[best_action]:
-            logging.info(
-                f"\t\t{edge[0]} to {edge[1]} with {round(edge[3]['weight'] * 100, 2)}%"
-            )
+        for i, edge in enumerate(best_paths[best_action]):
+            if i == 0:
+                weight = round(edge[3]["weight"] * 100, 2)
+            else:
+                from_id = int(edge[0].split(" ")[-1])
+                to_id = int(edge[1].split(" ")[-1])
+                weight = round(self.samdp[from_id, -1, to_id] * 100, 2)
+            logging.info(f"\t\t{edge[0]} to {edge[1]} with {weight}%")
 
-        return probs, best_paths[best_action]
+        return best_paths[best_action]
 
     def save_paths(
         self,
@@ -615,10 +617,7 @@ class SAMDP:
 
             updated_paths.append(data_path)
 
-        _, best_path = self._calculate_path_probs(from_cluster, to_cluster, updated_paths)
-
-        if best_path == []:
-            return
+        best_path = self._find_best_path(from_cluster, to_cluster, updated_paths)
 
         if best_path_only:
             full_edge_list = best_path
@@ -707,37 +706,27 @@ class SAMDP:
         plt.title(f"All SAMDP connections to terminal cluster {term_cluster_id}")
         logging.info(f"Finding connections to terminal cluster {term_cluster_id}...")
 
-        edges = []
-        for node in self.graph.nodes():
-            out_edges = self.graph.out_edges(node, data=True, keys=True)
+        edge_list = []
+        full_edge_list = []
+        for node in term_nodes:
+            full_in_edges = graph.in_edges(node, data=True, keys=True)
 
-            for action in range(self.num_actions):
-                action_edges = [i for i in out_edges if i[3]["action"] == action]
-                if not action_edges == []:
-                    best_edge = sorted(action_edges, key=lambda x: x[3]["weight"])[-1]
-                    edges.append(best_edge)
-
-        if best_path:
-            edge_list = []
-            full_edge_list = []
-            for node in term_nodes:
-                full_in_edges = graph.in_edges(node, data=True, keys=True)
-
-                s = sorted(full_in_edges, key=lambda x: x[3]["weight"], reverse=True)
-
-                node_set = set()
-                full_edges = []
-                edges = []
-                for edge in s:
-                    if edge[0] in node_set:
-                        pass
+            if not best_path:
+                for edge in full_in_edges:
+                    full_edge_list.append(edge)
+                    edge_list.append((edge[0], edge[1], edge[2]))
+            else:
+                node_dict = {}
+                for edge in full_in_edges:
+                    if edge[0] not in node_dict.keys():
+                        node_dict[edge[0]] = edge
                     else:
-                        full_edges.append((edge))
-                        edges.append((edge[0], edge[1], edge[2]))
-                        node_set.add(edge[0])
+                        if node_dict[edge[0]][3]["weight"] < edge[3]["weight"]:
+                            node_dict[edge[0]] = edge
 
-                edge_list += edges
-                full_edge_list += full_edges
+                for edge in node_dict.values():
+                    full_edge_list.append(edge)
+                    edge_list.append((edge[0], edge[1], edge[2]))
 
         subgraph = self.graph.edge_subgraph(edge_list)
 
@@ -765,7 +754,6 @@ class SAMDP:
                 edgelist=[edge],
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[3]["color"],
-                #    alpha=max(0, min(edge[3]['weight'] + 0.1, 1)),
                 node_size=4000,
                 arrowsize=25,
             )

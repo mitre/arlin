@@ -4,7 +4,7 @@ from typing import Tuple, Type
 import gymnasium as gym
 import numpy as np
 
-from arlin.dataset.collectors import BaseDatapoint
+from arlin.dataset.collectors.datapoints import BaseDatapoint
 
 
 class BaseDataCollector(ABC):

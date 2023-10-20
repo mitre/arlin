@@ -20,6 +20,8 @@ def get_sb3_algo(algo_str: str) -> Type[BaseAlgorithm]:
     """
     algo: Type[BaseAlgorithm]
 
+    algo_str = algo_str.lower()
+
     if algo_str == "dqn":
         algo = DQN
     elif algo_str == "ppo":

@@ -4,7 +4,8 @@ import numpy as np
 import torch as th
 from stable_baselines3.common.base_class import BasePolicy
 
-from arlin.dataset.collectors import BaseDataCollector, BaseDatapoint
+from arlin.dataset.collectors import BaseDataCollector
+from arlin.dataset.collectors.datapoints import BaseDatapoint
 
 
 class SB3PPODataCollector(BaseDataCollector):
@@ -68,7 +69,7 @@ class SB3DQNDataCollector(BaseDataCollector):
 
         datapoint = self.datapoint_cls(
             q_vals=th.squeeze(q_vals).numpy(),
-            latent_q=th.squeeze(latent_q).numpy(),
+            latent_qs=th.squeeze(latent_q).numpy(),
             features=th.squeeze(features).numpy(),
         )
 

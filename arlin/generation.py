@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -58,69 +58,99 @@ def generate_embeddings(
     return np.array(embeddings)
 
 
+def _select_key_data(
+    dataset: XRLDataset, keys: List[str], indices: np.array
+) -> List[np.ndarray]:
+    """Select data to cluster on from the dataset.
+
+    Args:
+        dataset (XRLDataset): XRLDataset to pull data from
+        keys (List[str]): Keys for data within the dataset to pull
+        indices (np.array): Indices of datapoints to use
+
+    Raise:
+        ValueError: Too many dimensions in key data
+        ValueError: Too few dimensions in key data
+
+    Returns:
+        List[np.ndarray]: Collection of data to concatenate and cluster on
+    """
+    key_data = []
+    for key in keys:
+        val = getattr(dataset, key)[indices]
+
+        if len(val.shape) == 1:
+            val = np.expand_dims(val, axis=-1)
+        elif len(val.shape) > 2:
+            raise ValueError(f"Key {key} has too many dimensions - max allowed is 2.")
+        elif len(val.shape) == 0:
+            raise ValueError(f"Key {key} needs at least one dimension, but has 0.")
+
+        key_data.append(val)
+
+    return key_data
+
+
 def _get_cluster_ons(
     dataset: XRLDataset,
-) -> Tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    start_cluster_keys: List[str],
+    intermediate_cluster_keys: List[str],
+    term_cluster_keys: List[str],
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Get the data that we want to cluster on for initial, intermediate, and terminal.
 
     Args:
         dataset (XRLDataset): XRLDataset with the data to cluster on.
+        start_cluster_keys (List[str]): Keys to cluster initial states on
+        intermediate_cluster_keys (List[str]): Keys to cluster intermediate states on
+        term_cluster_keys (List[str]): keys to cluster terminal states on
 
     Returns:
         Tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray):
-        Data to cluster for intermediate states, mask to identify intermediate states,
-        Data to cluster for initial states, data to cluster for terminal states
+        Data to cluster for initial states, Data to cluster for intermediate states,
+        data to cluster for terminal states, mask to identify intermediate states
     """
-    start_latents = dataset.latent_actors[dataset.start_indices]
-    term_latents = dataset.latent_actors[dataset.term_indices]
 
-    start_values = np.expand_dims(dataset.critic_values[dataset.start_indices], axis=-1)
-    start_rewards = np.expand_dims(dataset.rewards[dataset.start_indices], axis=-1)
-    term_values = np.expand_dims(dataset.critic_values[dataset.term_indices], axis=-1)
-    term_rewards = np.expand_dims(dataset.rewards[dataset.term_indices], axis=-1)
-    term_total_rewards = np.expand_dims(
-        dataset.total_rewards[dataset.term_indices], axis=-1
-    )
+    mid_mask = np.ones([len(dataset.terminateds)], dtype=bool)
+    mid_mask[dataset.start_indices] = False
+    mid_mask[dataset.term_indices] = False
 
-    mask = np.ones([len(dataset.terminateds)], dtype=bool)
-    mask[dataset.start_indices] = False
-    mask[dataset.term_indices] = False
+    start_data = _select_key_data(dataset, start_cluster_keys, dataset.start_indices)
+    mid_data = _select_key_data(dataset, intermediate_cluster_keys, mid_mask)
+    term_data = _select_key_data(dataset, term_cluster_keys, dataset.term_indices)
 
-    latents = dataset.latent_actors[mask]
-    values = np.expand_dims(dataset.critic_values[mask], axis=-1)
-    rewards = np.expand_dims(dataset.rewards[mask], axis=-1)
+    cluster_on_start = np.concatenate(start_data, axis=-1)
+    cluster_on_mid = np.concatenate(mid_data, axis=-1)
+    cluster_on_term = np.concatenate(term_data, axis=-1)
 
-    cluster_on = np.concatenate(
-        [
-            latents,
-            values,
-            rewards,
-        ],
-        axis=-1,
-    )
-
-    cluster_on_start = np.concatenate(
-        [start_latents, start_values, start_rewards], axis=-1
-    )
-
-    cluster_on_term = np.concatenate(
-        [term_latents, term_total_rewards, term_rewards, term_values], axis=-1
-    )
-
-    return cluster_on, mask, cluster_on_start, cluster_on_term
+    return cluster_on_start, cluster_on_mid, cluster_on_term, mid_mask
 
 
 def generate_clusters(
-    dataset: XRLDataset, num_clusters: int, seed: Optional[int] = None
-) -> Tuple(np.ndarray, object, object, object):
+    dataset: XRLDataset,
+    start_cluster_keys: List[str],
+    intermediate_cluster_keys: List[str],
+    term_cluster_keys: List[str],
+    num_clusters: int,
+    seed: Optional[int] = None,
+) -> Tuple[np.ndarray, object, object, object]:
     """Generate clusters from the given XRLDataset.
+
+    NOTE: Order of the keys matters - ensure the data passed in during inference time
+    matches the order of the keys passed in during cluster generation.
 
     Args:
         dataset (XRLDataset): XRLDataset to cluster on.
-        num_clusters (int): Number of intermediate clusters to find.
+        start_cluster_keys (List[str]): Keys to cluster initial states on
+        intermediate_cluster_keys (List[str]): Keys to cluster intermediate states on
+        term_cluster_keys (List[str]): keys to cluster terminal states on
+        num_clusters (int): Number of intermediate clusters to find in intermediate
+            (not intitial or terminal) states
         seed (Optional[int], optional): Seed for clustering. Defaults to None.
 
     Raises:
+        ValueError: No initial states found.
+        ValueError: No terminal states found.
         ValueError: Not enough datapoints given (< num_clusters)
 
     Returns:
@@ -132,49 +162,47 @@ def generate_clusters(
 
     start = time.time()
 
-    (cluster_on, cluster_on_mask, cluster_on_start, cluster_on_term) = _get_cluster_ons(
-        dataset
+    (cluster_on_start, cluster_on_mid, cluster_on_term, mid_mask) = _get_cluster_ons(
+        dataset, start_cluster_keys, intermediate_cluster_keys, term_cluster_keys
     )
 
     if len(cluster_on_start) == 0:
-        logging.warning("No start indices found in dataset.")
-        start_clusters = []
+        raise ValueError("No initial indices found! Cancelling clustering.")
     else:
         start_algo = MeanShift()
         start_clusters = start_algo.fit(cluster_on_start)
         start_clusters = start_clusters.labels_
 
     if len(cluster_on_term) == 0:
-        logging.warning("No terminal indices found in dataset.")
-        term_clusters = []
+        raise ValueError("No terminal indices found! Cancelling clustering.")
     else:
         term_algo = MeanShift()
         term_clusters = term_algo.fit(cluster_on_term)
         term_clusters = term_clusters.labels_
 
-    if num_clusters > len(cluster_on):
+    if num_clusters > len(cluster_on_mid):
         raise ValueError(
-            f"Not enough datapoints {len(cluster_on)} to create {num_clusters} clusters."
+            f"Not enough datapoints {len(cluster_on_mid)} to create \
+                {num_clusters} clusters."
         )
 
     mid_algo = KMeans(n_clusters=num_clusters, random_state=seed, n_init="auto")
-    mid_clusters = mid_algo.fit(cluster_on)
+    mid_clusters = mid_algo.fit(cluster_on_mid)
     mid_clusters = mid_clusters.labels_
 
-    n_clusters = len(set(mid_clusters))
     n_start_clusters = len(set(start_clusters))
 
-    start_clusters = np.array([x + n_clusters for x in start_clusters], dtype=int)
+    start_clusters = np.array([x + num_clusters for x in start_clusters], dtype=int)
     term_clusters = np.array(
-        [x + n_start_clusters + n_clusters for x in term_clusters], dtype=int
+        [x + n_start_clusters + num_clusters for x in term_clusters], dtype=int
     )
 
     clusters = np.empty([len(dataset.terminateds)], dtype=int)
-    clusters[cluster_on_mask] = mid_clusters
+    clusters[mid_mask] = mid_clusters
     clusters[dataset.start_indices] = start_clusters
     clusters[dataset.term_indices] = term_clusters
 
     end = time.time()
     logging.info(f"\tSuccessfully generated clusters in {end - start} seconds.")
 
-    return clusters, start_algo, term_algo, mid_algo
+    return clusters, start_algo, mid_algo, term_algo
