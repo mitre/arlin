@@ -27,6 +27,7 @@ shimmy = "^1.2.1"
 ipykernel = "^6.25.0"
 jupyter = "^1.0.0"
 pillow = "^10.0.0"
+swig = "^4.1.1"
 
 [tool.poetry.group.dev.dependencies]
 bandit = {extras = ["toml"], version = "^1.7.5"}

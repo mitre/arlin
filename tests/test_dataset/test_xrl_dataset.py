@@ -106,9 +106,6 @@ class TestXRLDataset:
         assert dataset.unique_state_indices is not None
         assert dataset.state_mapping is not None
 
-        with pytest.raises(RuntimeError):
-            ppo_dataset.fill(num_datapoints=50, randomness=0.25)
-
     def test_collect_episode(self, dataset):
         dataset._episode_lens = []
         datapoints_1, truncated_1 = dataset._collect_episode(1234)

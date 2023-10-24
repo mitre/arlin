@@ -73,7 +73,7 @@ class XRLDataset:
                 if trunc_count >= 5:
                     err_str = (
                         "Too many truncated episodes in a row identified - "
-                        + "please try lowering the randomness value."
+                        + "please try modifying the randomness value."
                     )
                     raise RuntimeError(err_str)
                 continue
