@@ -29,7 +29,7 @@ jupyter = "^1.0.0"
 pillow = "^10.0.0"
 
 [tool.poetry.group.dev.dependencies]
-bandit = "^1.7.5"
+bandit = {extras = ["toml"], version = "^1.7.5"}
 black = "^23.7.0"
 flake8 = "^6.0.0"
 isort = "^5.12.0"
@@ -42,7 +42,7 @@ sphinx-autoapi = "^2.1.1"
 myst-parser = "^2.0.0"
 sphinx-rtd-theme = "^1.2.2"
 
-[tool.poetry.group.cov.dependencies]
+[tool.poetry.group.coverage.dependencies]
 pytest-cov = "^4.1.0"
 
 [tool.black]
@@ -58,4 +58,5 @@ honor_noqa = true
 skip_gitignore = true
 
 [tool.bandit]
+exclude_dirs = ["tests"]
 skips = ["B101", "B311"]

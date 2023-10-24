@@ -71,7 +71,7 @@ bandit:
     - pages
   script:
     - poetry install --only dev
-    - poetry run bandit -r .
+    - poetry run bandit -c pyproject.toml -r ./arlin
   needs: []
   only:
     refs:
