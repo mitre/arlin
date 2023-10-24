@@ -12,7 +12,7 @@ keywords = ["python", "reinforcement learning", "adversarial", "explainable", "a
 repository = "https://github.com/mitre/arlin"
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.11"
 numpy = "^1.25.1"
 stable-baselines3 = "^2.0.0"
 huggingface-sb3 = "^2.2.5"
