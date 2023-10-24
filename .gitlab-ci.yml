@@ -1,4 +1,4 @@
-image: "python:3.9"
+image: "python:3.11.6"
 
 before_script:
   - python --version
