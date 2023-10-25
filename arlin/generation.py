@@ -3,10 +3,8 @@ import time
 from typing import List, Optional, Tuple
 
 import numpy as np
-
-# from sklearn.manifold import TSNE
-from MulticoreTSNE import MulticoreTSNE as TSNE
 from sklearn.cluster import KMeans, MeanShift
+from sklearn.manifold import TSNE
 
 from arlin.dataset.xrl_dataset import XRLDataset
 

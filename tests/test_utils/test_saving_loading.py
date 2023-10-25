@@ -40,7 +40,7 @@ def embeddings(dataset):
         dataset=dataset,
         activation_key="latent_actors",
         perplexity=5,
-        n_train_iter=10,
+        n_train_iter=250,
         output_dim=2,
         seed=12345,
     )

@@ -28,7 +28,7 @@ def dataset():
 
 class TestGeneration:
     def test_generate_embeddings(self, dataset):
-        embeddings = generate_embeddings(dataset, "observations", 10, 20)
+        embeddings = generate_embeddings(dataset, "observations", 10, 250)
 
         assert len(embeddings) == len(dataset.observations)
 

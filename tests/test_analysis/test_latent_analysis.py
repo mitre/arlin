@@ -26,7 +26,7 @@ def dataset():
 
 @pytest.fixture
 def embeddings(dataset):
-    embeddings = generate_embeddings(dataset, "observations", 10, 20)
+    embeddings = generate_embeddings(dataset, "observations", 10, 250)
     return embeddings
 
 
@@ -72,7 +72,7 @@ def ppo_dataset():
 
 @pytest.fixture
 def ppo_embeddings(ppo_dataset):
-    embeddings = generate_embeddings(ppo_dataset, "observations", 10, 20)
+    embeddings = generate_embeddings(ppo_dataset, "observations", 10, 250)
     return embeddings
 
 

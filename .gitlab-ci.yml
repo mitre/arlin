@@ -84,6 +84,9 @@ bandit:
 #########
 # Tests #
 #########
+
+# NOTE: The install of gym's Box2d package requires swig, but will use the external swig
+# as opposed to the venv swig, requiring the pip install outside of poetry
 coverage:
   stage: Tests
   tags:
