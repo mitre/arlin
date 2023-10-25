@@ -136,10 +136,9 @@ class XRLDataset:
 
             new_obs, reward, term, trunc, _ = self.env.step(action)
 
-            if not take_rand_action:
-                datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
-                ep_datapoints.append(datapoint)
-                render = self.env.render()
+            datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
+            ep_datapoints.append(datapoint)
+            render = self.env.render()
 
             step += 1
             obs = new_obs
