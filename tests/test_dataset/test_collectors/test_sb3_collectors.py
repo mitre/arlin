@@ -1,35 +1,20 @@
 import pytest
+from stable_baselines3 import DQN
 
 from arlin.dataset.collectors import SB3DQNDataCollector, SB3PPODataCollector
 from arlin.dataset.collectors.datapoints import SB3DQNDatapoint, SB3PPODatapoint
-from arlin.dataset.loaders.sb3_loaders import load_hf_sb_model
 
 
 @pytest.fixture
-def ppo_policy():
-    model = load_hf_sb_model(
-        repo_id="sb3/ppo-LunarLander-v2",
-        filename="ppo-LunarLander-v2.zip",
-        algo_str="ppo",
-    )
-
-    return model.policy
-
-
-@pytest.fixture
-def dqn_policy():
-    model = load_hf_sb_model(
-        repo_id="sb3/dqn-LunarLander-v2",
-        filename="dqn-LunarLander-v2.zip",
-        algo_str="dqn",
-    )
-
-    return model.policy
+def dqn_model(env):
+    model = DQN("MlpPolicy", env, verbose=1)
+    model.learn(total_timesteps=int(100))
+    return model
 
 
 class TestSB3Collectors:
-    def test_sb3_ppo_collector(self, ppo_policy, env):
-        collector = SB3PPODataCollector(SB3PPODatapoint, ppo_policy)
+    def test_sb3_ppo_collector(self, ppo_model, env):
+        collector = SB3PPODataCollector(SB3PPODatapoint, ppo_model.policy)
 
         assert collector.datapoint_cls == SB3PPODatapoint
 
@@ -64,8 +49,8 @@ class TestSB3Collectors:
         _, action = collector.collect_internal_data(new_obs)
         assert env.action_space.contains(action)
 
-    def test_sb3_dqn_collector(self, dqn_policy, env):
-        collector = SB3DQNDataCollector(SB3DQNDatapoint, dqn_policy)
+    def test_sb3_dqn_collector(self, dqn_model, env):
+        collector = SB3DQNDataCollector(SB3DQNDatapoint, dqn_model.policy)
 
         assert collector.datapoint_cls == SB3DQNDatapoint
 

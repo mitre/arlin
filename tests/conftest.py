@@ -54,6 +54,13 @@ def random_clusters(random_dataset):
 
 
 @pytest.fixture
+def ppo_model(env):
+    model = PPO("MlpPolicy", env, verbose=1)
+    model.learn(total_timesteps=int(100))
+    return model
+
+
+@pytest.fixture
 def ppo_dataset(env):
     model = PPO("MlpPolicy", env, verbose=1)
     model.learn(total_timesteps=int(100))
