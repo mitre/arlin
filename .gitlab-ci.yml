@@ -5,6 +5,8 @@ before_script:
   - curl -sSkL https://install.python-poetry.org | python -
   - export PATH=$PATH:$HOME/.local/bin
   - poetry --version
+  - poetry config virtualenvs.in-project true
+  - poetry env use 3.11.6
 
 stages:
   - Static Analysis
@@ -89,7 +91,6 @@ coverage:
   tags:
   - pages
   script:
-    - pip install swig
     - poetry install --with coverage
     - poetry run python -m coverage run -m pytest
     - poetry run python -m coverage report -i
