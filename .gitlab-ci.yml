@@ -89,6 +89,7 @@ coverage:
   tags:
   - pages
   script:
+    - pip install swig
     - poetry install --with coverage
     - poetry run python -m coverage run -m pytest
     - poetry run python -m coverage report -i
@@ -116,7 +117,6 @@ coverage:
 
 .pages:
   script:
-    - poetry env use python3.9
     - poetry install --only docs
     - poetry run sphinx-build -d docs/build/doctrees docs/source docs/build/html
     - mv docs/build/html public/
