@@ -20,13 +20,36 @@ Classes
 .. py:class:: XRLDataset(environment, collector = RandomDataCollector, seed = 12345)
 
 
-   .. py:method:: fill(num_datapoints = 50000, randomness = 1.0)
+   Class to store experiences from running a policy in an environment.
 
+   Initialize an XRLDataset.
 
-   .. py:method:: collect_episode(seed, randomness = 0.0)
+   :param environment: Environment to run the policy in.
+   :type environment: gym.Env
+   :param collector: Collector we want to use to collect
+                     our data. Defaults to RandomDataCollector.
+   :type collector: BaseDataCollector, optional
+   :param seed: Sed for episode creation. Defaults to 12345.
+   :type seed: int, optional
+
+   .. py:method:: fill(num_datapoints = 50000, randomness = 0.0)
+
+      Add transitions to this dataset.
+
+      :param num_datapoints: Number of datapoints to add.
+                             Defaults to 50000.
+      :type num_datapoints: int, optional
+      :param randomness: How much randomness do we want when taking
+                         actions. Defaults to 0.0.
+      :type randomness: float, optional
 
 
    .. py:method:: get_dict()
+
+      Get a dictionary representation of this dataset.
+
+      :returns: Dictionary representation of this dataset.
+      :rtype: Dict[str, List[np.ndarray]]
 
 
    .. py:method:: save(file_path)
@@ -37,3 +60,12 @@ Classes
 
 
    .. py:method:: load(load_path)
+
+      Load a XRLDataset from the given path.
+
+      :param load_path: Path to saved XRLDataset.
+      :type load_path: str
+
+      :raises ValueError: Missing a required dataset key.
+      :raises ValueError: There is no data to load.
+      :raises ValueError: Input keys do not have the same number of datapoints.

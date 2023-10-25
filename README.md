@@ -56,7 +56,7 @@ agent's policy along with available paths between given clusters.
 
 # Installation
 
-*Note: ARLIN has only been tested on Ubuntu 18.04 and Python 3.9.*
+*Note: ARLIN has only been tested on Ubuntu 18.04 and Python 3.11.6
 
 1. **Clone the repository**
 
@@ -64,7 +64,24 @@ agent's policy along with available paths between given clusters.
     git clone https://gitlab.mitre.org/advxai/arlin.git
     ```
 
-2. **Install poetry**
+2. **Setup Pyenv Virtual Environment**
+
+    ```bash
+    curl https://pyenv.run | bash
+    ```
+
+    ```bash
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    ```
+
+    ```bash
+    pyenv install 3.11.6
+    pyenv local 3.11.6
+    ```
+
+3. **Install poetry**
 
     ```bash
     curl -sSL https://install.python-poetry.org | python3 -
@@ -75,7 +92,12 @@ agent's policy along with available paths between given clusters.
     export PATH="$HOME/.local/bin:$PATH"
     ```
 
-3. **Install required packages**
+    ```bash
+    poetry config virtualenvs.in-project true
+    poetry env use 3.11.6
+    ```
+
+4. **Install required packages**
 
     ```bash
     cd arlin

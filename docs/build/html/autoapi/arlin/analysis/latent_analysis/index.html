@@ -12,11 +12,11 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
 
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=c6e86fd7"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -94,120 +94,114 @@
            <div itemprop="articleBody">
 
   <section id="module-arlin.analysis.latent_analysis">
-<span id="arlin-analysis-latent-analysis"></span><h1><a class="reference internal" href="#module-arlin.analysis.latent_analysis" title="arlin.analysis.latent_analysis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">arlin.analysis.latent_analysis</span></code></a><a class="headerlink" href="#module-arlin.analysis.latent_analysis" title="Permalink to this heading"></a></h1>
+<span id="arlin-analysis-latent-analysis"></span><h1><a class="reference internal" href="#module-arlin.analysis.latent_analysis" title="arlin.analysis.latent_analysis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">arlin.analysis.latent_analysis</span></code></a><a class="headerlink" href="#module-arlin.analysis.latent_analysis" title="Link to this heading"></a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#arlin.analysis.latent_analysis.LatentAnalyzer" title="arlin.analysis.latent_analysis.LatentAnalyzer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatentAnalyzer</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Class to analyze latent embeddings and generate data to visualize.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arlin.analysis.latent_analysis.</span></span><span class="sig-name descname"><span class="pre">LatentAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arlin.analysis.latent_analysis.</span></span><span class="sig-name descname"><span class="pre">LatentAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer" title="Link to this definition"></a></dt>
+<dd><p>Class to analyze latent embeddings and generate data to visualize.</p>
+<p>Initialize an instance of a LatentAnalyzer</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>embeddings</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p></li>
-<li><p><strong>dataset</strong> (<em>arlin.dataset.XRLDataset</em>) – </p></li>
+<li><p><strong>embeddings</strong> (<em>np.ndarray</em>) – Generated embeddings</p></li>
+<li><p><strong>dataset</strong> (<a class="reference internal" href="../../dataset/xrl_dataset/index.html#arlin.dataset.xrl_dataset.XRLDataset" title="arlin.dataset.xrl_dataset.XRLDataset"><em>XRLDataset</em></a>) – XRLDataset created from an RL policy</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.set_embeddings">
-<span class="sig-name descname"><span class="pre">set_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.set_embeddings" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>embeddings</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.set_dataset">
-<span class="sig-name descname"><span class="pre">set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.set_dataset" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<em>arlin.dataset.XRLDataset</em>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.embeddings_graph_data">
-<span class="sig-name descname"><span class="pre">embeddings_graph_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.embeddings_graph_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">embeddings_graph_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.embeddings_graph_data" title="Link to this definition"></a></dt>
 <dd><p>Generate data necessary for creating embedding graphs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>arlin.analysis.visualization.GraphData</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data to visualize</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../visualization/visualization/index.html#arlin.analysis.visualization.visualization.GraphData" title="arlin.analysis.visualization.visualization.GraphData">GraphData</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.clusters_graph_data">
-<span class="sig-name descname"><span class="pre">clusters_graph_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clusters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.clusters_graph_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">clusters_graph_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clusters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.clusters_graph_data" title="Link to this definition"></a></dt>
 <dd><p>Generate data necessary for creating cluster graphs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>clusters</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data to visualize</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>arlin.analysis.visualization.GraphData</p>
+<dd class="field-even"><p><a class="reference internal" href="../visualization/visualization/index.html#arlin.analysis.visualization.visualization.GraphData" title="arlin.analysis.visualization.visualization.GraphData">GraphData</a></p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>clusters</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.decision_boundary_graph_data">
-<span class="sig-name descname"><span class="pre">decision_boundary_graph_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.decision_boundary_graph_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">decision_boundary_graph_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.decision_boundary_graph_data" title="Link to this definition"></a></dt>
 <dd><p>Generate data necessary for creating decision boundary graphs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>arlin.analysis.visualization.GraphData</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data to visualize</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../visualization/visualization/index.html#arlin.analysis.visualization.visualization.GraphData" title="arlin.analysis.visualization.visualization.GraphData">GraphData</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.episode_prog_graph_data">
-<span class="sig-name descname"><span class="pre">episode_prog_graph_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.episode_prog_graph_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">episode_prog_graph_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.episode_prog_graph_data" title="Link to this definition"></a></dt>
 <dd><p>Generate data necessary for creating episode progression graphs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>arlin.analysis.visualization.GraphData</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data to visualize</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../visualization/visualization/index.html#arlin.analysis.visualization.visualization.GraphData" title="arlin.analysis.visualization.visualization.GraphData">GraphData</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.confidence_data">
-<span class="sig-name descname"><span class="pre">confidence_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.confidence_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">confidence_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.confidence_data" title="Link to this definition"></a></dt>
 <dd><p>Generate data necessary for creating episode progression graphs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>arlin.analysis.visualization.GraphData</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data to visualize</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../visualization/visualization/index.html#arlin.analysis.visualization.visualization.GraphData" title="arlin.analysis.visualization.visualization.GraphData">GraphData</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="arlin.analysis.latent_analysis.LatentAnalyzer.initial_terminal_state_data">
-<span class="sig-name descname"><span class="pre">initial_terminal_state_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.initial_terminal_state_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">initial_terminal_state_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arlin.analysis.latent_analysis.LatentAnalyzer.initial_terminal_state_data" title="Link to this definition"></a></dt>
 <dd><p>Generate data necessary for creating initial/terminal state graphs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>arlin.analysis.visualization.GraphData</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data to visualize</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../visualization/visualization/index.html#arlin.analysis.visualization.visualization.GraphData" title="arlin.analysis.visualization.visualization.GraphData">GraphData</a></p>
 </dd>
 </dl>
 </dd></dl>

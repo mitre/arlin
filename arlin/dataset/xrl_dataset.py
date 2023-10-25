@@ -73,7 +73,7 @@ class XRLDataset:
                 if trunc_count >= 5:
                     err_str = (
                         "Too many truncated episodes in a row identified - "
-                        + "please try lowering the randomness value."
+                        + "please try modifying the randomness value."
                     )
                     raise RuntimeError(err_str)
                 continue
@@ -136,10 +136,9 @@ class XRLDataset:
 
             new_obs, reward, term, trunc, _ = self.env.step(action)
 
-            if not take_rand_action:
-                datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
-                ep_datapoints.append(datapoint)
-                render = self.env.render()
+            datapoint.add_base_data(obs, action, reward, term, trunc, step, render)
+            ep_datapoints.append(datapoint)
+            render = self.env.render()
 
             step += 1
             obs = new_obs

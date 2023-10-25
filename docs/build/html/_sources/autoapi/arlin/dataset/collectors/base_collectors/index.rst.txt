@@ -23,11 +23,23 @@ Classes
 
    Bases: :py:obj:`abc.ABC`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
+   Base class for data collection.
+
+   Initialize a BaseDataCollector object.
+
+   :param datapoint_cls: Class of datapoint we are collecting.
+   :type datapoint_cls: Type[BaseDatapoint]
 
    .. py:method:: collect_internal_data(observation)
       :abstractmethod:
+
+      Collect internal model-specific data.
+
+      :param observation: Input observation to the model
+      :type observation: np.ndarray
+
+      :returns: Internal data and action to take
+      :rtype: Tuple[Type[BaseDatapoint], int]
 
 
 
@@ -36,7 +48,21 @@ Classes
 
    Bases: :py:obj:`BaseDataCollector`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
+   Data collection when the agent is taking random actions.
+
+   Initialize a RandomDataCollector object.
+
+   :param datapoint_cls: Class of datapoint we are collecting.
+   :type datapoint_cls: Type[BaseDatapoint]
+   :param environment: Environment the policy is interacting with.
+   :type environment: gym.Env
 
    .. py:method:: collect_internal_data(observation)
+
+      Collect internal model-specific data.
+
+      :param observation: Input observation to the model
+      :type observation: np.ndarray
+
+      :returns: Internal data and action to take
+      :rtype: Tuple[Type[BaseDatapoint], int]

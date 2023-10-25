@@ -1,4 +1,4 @@
-image: "python:3.9"
+image: "python:3.11.6"
 
 before_script:
   - python --version
@@ -71,7 +71,7 @@ bandit:
     - pages
   script:
     - poetry install --only dev
-    - poetry run bandit -r .
+    - poetry run bandit -c pyproject.toml -r ./arlin
   needs: []
   only:
     refs:
@@ -84,11 +84,15 @@ bandit:
 #########
 # Tests #
 #########
+
+# NOTE: The install of gym's Box2d package requires swig, but will use the external swig
+# as opposed to the venv swig, requiring the pip install outside of poetry
 coverage:
   stage: Tests
   tags:
   - pages
   script:
+    - pip install swig
     - poetry install --with coverage
     - poetry run python -m coverage run -m pytest
     - poetry run python -m coverage report -i
@@ -116,7 +120,6 @@ coverage:
 
 .pages:
   script:
-    - poetry env use python3.9
     - poetry install --only docs
     - poetry run sphinx-build -d docs/build/doctrees docs/source docs/build/html
     - mv docs/build/html public/

@@ -1,14 +1,5 @@
-import gymnasium as gym
-import pytest
-
 from arlin.dataset.collectors import RandomDataCollector
 from arlin.dataset.collectors.datapoints import BaseDatapoint
-
-
-@pytest.fixture
-def env():
-    env = gym.make("CartPole-v1", render_mode="rgb_array")
-    return env
 
 
 class TestRandomCollectors:
