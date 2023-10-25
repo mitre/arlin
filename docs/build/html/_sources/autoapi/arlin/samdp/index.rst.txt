@@ -20,35 +20,98 @@ Classes
 .. py:class:: SAMDP(clusters, dataset)
 
 
-   .. py:method:: save_txt(file_path)
+   Class for an SAMDP of an RL policy.
 
-      Create a txt table of the SAMDP.
+   Intialize an SAMDP object.
 
-      :param samdp_counts: The number of times an agent moved from one
-                           cluster to another along with the action taken to get to the latter.
-      :type samdp_counts: np.ndarray
+   :param clusters: Generated cluster data.
+   :type clusters: np.ndarray
+   :param dataset: XRLDataset from an RL policy.
+   :type dataset: XRLDataset
+
+   .. py:method:: save_txt(save_dir)
+
+      Create a text table representation of the SAMDP.
+
+      :param save_dir: Dir to save the text SAMDP to.
+      :type save_dir: str
 
 
    .. py:method:: save_complete_graph(file_path)
 
+      Save the complete SAMDP as a matplotlib graph.
+
+      :param file_path: Path to save the graph image to.
+      :type file_path: str
+
+      :returns: Complete SAMDP graph
+      :rtype: nx.Graph
+
 
    .. py:method:: save_simplified_graph(file_path)
 
+      Save a simplified version of the SAMDP graph.
 
-   .. py:method:: save_likely_paths(file_path)
+      Edges do not include information about the action taken.
+
+      :param file_path: Path to save the SAMDP graph to.
+      :type file_path: str
+
+      :returns: Simplified SAMDP graph
+      :rtype: nx.Graph
+
+
+   .. py:method:: save_likely_graph(file_path)
+
+      Save a graph where only the most likely edges are shown.
+
+      :param file_path: Path to save graph image to.
+      :type file_path: str
+
+      :returns: Graph object with only most likely edges
+      :rtype: nx.Graph
 
 
    .. py:method:: save_paths(from_cluster_id, to_cluster_id, file_path, best_path_only = False, verbose=False)
 
-      Find simple paths between two clusters within SAMDP.
+      Save all paths from one cluster to another.
 
-      :param from_cluster_id: ID of cluster to start from.
+      :param from_cluster_id: Cluster to move from
       :type from_cluster_id: int
-      :param to_cluster_id: ID of cluster to end at.
+      :param to_cluster_id: Cluster to move to
       :type to_cluster_id: int
+      :param file_path: Path to save image to
+      :type file_path: str
+      :param best_path_only: Do we only want to show the best path.
+                             Defaults to False.
+      :type best_path_only: bool, optional
+      :param verbose: Do we want to show the complete edges instead of the
+                      simplified. Defaults to False.
+      :type verbose: bool, optional
 
 
    .. py:method:: save_terminal_paths(file_path, best_path = False, term_cluster_id = None)
 
+      Save all paths into all terminal nodes.
+
+      :param file_path: Path to save image to
+      :type file_path: str
+      :param best_path: Do we only want to show the best paths between
+                        nodes. Defaults to False.
+      :type best_path: bool, optional
+      :param term_cluster_id: Cluster ID that we want to limit
+                              paths to instead of all paths. Defaults to None.
+      :type term_cluster_id: Optional[int], optional
+
 
    .. py:method:: save_all_paths_to(to_cluster_id, file_path, verbose = False)
+
+      Save all possible paths from an initial node to given node.
+
+      :param to_cluster_id: Cluster we want to get to
+      :type to_cluster_id: int
+      :param file_path: Path to save image to
+      :type file_path: str
+      :param verbose: Do we want to show complete graph edges instead of
+                      simplified. Defaults to False.
+      :type verbose: bool, optional

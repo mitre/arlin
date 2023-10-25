@@ -29,11 +29,57 @@ Functions
 .. py:class:: GraphData(x, y, title, colors = None, legend = None, cmap = None, error_bars = None, xlabel = None, ylabel = None, showall = False)
 
 
+   Class to save data that can be graphed in matplotlib.
+
+   Initialize a GraphData object.
+
+   :param x: X axis data
+   :type x: np.ndarray
+   :param y: Y axis data
+   :type y: np.ndarray
+   :param title: Title of the graph
+   :type title: str
+   :param colors: Point color for each datapoint.
+                  Defaults to None.
+   :type colors: Optional[List[str]], optional
+   :param legend: Add a legend to the side of the graph.
+                  Defaults to None.
+   :type legend: Optional[Dict], optional
+   :param cmap: Add a colorbar to the side of the graph.
+                Defaults to None.
+   :type cmap: Optional[str], optional
+   :param error_bars: Error bars for each datapoint.
+                      Defaults to None.
+   :type error_bars: Optional[List[float]], optional
+   :param xlabel: Xlabels for the graph. Defaults to None.
+   :type xlabel: Optional[str], optional
+   :param ylabel: Ylabels for the graph. Defaults to None.
+   :type ylabel: Optional[str], optional
+   :param showall: Show all axis in the figure. Defaults to False.
+   :type showall: bool, optional
+
    .. py:method:: get_data()
+
+      Get the data from within this GraphData.
+
+      :returns: Dictionary with all stored class information.
+      :rtype: Dict[str, Any]
 
 
 
 .. py:function:: graph_multiple_data(file_path, figure_title, graph_datas, horizontal = True)
+
+   Graph multiple GraphDatas in the same figure.
+
+   :param file_path: Path to save figure to.
+   :type file_path: str
+   :param figure_title: Title of the combination graph.
+   :type figure_title: str
+   :param graph_datas: GraphDatast to graph together.
+   :type graph_datas: List[GraphData]
+   :param horizontal: Whether the figure should be wider than it is tall.
+   :type horizontal: bool, optional
+   :param Defaults to True.:
 
 
 .. py:function:: graph_individual_data(filename, data)

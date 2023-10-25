@@ -20,19 +20,50 @@ Classes
 .. py:class:: ClusterAnalyzer(dataset, clusters)
 
 
-   .. py:method:: cluster_state_img_analysis(cluster_renders, num_samples, cluster_dir)
+   Class to analyze latent clusters and generate data to visualize.
 
+   Initialize an instance of a ClusterAnalyzer.
+
+   :param dataset: XRLDataset created from an RL policy
+   :type dataset: XRLDataset
+   :param clusters: Generated clusters
+   :type clusters: np.ndarray
+
+   :raises ValueError: A cluster has both initial and terminal states within it
 
    .. py:method:: cluster_state_analysis(cluster_id, env, save_dir_path, num_img_samples = 10)
 
+      Generate state analytics from a given cluster including renders and metrics.
 
-   .. py:method:: cluster_state_text_analysis(cluster_indices, cluster_states, env, save_dir)
+      :param cluster_id: Cluster to analyze the states of
+      :type cluster_id: int
+      :param env: Environment this policy was trained in.
+      :type env: gym.Env
+      :param save_dir_path: Directory to save data to.
+      :type save_dir_path: str
+      :param num_img_samples: Number of renders to save. Defaults to 10.
+      :type num_img_samples: int, optional
 
 
    .. py:method:: cluster_confidence()
 
+      Get data of the average confidence of each cluster.
+
+      :returns: Data to visualize
+      :rtype: GraphData
+
 
    .. py:method:: cluster_rewards()
 
+      Get data of the average reward of each cluster.
+
+      :returns: Data to visualize
+      :rtype: GraphData
+
 
    .. py:method:: cluster_values()
+
+      Get data of the average value of each cluster.
+
+      :returns: Data to visualize
+      :rtype: GraphData

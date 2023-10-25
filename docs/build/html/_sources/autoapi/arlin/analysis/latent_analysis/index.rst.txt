@@ -20,37 +20,58 @@ Classes
 .. py:class:: LatentAnalyzer(embeddings, dataset)
 
 
-   .. py:method:: set_embeddings(embeddings)
+   Class to analyze latent embeddings and generate data to visualize.
 
+   Initialize an instance of a LatentAnalyzer
 
-   .. py:method:: set_dataset(dataset)
-
+   :param embeddings: Generated embeddings
+   :type embeddings: np.ndarray
+   :param dataset: XRLDataset created from an RL policy
+   :type dataset: XRLDataset
 
    .. py:method:: embeddings_graph_data()
 
       Generate data necessary for creating embedding graphs.
+
+      :returns: Data to visualize
+      :rtype: GraphData
 
 
    .. py:method:: clusters_graph_data(clusters)
 
       Generate data necessary for creating cluster graphs.
 
+      :returns: Data to visualize
+      :rtype: GraphData
+
 
    .. py:method:: decision_boundary_graph_data()
 
       Generate data necessary for creating decision boundary graphs.
+
+      :returns: Data to visualize
+      :rtype: GraphData
 
 
    .. py:method:: episode_prog_graph_data()
 
       Generate data necessary for creating episode progression graphs.
 
+      :returns: Data to visualize
+      :rtype: GraphData
+
 
    .. py:method:: confidence_data()
 
       Generate data necessary for creating episode progression graphs.
 
+      :returns: Data to visualize
+      :rtype: GraphData
+
 
    .. py:method:: initial_terminal_state_data()
 
       Generate data necessary for creating initial/terminal state graphs.
+
+      :returns: Data to visualize
+      :rtype: GraphData

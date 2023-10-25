@@ -22,6 +22,8 @@ Classes
 .. py:class:: BaseDatapoint
 
 
+   Base datapoint with traditional RL data that is common to all algorithms.
+
    .. py:attribute:: observations
       :type: Optional[numpy.ndarray]
 
@@ -59,12 +61,31 @@ Classes
 
    .. py:method:: add_base_data(obs, action, reward, terminated, truncated, step, render)
 
+      Add the base RL data to this Datapoint object.
+
+      :param obs: Current observation
+      :type obs: np.ndarray
+      :param action: Action taken
+      :type action: int
+      :param reward: Reward received
+      :type reward: float
+      :param terminated: Did the episode end
+      :type terminated: bool
+      :param truncated: Did we run out of steps
+      :type truncated: bool
+      :param step: Current step of this data
+      :type step: float
+      :param render: Render of the environment state
+      :type render: np.ndarray
+
 
 
 .. py:class:: SB3PPODatapoint
 
 
    Bases: :py:obj:`BaseDatapoint`
+
+   Datapoint for a PPO algorithm trained in stable-baselines3.
 
    .. py:attribute:: latent_actors
       :type: Optional[numpy.ndarray]
@@ -101,6 +122,8 @@ Classes
 
 
    Bases: :py:obj:`BaseDatapoint`
+
+   Datapoint for a DQN algorithm trained in stable-baselines3.
 
    .. py:attribute:: q_vals
       :type: Optional[numpy.ndarray]
