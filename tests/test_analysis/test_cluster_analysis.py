@@ -1,87 +1,16 @@
 import os
 
-import gymnasium as gym
 import numpy as np
 import pytest
 
 from arlin.analysis.cluster_analysis import ClusterAnalyzer
 from arlin.analysis.visualization import GraphData
-from arlin.dataset import XRLDataset
-from arlin.dataset.collectors import RandomDataCollector, SB3PPODataCollector
-from arlin.dataset.collectors.datapoints import BaseDatapoint, SB3PPODatapoint
-from arlin.dataset.loaders import load_hf_sb_model
-from arlin.generation import generate_clusters
 
 
 @pytest.fixture
-def env():
-    # Create environment
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    return env
-
-
-@pytest.fixture
-def dataset(env):
-    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = RandomDataCollector(datapoint_cls=BaseDatapoint, environment=env)
-    # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
-    dataset.fill(num_datapoints=50, randomness=0.25)
-
-    return dataset
-
-
-@pytest.fixture
-def clusters(dataset):
-    clusters, _, _, _ = generate_clusters(
-        dataset,
-        ["observations", "rewards"],
-        ["observations", "rewards"],
-        ["rewards"],
-        10,
-        seed=1234,
-    )
-    return clusters
-
-
-@pytest.fixture
-def analyzer(clusters, dataset):
-    analyzer = ClusterAnalyzer(dataset, clusters)
+def analyzer(random_clusters, random_dataset):
+    analyzer = ClusterAnalyzer(random_dataset, random_clusters)
     return analyzer
-
-
-@pytest.fixture
-def ppo_dataset():
-    # Create environment
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
-
-    # Load the SB3 model from Huggingface
-    model = load_hf_sb_model(
-        repo_id="sb3/ppo-LunarLander-v2",
-        filename="ppo-LunarLander-v2.zip",
-        algo_str="ppo",
-    )
-
-    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint, policy=model.policy)
-
-    # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
-    dataset.fill(num_datapoints=50, randomness=0.0)
-    return dataset
-
-
-@pytest.fixture
-def ppo_clusters(ppo_dataset):
-    clusters, _, _, _ = generate_clusters(
-        ppo_dataset,
-        ["observations", "rewards"],
-        ["observations", "rewards"],
-        ["rewards"],
-        10,
-        seed=1234,
-    )
-    return clusters
 
 
 @pytest.fixture
@@ -91,7 +20,7 @@ def ppo_analyzer(ppo_clusters, ppo_dataset):
 
 
 class TestClusterAnalyzer:
-    def test_init(self, analyzer, dataset, clusters):
+    def test_init(self, analyzer, random_dataset, random_clusters):
         assert analyzer.num_clusters == max(analyzer.clusters) + 1
         assert len(analyzer.cluster_stage_colors) == analyzer.num_clusters
 
@@ -104,10 +33,10 @@ class TestClusterAnalyzer:
             else:
                 assert cluster_color == "k"
 
-        clusters[dataset.start_indices[0]] = 0
-        clusters[dataset.term_indices[0]] = 0
+        random_clusters[random_dataset.start_indices[0]] = 0
+        random_clusters[random_dataset.term_indices[0]] = 0
         with pytest.raises(ValueError):
-            _ = ClusterAnalyzer(dataset, clusters)
+            _ = ClusterAnalyzer(random_dataset, random_clusters)
 
     def test_cluster_state_img_analysis(self, analyzer, env, tmpdir):
         _, _ = env.reset()
@@ -197,15 +126,15 @@ class TestClusterAnalyzer:
         value_data = ppo_analyzer.cluster_values()
 
         assert isinstance(value_data, GraphData)
-        assert value_data.colors == analyzer.cluster_stage_colors
+        assert value_data.colors == ppo_analyzer.cluster_stage_colors
         assert value_data.title == "Cluster Value Analysis"
         assert value_data.legend["title"] == "Cluster Stage"
         assert value_data.legend["labels"] == ["Initial", "Intermediate", "Terminal"]
         labels = value_data.legend["labels"]
         assert len(value_data.legend["handles"]) == len(labels)
-        assert len(value_data.x) == max(analyzer.clusters) + 1
-        assert len(value_data.y) == max(analyzer.clusters) + 1
-        assert len(value_data.error_bars) == max(analyzer.clusters) + 1
+        assert len(value_data.x) == max(ppo_analyzer.clusters) + 1
+        assert len(value_data.y) == max(ppo_analyzer.clusters) + 1
+        assert len(value_data.error_bars) == max(ppo_analyzer.clusters) + 1
         assert value_data.xlabel == "Cluster ID"
         assert value_data.ylabel == "Mean Value"
         assert value_data.showall

@@ -1,4 +1,3 @@
-import gymnasium as gym
 import pytest
 
 from arlin.dataset.collectors import SB3DQNDataCollector, SB3PPODataCollector
@@ -9,7 +8,9 @@ from arlin.dataset.loaders.sb3_loaders import load_hf_sb_model
 @pytest.fixture
 def ppo_policy():
     model = load_hf_sb_model(
-        repo_id="sb3/ppo-CartPole-v1", filename="ppo-CartPole-v1.zip", algo_str="ppo"
+        repo_id="sb3/ppo-LunarLander-v2",
+        filename="ppo-LunarLander-v2.zip",
+        algo_str="ppo",
     )
 
     return model.policy
@@ -18,16 +19,12 @@ def ppo_policy():
 @pytest.fixture
 def dqn_policy():
     model = load_hf_sb_model(
-        repo_id="sb3/dqn-CartPole-v1", filename="dqn-CartPole-v1.zip", algo_str="dqn"
+        repo_id="sb3/dqn-LunarLander-v2",
+        filename="dqn-LunarLander-v2.zip",
+        algo_str="dqn",
     )
 
     return model.policy
-
-
-@pytest.fixture
-def env():
-    env = gym.make("CartPole-v1", render_mode="rgb_array")
-    return env
 
 
 class TestSB3Collectors:

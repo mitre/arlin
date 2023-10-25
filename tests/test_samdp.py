@@ -1,60 +1,24 @@
 import os
 
-import gymnasium as gym
 import networkx as nx
 import numpy as np
 import pytest
 
 from arlin.analysis.visualization import COLORS
-from arlin.dataset.collectors import RandomDataCollector
-from arlin.dataset.collectors.datapoints import BaseDatapoint
-from arlin.dataset.xrl_dataset import XRLDataset
-from arlin.generation import generate_clusters
 from arlin.samdp import SAMDP
 
 
 @pytest.fixture
-def env():
-    # Create environment
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    return env
-
-
-@pytest.fixture
-def dataset(env):
-    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = RandomDataCollector(datapoint_cls=BaseDatapoint, environment=env)
-    # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
-    dataset.fill(num_datapoints=50, randomness=0.25)
-
-    return dataset
-
-
-@pytest.fixture
-def clusters(dataset):
-    clusters, _, _, _ = generate_clusters(
-        dataset,
-        ["observations", "rewards"],
-        ["observations", "rewards"],
-        ["rewards"],
-        10,
-        seed=1234,
-    )
-    return clusters
-
-
-@pytest.fixture
-def samdp(dataset, clusters):
-    samdp = SAMDP(clusters, dataset)
+def samdp(random_dataset, random_clusters):
+    samdp = SAMDP(random_clusters, random_dataset)
     return samdp
 
 
 class TestSAMDP:
-    def test_init(self, clusters, dataset):
-        samdp = SAMDP(clusters, dataset)
-        assert np.array_equal(samdp.clusters, clusters)
-        assert samdp.dataset == dataset
+    def test_init(self, random_clusters, random_dataset):
+        samdp = SAMDP(random_clusters, random_dataset)
+        assert np.array_equal(samdp.clusters, random_clusters)
+        assert samdp.dataset == random_dataset
 
     def test_generate(self, samdp):
         samdp_obj = samdp._generate()

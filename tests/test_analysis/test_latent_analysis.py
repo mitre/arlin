@@ -1,79 +1,14 @@
-import gymnasium as gym
 import numpy as np
 import pytest
 
 from arlin.analysis.latent_analysis import LatentAnalyzer
 from arlin.analysis.visualization import COLORS, GraphData
-from arlin.dataset import XRLDataset
-from arlin.dataset.collectors import RandomDataCollector, SB3PPODataCollector
-from arlin.dataset.collectors.datapoints import BaseDatapoint, SB3PPODatapoint
-from arlin.dataset.loaders import load_hf_sb_model
-from arlin.generation import generate_clusters, generate_embeddings
 
 
 @pytest.fixture
-def dataset():
-    # Create environment
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = RandomDataCollector(datapoint_cls=BaseDatapoint, environment=env)
-    # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
-    dataset.fill(num_datapoints=50, randomness=0.25)
-
-    return dataset
-
-
-@pytest.fixture
-def embeddings(dataset):
-    embeddings = generate_embeddings(dataset, "observations", 10, 250)
-    return embeddings
-
-
-@pytest.fixture
-def analyzer(embeddings, dataset):
-    analyzer = LatentAnalyzer(embeddings, dataset)
+def analyzer(random_embeddings, random_dataset):
+    analyzer = LatentAnalyzer(random_embeddings, random_dataset)
     return analyzer
-
-
-@pytest.fixture
-def clusters(dataset):
-    clusters, _, _, _ = generate_clusters(
-        dataset,
-        ["observations", "rewards"],
-        ["observations", "rewards"],
-        ["rewards"],
-        10,
-        seed=1234,
-    )
-    return clusters
-
-
-@pytest.fixture
-def ppo_dataset():
-    # Create environment
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
-
-    # Load the SB3 model from Huggingface
-    model = load_hf_sb_model(
-        repo_id="sb3/ppo-LunarLander-v2",
-        filename="ppo-LunarLander-v2.zip",
-        algo_str="ppo",
-    )
-
-    # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint, policy=model.policy)
-
-    # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
-    dataset.fill(num_datapoints=50, randomness=0.0)
-    return dataset
-
-
-@pytest.fixture
-def ppo_embeddings(ppo_dataset):
-    embeddings = generate_embeddings(ppo_dataset, "observations", 10, 250)
-    return embeddings
 
 
 @pytest.fixture
@@ -83,18 +18,18 @@ def ppo_analyzer(ppo_embeddings, ppo_dataset):
 
 
 class TestLatentAnalyzer:
-    def test_init(self, dataset, embeddings):
-        analyzer = LatentAnalyzer(embeddings, dataset)
+    def test_init(self, random_dataset, random_embeddings):
+        analyzer = LatentAnalyzer(random_embeddings, random_dataset)
 
-        assert analyzer.num_embeddings == len(embeddings)
-        assert len(analyzer.x) == len(embeddings)
-        assert len(analyzer.y) == len(embeddings)
+        assert analyzer.num_embeddings == len(random_embeddings)
+        assert len(analyzer.x) == len(random_embeddings)
+        assert len(analyzer.y) == len(random_embeddings)
 
-    def test_embeddings_graph_data(self, analyzer, embeddings):
+    def test_embeddings_graph_data(self, analyzer, random_embeddings):
         embeddings_data = analyzer.embeddings_graph_data()
         assert isinstance(embeddings_data, GraphData)
 
-        assert len(embeddings_data.colors) == len(embeddings)
+        assert len(embeddings_data.colors) == len(random_embeddings)
         assert embeddings_data.title == "Embeddings"
         assert embeddings_data.legend is None
         assert embeddings_data.cmap is None
@@ -102,15 +37,15 @@ class TestLatentAnalyzer:
         assert embeddings_data.ylabel is None
         assert not embeddings_data.showall
 
-    def test_clusters_graph_data(self, analyzer, clusters, embeddings):
-        cluster_data = analyzer.clusters_graph_data(clusters)
+    def test_clusters_graph_data(self, analyzer, random_clusters, random_embeddings):
+        cluster_data = analyzer.clusters_graph_data(random_clusters)
         assert isinstance(cluster_data, GraphData)
 
-        assert len(cluster_data.colors) == len(embeddings)
-        for i, cluster_id in enumerate(clusters):
+        assert len(cluster_data.colors) == len(random_embeddings)
+        for i, cluster_id in enumerate(random_clusters):
             assert cluster_data.colors[i] == COLORS[cluster_id]
 
-        n_clusters = len(np.unique(clusters))
+        n_clusters = len(np.unique(random_clusters))
         assert cluster_data.title == f"{n_clusters} Clusters"
 
         assert cluster_data.legend["title"] == "Cluster Groups"
@@ -123,11 +58,11 @@ class TestLatentAnalyzer:
         assert cluster_data.ylabel is None
         assert not cluster_data.showall
 
-    def test_decision_boundary_graph_data(self, analyzer, embeddings):
+    def test_decision_boundary_graph_data(self, analyzer, random_embeddings):
         db_data = analyzer.decision_boundary_graph_data()
         assert isinstance(db_data, GraphData)
 
-        assert len(db_data.colors) == len(embeddings)
+        assert len(db_data.colors) == len(random_embeddings)
         for i, action_id in enumerate(analyzer.dataset.actions):
             assert db_data.colors[i] == COLORS[action_id]
 
@@ -141,11 +76,11 @@ class TestLatentAnalyzer:
         assert db_data.ylabel is None
         assert not db_data.showall
 
-    def test_episode_prog_graph_data(self, analyzer, embeddings):
+    def test_episode_prog_graph_data(self, analyzer, random_embeddings):
         prog_data = analyzer.episode_prog_graph_data()
         assert isinstance(prog_data, GraphData)
 
-        assert len(prog_data.colors) == len(embeddings)
+        assert len(prog_data.colors) == len(random_embeddings)
         assert prog_data.title == "Episode Progression"
 
         assert prog_data.legend is None
@@ -169,11 +104,11 @@ class TestLatentAnalyzer:
         assert conf_data.ylabel is None
         assert not conf_data.showall
 
-    def test_initial_terminal_state_data(self, analyzer, embeddings):
+    def test_initial_terminal_state_data(self, analyzer, random_embeddings):
         it_data = analyzer.initial_terminal_state_data()
         assert isinstance(it_data, GraphData)
 
-        assert len(it_data.colors) == len(embeddings)
+        assert len(it_data.colors) == len(random_embeddings)
         for i, val in enumerate(analyzer.dataset.terminateds):
             if val == 1:
                 assert it_data.colors[i] == COLORS[0]
