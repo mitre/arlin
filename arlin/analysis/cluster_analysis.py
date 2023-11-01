@@ -141,9 +141,6 @@ class ClusterAnalyzer:
         with open(text_file_path, "w") as f:
             f.write(txt_data)
 
-        logging.info(text_file_path)
-        logging.info(os.path.isfile(text_file_path))
-
     def cluster_state_analysis(
         self,
         cluster_id: int,
