@@ -128,3 +128,9 @@ If you use `ARLIN` for your work, please cite the following BibTex entry.
   year =         {2023}
 }
 ```
+
+This project contains content developed by The MITRE Corporation. If this code is used in
+a deployment or embedded within another project, it is requested that you send an email
+to opensource@mitre.org in order to let us know where this software is being used.
+
+Copyright ©2023 The MITRE Corporation. ALL RIGHTS RESERVED. Approved for Public Release; Distribution Unlimited. Public Release Case Number 23-3585.
