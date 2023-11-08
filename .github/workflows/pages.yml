@@ -9,7 +9,7 @@ jobs:
   deploy-pages:
     runs-on: ubuntu-latest
     container:
-      image: python:3.11
+      image: python:3.11.6
       volumes:
         - public:/public
     steps:
