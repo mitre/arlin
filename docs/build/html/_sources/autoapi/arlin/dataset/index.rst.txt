@@ -1,0 +1,23 @@
+:py:mod:`arlin.dataset`
+=======================
+
+.. py:module:: arlin.dataset
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   collectors/index.rst
+   loaders/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   xrl_dataset/index.rst

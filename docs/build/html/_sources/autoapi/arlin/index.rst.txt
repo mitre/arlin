@@ -1,0 +1,25 @@
+:py:mod:`arlin`
+===============
+
+.. py:module:: arlin
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   analysis/index.rst
+   dataset/index.rst
+   utils/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   generation/index.rst
+   samdp/index.rst

@@ -1,0 +1,44 @@
+:py:mod:`arlin.dataset.loaders.sb3_loaders`
+===========================================
+
+.. py:module:: arlin.dataset.loaders.sb3_loaders
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   arlin.dataset.loaders.sb3_loaders.load_hf_sb_model
+   arlin.dataset.loaders.sb3_loaders.load_sb_model
+
+
+
+.. py:function:: load_hf_sb_model(repo_id, filename, algo_str)
+
+   Load a stable-baselines3 model from huggingface.
+
+   :param - repo_id: Repo_ID where the model is stored on huggingface
+   :type - repo_id: str
+   :param - filename: Filename of the model zip within the repo on huggingface
+   :type - filename: str
+
+   :returns: Trained SB3 model
+   :rtype: - BaseAlgorithm
+
+
+.. py:function:: load_sb_model(path, algo_str)
+
+   Load a stable-baselines3 model from a given path.
+
+   :param path: Path to the SB3 trained model zip.
+   :type path: str
+   :param algo_str: Algorithm that was used to train the model.
+   :type algo_str: str
+
+   :returns: Trained SB3 model
+   :rtype: BaseAlgorithm

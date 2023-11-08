@@ -1,0 +1,65 @@
+:py:mod:`arlin.dataset.collectors.sb3_collectors`
+=================================================
+
+.. py:module:: arlin.dataset.collectors.sb3_collectors
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.dataset.collectors.sb3_collectors.SB3PPODataCollector
+   arlin.dataset.collectors.sb3_collectors.SB3DQNDataCollector
+
+
+
+
+.. py:class:: SB3PPODataCollector(datapoint_cls, policy)
+
+
+   Bases: :py:obj:`arlin.dataset.collectors.BaseDataCollector`
+
+   Data collector for a model trained with PPO in stable-baselines3.
+
+   Initialize a BaseDataCollector object.
+
+   :param datapoint_cls: Class of datapoint we are collecting.
+   :type datapoint_cls: Type[BaseDatapoint]
+
+   .. py:method:: collect_internal_data(observation)
+
+      Collect internal model-specific data.
+
+      :param observation: Input observation to the model
+      :type observation: np.ndarray
+
+      :returns: Internal data and action to take
+      :rtype: Tuple[Type[BaseDatapoint], int]
+
+
+
+.. py:class:: SB3DQNDataCollector(datapoint_cls, policy)
+
+
+   Bases: :py:obj:`arlin.dataset.collectors.BaseDataCollector`
+
+   Data collector for a model trained with DQN in stable-baselines3.
+
+   Initialize a BaseDataCollector object.
+
+   :param datapoint_cls: Class of datapoint we are collecting.
+   :type datapoint_cls: Type[BaseDatapoint]
+
+   .. py:method:: collect_internal_data(observation)
+
+      Collect internal model-specific data.
+
+      :param observation: Input observation to the model
+      :type observation: np.ndarray
+
+      :returns: Internal data and action to take
+      :rtype: Tuple[Type[BaseDatapoint], int]
