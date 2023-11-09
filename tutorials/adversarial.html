@@ -92,7 +92,7 @@ an observer as the attack will look more natural and similar to how the policy w
 truly react in the scenario.</p>
 <p>Below is a simple example of ARLIN being used for adversarial attack enhancement.</p>
 <p align="center">
-  <img src="_static/adversarial/adversarial_workflow.png" />
+  <img src="../_static/adversarial/adversarial_workflow.png" />
   <b>Figure 1.</b> Example workflow of how ARLIN can be used for adversarial purposes.
 </p>
 <p><em>Note: We use the analysis from the <a class="reference internal" href="explainable.html"><span class="std std-doc">explainability tutorial</span></a> as a</em>
@@ -103,10 +103,10 @@ result in very noticeable failures that are very different from the path the pol
 normally take. ARLIN aims to time an attack so that it is less noticeable than the below,
 but still effective.</p>
 <div align="center">
- <img src="_static/adversarial/gifs/baseline.gif" width=20%/>
- <img src="_static/adversarial/gifs/worst_1.gif" width=20%/>
- <img src="_static/adversarial/gifs/worst_10.gif" width=20%/>
- <img src="_static/adversarial/gifs/preference75.gif" width=20%/>
+ <img src="../_static/adversarial/gifs/baseline.gif" width=20%/>
+ <img src="../_static/adversarial/gifs/worst_1.gif" width=20%/>
+ <img src="../_static/adversarial/gifs/worst_10.gif" width=20%/>
+ <img src="../_static/adversarial/gifs/preference75.gif" width=20%/>
 </div>
 <p align="center">
   <b>Figure 2.</b> Gifs created from baseline performance and traditional adversarial attacks.
@@ -123,7 +123,7 @@ but still effective.</p>
 </pre></div>
 </div>
 <p align="center">
-  <img src="_static/adversarial/samdp_terminals_23.png" />
+  <img src="../_static/adversarial/samdp_terminals_23.png" />
   <b>Figure 3.</b> Neighboring clusters and associated actions for moving into Cluster 23.
 </p>
 <p>Figure 3 shows us the clusters that are connected to our target cluster, Cluster 23, along
@@ -139,16 +139,16 @@ for majority of the episode, and only attacks when it results in a failure that 
 for the policy to find (Figure 3). In trials, this approach results in the agent reaching
 the target cluster 90% of the time.</p>
 <p align="center">
-  <img src="_static/adversarial/gifs/arlin.gif" />
+  <img src="../_static/adversarial/gifs/arlin.gif" />
 </p>
 <p align="center">
   <b>Figure 4.</b> ARLIN influenced attack, showing how the attack results in a reasonable
    failure as opposed to an obvious one as seen in Figure 1.
 </p>
 <div align="center">
- <img src="_static/adversarial/cosine_similarity.png" width=30%/>
- <img src="_static/adversarial/cumulative_reward.png" width=30%/>
- <img src="_static/adversarial/kl_divergence.png" width=30%/>
+ <img src="../_static/adversarial/cosine_similarity.png" width=30%/>
+ <img src="../_static/adversarial/cumulative_reward.png" width=30%/>
+ <img src="../_static/adversarial/kl_divergence.png" width=30%/>
 </div>
 <p align="center">
   <b>Figure 5.</b> Detectability metrics illustrating ARLIN's usage in adversarial attack

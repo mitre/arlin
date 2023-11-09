@@ -5,7 +5,7 @@ reinforcement learning model behaves from a holistic point of view as well as he
 identify potential vulnerabilities within a trained model prior to deployment.
 
 <p align="center">
-  <img src="_static/explainable/workflow.png" />
+  <img src="../_static/explainable/workflow.png" />
   <b>Figure 1.</b> Example workflow of how ARLIN can be used for explainability purposes.
 </p>
 
@@ -94,7 +94,7 @@ simplified_graph = samdp.save_simplified_graph('./simplified_samdp.png')
 ```
 
 <p align="center">
-  <img src="_static/explainable/latent_analytics.png" />
+  <img src="../_static/explainable/latent_analytics.png" />
   <b>Figure 2.</b> Analysis of the XRLDataset latent space.
 </p>
 
@@ -105,7 +105,7 @@ taking thecorrect action at a given point in the latent space), and decision bou
 (which actions are taken at a given point in the latent space).
 
 <p align="center">
-  <img src="_static/explainable/cluster_analytics.png" />
+  <img src="../_static/explainable/cluster_analytics.png" />
   <b>Figure 3.</b> Analysis of the XRLDatset clusters.
 </p>
 
@@ -147,7 +147,7 @@ to get a higher reward and actually got a lower one. This tells us Cluster 24 re
 an unexpected failure.
 
 <p align="center">
-  <img src="_static/explainable/state_analysis.png" />
+  <img src="../_static/explainable/state_analysis.png" />
   <b>Figure 4.</b> State analysis of Clusters 9, 23, and 24 (left to right).
 </p>
 
@@ -158,7 +158,7 @@ expected failure (hard landing), and Cluster 24 is an unexpected failure (moving
 bounds).
 
 <p align="center">
-  <img src="_static/explainable/samdp_simplified.png" />
+  <img src="../_static/explainable/samdp_simplified.png" />
   <b>Figure 5.</b> SAMDP of the policy used to create the XRLDataset.
 </p>
 
