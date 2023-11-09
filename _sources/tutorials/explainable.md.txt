@@ -4,6 +4,11 @@ ARLIN can be used from an explainability standpoint to give insights into why a
 reinforcement learning model behaves from a holistic point of view as well as help
 identify potential vulnerabilities within a trained model prior to deployment.
 
+<p align="center">
+  <img src="_static/explainable/workflow.png" />
+  <b>Figure 1.</b> Example workflow of how ARLIN can be used for explainability purposes.
+</p>
+
 Below is a simple example of ARLIN being used for explainability analysis.
 
 *Note: Not all available methods are shown.*
@@ -89,22 +94,22 @@ simplified_graph = samdp.save_simplified_graph('./simplified_samdp.png')
 ```
 
 <p align="center">
-  <img src="../../images/explainable/latent_analytics.png" />
-  <b>Figure 1.</b> Analysis of the XRLDataset latent space.
+  <img src="_static/explainable/latent_analytics.png" />
+  <b>Figure 2.</b> Analysis of the XRLDataset latent space.
 </p>
 
-With the above latent analysis (Figure 1), we can gain information about the latent space
+With the above latent analysis (Figure 2), we can gain information about the latent space
 of our policy, including episode progression (how the agent moves through the latent space
 over the course of an episode), policy confidence (how certain the policy is that it is
 taking thecorrect action at a given point in the latent space), and decision boundaries
 (which actions are taken at a given point in the latent space).
 
 <p align="center">
-  <img src="../../images/explainable/cluster_analytics.png" />
-  <b>Figure 2.</b> Analysis of the XRLDatset clusters.
+  <img src="_static/explainable/cluster_analytics.png" />
+  <b>Figure 3.</b> Analysis of the XRLDatset clusters.
 </p>
 
-The above cluster analysis (Figure 2) gives information about the different clusters
+The above cluster analysis (Figure 3) gives information about the different clusters
 within the policy's latent space that we use to generate the SAMDP. The cluster confidence
 takes the average confidence of each state within each cluster, cluster value gives the
 average value (or expected return) at every state in each cluster, and cluster reward
@@ -142,22 +147,22 @@ to get a higher reward and actually got a lower one. This tells us Cluster 24 re
 an unexpected failure.
 
 <p align="center">
-  <img src="../../images/explainable/state_analysis.png" />
-  <b>Figure 3.</b> State analysis of Clusters 9, 23, and 24 (left to right).
+  <img src="_static/explainable/state_analysis.png" />
+  <b>Figure 4.</b> State analysis of Clusters 9, 23, and 24 (left to right).
 </p>
 
-Figure 3 shows screenshots of the environment from within 3 separate clusters: Clusters 9,
+Figure 4 shows screenshots of the environment from within 3 separate clusters: Clusters 9,
 23, and 24. These screenshots confirm our analysis from above proving that Cluster 9 is
 a late-stage corrective maneuver (moving towards middle of flags), Cluster 23 is an
 expected failure (hard landing), and Cluster 24 is an unexpected failure (moving out of
 bounds).
 
 <p align="center">
-  <img src="../../images/explainable/samdp_simplified.png" />
-  <b>Figure 4.</b> SAMDP of the policy used to create the XRLDataset.
+  <img src="_static/explainable/samdp_simplified.png" />
+  <b>Figure 5.</b> SAMDP of the policy used to create the XRLDataset.
 </p>
 
-The above analysis (Figure 4) shows us a holistic view of the policy through an SAMDP
+The above analysis (Figure 5) shows us a holistic view of the policy through an SAMDP
 (semi-aggregated Markov decision process). The initial states show on the left of the
 visualization while the terminal states are on the right. This graphic is the simplified
 SAMDP, meaning the actions to bring the policy from Cluster A to Cluster B are not shown

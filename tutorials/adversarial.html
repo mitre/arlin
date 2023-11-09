@@ -34,7 +34,6 @@
           
           <a href="../index.html" class="icon icon-home">
             ARLIN - Assured Reinforcement Learning Model Interrogation
-              <img src="../_static/arlin_logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 1.0
@@ -92,6 +91,10 @@ XRLDataset, the resulting attacks will not only be effective, but also less noti
 an observer as the attack will look more natural and similar to how the policy would
 truly react in the scenario.</p>
 <p>Below is a simple example of ARLIN being used for adversarial attack enhancement.</p>
+<p align="center">
+  <img src="_static/adversarial/adversarial_workflow.png" />
+  <b>Figure 1.</b> Example workflow of how ARLIN can be used for adversarial purposes.
+</p>
 <p><em>Note: We use the analysis from the <a class="reference internal" href="explainable.html"><span class="std std-doc">explainability tutorial</span></a> as a</em>
 <em>basis for our attacks. We recommend reading that tutorial before this one.</em></p>
 <p>To give examples of traditional adversarial attacks and a baseline performance of the
@@ -100,13 +103,13 @@ result in very noticeable failures that are very different from the path the pol
 normally take. ARLIN aims to time an attack so that it is less noticeable than the below,
 but still effective.</p>
 <div align="center">
- <img src="../../images/adversarial/gifs/baseline.gif" width=20%/>
- <img src="../../images/adversarial/gifs/worst_1.gif" width=20%/>
- <img src="../../images/adversarial/gifs/worst_10.gif" width=20%/>
- <img src="../../images/adversarial/gifs/preference75.gif" width=20%/>
+ <img src="_static/adversarial/gifs/baseline.gif" width=20%/>
+ <img src="_static/adversarial/gifs/worst_1.gif" width=20%/>
+ <img src="_static/adversarial/gifs/worst_10.gif" width=20%/>
+ <img src="_static/adversarial/gifs/preference75.gif" width=20%/>
 </div>
 <p align="center">
-  <b>Figure 1.</b> Gifs created from baseline performance and traditional adversarial attacks.
+  <b>Figure 2.</b> Gifs created from baseline performance and traditional adversarial attacks.
  Baseline is the policy with no attacks, Worst1 is the worst possible action at every step
  , Worst10 is the worst possible action at every 10 steps, and Pref75 takes the worst
  possible action when the delta between the probabilities of the most and least probable
@@ -120,10 +123,10 @@ but still effective.</p>
 </pre></div>
 </div>
 <p align="center">
-  <img src="../../images/adversarial/samdp_terminals_23.png" />
-  <b>Figure 2.</b> Neighboring clusters and associated actions for moving into Cluster 23.
+  <img src="_static/adversarial/samdp_terminals_23.png" />
+  <b>Figure 3.</b> Neighboring clusters and associated actions for moving into Cluster 23.
 </p>
-<p>Figure 2 shows us the clusters that are connected to our target cluster, Cluster 23, along
+<p>Figure 3 shows us the clusters that are connected to our target cluster, Cluster 23, along
 with the actions that are most likely to result in the agent moving into our target
 cluster. We can use this from an adversarial perspective to manipulate the agent into
 moving into our target cluster, resulting in mission failure.</p>
@@ -136,12 +139,37 @@ for majority of the episode, and only attacks when it results in a failure that 
 for the policy to find (Figure 3). In trials, this approach results in the agent reaching
 the target cluster 90% of the time.</p>
 <p align="center">
-  <img src="../../images/adversarial/gifs/arlin.gif" />
+  <img src="_static/adversarial/gifs/arlin.gif" />
 </p>
 <p align="center">
-  <b>Figure 3.</b> ARLIN influenced attack, showing how the attack results in a reasonable
+  <b>Figure 4.</b> ARLIN influenced attack, showing how the attack results in a reasonable
    failure as opposed to an obvious one as seen in Figure 1.
 </p>
+<div align="center">
+ <img src="_static/adversarial/cosine_similarity.png" width=30%/>
+ <img src="_static/adversarial/cumulative_reward.png" width=30%/>
+ <img src="_static/adversarial/kl_divergence.png" width=30%/>
+</div>
+<p align="center">
+  <b>Figure 5.</b> Detectability metrics illustrating ARLIN's usage in adversarial attack
+  timing. Left to right: cosine similarity over an episode, cumulative reward over an
+  episode (same episode as cosine similarity), average kl_divergence distribution over 25 
+  episodes.
+</p>
+<p>In Figure 5, attacked plots for cosine similarity and cumulative reward that closely
+resemble the baseline (non-attacked) plot are considered less detectable attacks to an
+observer. As the attacked plot strays from the non-attacked plot, the attack will become
+more visible as it is very out of the norm. Attacks that closely follow the path of the
+non-attacked agent except at limited points will look more like an error than an attack.
+In both figures, ARLIN follows the non-attacked policy for most of the episode, and only
+strays once the target clusters are reached, resulting in a quick movement to the target
+failure state and a reduction in overall reward received.</p>
+<p>In the KL Divergence graph in Figure 5, distributions that are closer to 0 are less
+detectable to an observer. If the action distribution of an attacked policy is similar to
+the distribution of the non-attacked policy, then the adversarial action is seen as a
+“reasonable” action by the policy. ARLIN’s distribution is the closest to 0 out of all
+methods, meaning the adversarial actions identified by ARLIN are more “reasonable” and
+therefore less detectable.</p>
 </section>
 
 
