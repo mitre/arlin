@@ -33,6 +33,14 @@ jobs:
           touch public/.nojekyll
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.4.3
-        with:
-          folder: public
+        permissions:
+          pages: write
+          id-token: write
+
+        environment:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
+        uses: actions/deploy-pages@v2.0.4
+        # uses: JamesIves/github-pages-deploy-action@v4.4.3
+        # with:
+        #   folder: public
