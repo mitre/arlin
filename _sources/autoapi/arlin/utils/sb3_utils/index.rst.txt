@@ -1,0 +1,32 @@
+:py:mod:`arlin.utils.sb3_utils`
+===============================
+
+.. py:module:: arlin.utils.sb3_utils
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   arlin.utils.sb3_utils.get_sb3_algo
+
+
+
+.. py:function:: get_sb3_algo(algo_str)
+
+   Get the Algorithm class based on given algorithms string.
+
+   :param algo_str: Str representation of an algorithm class.
+   :type algo_str: str
+
+   :raises ValueError: If given algorithm is not implemented.
+
+   :returns: Algorithm class for the specified algorithm.
+   :rtype: BaseAlgorithm
+
+

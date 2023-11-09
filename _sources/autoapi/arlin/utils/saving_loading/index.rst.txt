@@ -1,0 +1,43 @@
+:py:mod:`arlin.utils.saving_loading`
+====================================
+
+.. py:module:: arlin.utils.saving_loading
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   arlin.utils.saving_loading.save_data
+   arlin.utils.saving_loading.load_data
+
+
+
+.. py:function:: save_data(data, file_path)
+
+   Save data as a pickle file to given save path.
+
+   :param - data: Data to save
+   :type - data: Any
+   :param - file_path: File path to save the data to
+   :type - file_path: str
+
+
+.. py:function:: load_data(file_path, allow_pickle = False)
+
+   Load and return data from given file path:
+
+   :param - file_path: Path to load file from
+   :type - file_path: str
+   :param - allow_pickle: Whether or not to allow pickling in loading
+   :type - allow_pickle: bool
+
+   :returns: Loaded data
+   :rtype: - Any
+
+

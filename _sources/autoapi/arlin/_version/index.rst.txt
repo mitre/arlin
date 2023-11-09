@@ -1,0 +1,8 @@
+:orphan:
+
+:py:mod:`arlin._version`
+========================
+
+.. py:module:: arlin._version
+
+

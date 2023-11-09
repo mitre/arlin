@@ -1,0 +1,71 @@
+:py:mod:`arlin.generation`
+==========================
+
+.. py:module:: arlin.generation
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   arlin.generation.generate_embeddings
+   arlin.generation.generate_clusters
+
+
+
+.. py:function:: generate_embeddings(dataset, activation_key, perplexity, n_train_iter, output_dim = 2, seed = 12345)
+
+   Generate TSNE embeddings from the given XRLDataset.
+
+   :param dataset: XRLDataset generated from an RL policy.
+   :type dataset: XRLDataset
+   :param activation_key: Data that we want to embed on.
+   :type activation_key: str
+   :param perplexity: Perplexity value for TSNE
+   :type perplexity: int
+   :param n_train_iter: Number of training iterations for TSNE
+   :type n_train_iter: int
+   :param output_dim: Output dimensions of the embeddings. Defaults to 2.
+   :type output_dim: int, optional
+   :param seed: Seed for TSNE. Defaults to 12345.
+   :type seed: int, optional
+
+   :returns: TSNE embeddings
+   :rtype: np.ndarray
+
+
+.. py:function:: generate_clusters(dataset, start_cluster_keys, intermediate_cluster_keys, term_cluster_keys, num_clusters, seed = None)
+
+   Generate clusters from the given XRLDataset.
+
+   NOTE: Order of the keys matters - ensure the data passed in during inference time
+   matches the order of the keys passed in during cluster generation.
+
+   :param dataset: XRLDataset to cluster on.
+   :type dataset: XRLDataset
+   :param start_cluster_keys: Keys to cluster initial states on
+   :type start_cluster_keys: List[str]
+   :param intermediate_cluster_keys: Keys to cluster intermediate states on
+   :type intermediate_cluster_keys: List[str]
+   :param term_cluster_keys: keys to cluster terminal states on
+   :type term_cluster_keys: List[str]
+   :param num_clusters: Number of intermediate clusters to find in intermediate
+                        (not intitial or terminal) states
+   :type num_clusters: int
+   :param seed: Seed for clustering. Defaults to None.
+   :type seed: Optional[int], optional
+
+   :raises ValueError: No initial states found.
+   :raises ValueError: No terminal states found.
+   :raises ValueError: Not enough datapoints given (< num_clusters)
+
+   :returns: Cluster values for each datapoint, initial cluster estimator, intermediate cluster
+             estimator, terminal cluster estimator
+   :rtype: Tuple(np.ndarray, object, object, object)
+
+

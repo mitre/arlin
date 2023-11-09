@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adversarial Tutorial &mdash; ARLIN - Assured Reinforcement Learning Model Interrogation latest documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=c6e86fd7"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Explainability Tutorial" href="explainable.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ARLIN - Assured Reinforcement Learning Model Interrogation
+              <img src="../_static/arlin_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Adversarial Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explainable.html">Explainability Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ARLIN - Assured Reinforcement Learning Model Interrogation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
+      <li class="breadcrumb-item active">Adversarial Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/adversarial.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="adversarial-tutorial">
+<h1>Adversarial Tutorial<a class="headerlink" href="#adversarial-tutorial" title="Link to this heading"></a></h1>
+<p>ARLIN can be used from an adversarial standpoint to identify the optimal timing for
+attacks against a policy. Most adversarial methods focus on attacking at a given
+frequency, or by measuring internal metrics from the model and choose actions based on
+which actions are seen as “the worst” by the model.</p>
+<p>Using ARLIN, we can identify clusters that represent mission failure and use the SAMDP to
+analyze which clusters we should attack in and which actions to take to ensure the policy
+ends in a failure. Since the SAMDP maps actions that the agent has actually taken in the
+XRLDataset, the resulting attacks will not only be effective, but also less noticeable to
+an observer as the attack will look more natural and similar to how the policy would
+truly react in the scenario.</p>
+<p>Below is a simple example of ARLIN being used for adversarial attack enhancement.</p>
+<p><em>Note: We use the analysis from the <a class="reference internal" href="explainable.html"><span class="std std-doc">explainability tutorial</span></a> as a</em>
+<em>basis for our attacks. We recommend reading that tutorial before this one.</em></p>
+<p>To give examples of traditional adversarial attacks and a baseline performance of the
+policy, we show gifs from a variety of methods. We can see that all adversarial methods
+result in very noticeable failures that are very different from the path the policy would
+normally take. ARLIN aims to time an attack so that it is less noticeable than the below,
+but still effective.</p>
+<div align="center">
+ <img src="../../images/adversarial/gifs/baseline.gif" width=20%/>
+ <img src="../../images/adversarial/gifs/worst_1.gif" width=20%/>
+ <img src="../../images/adversarial/gifs/worst_10.gif" width=20%/>
+ <img src="../../images/adversarial/gifs/preference75.gif" width=20%/>
+</div>
+<p align="center">
+  <b>Figure 1.</b> Gifs created from baseline performance and traditional adversarial attacks.
+ Baseline is the policy with no attacks, Worst1 is the worst possible action at every step
+ , Worst10 is the worst possible action at every 10 steps, and Pref75 takes the worst
+ possible action when the delta between the probabilities of the most and least probable
+ action is above a threshold of .75 (left to right: Baseline, Worst1, Worst10, Pref75).
+</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">arlin.samdp</span> <span class="kn">import</span> <span class="n">SAMDP</span>
+
+<span class="n">samdp</span><span class="o">.</span><span class="n">save_terminal_paths</span><span class="p">(</span><span class="s1">&#39;./paths_into_23.png`,</span>
+                            <span class="n">best_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">term_cluster_id</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+</pre></div>
+</div>
+<p align="center">
+  <img src="../../images/adversarial/samdp_terminals_23.png" />
+  <b>Figure 2.</b> Neighboring clusters and associated actions for moving into Cluster 23.
+</p>
+<p>Figure 2 shows us the clusters that are connected to our target cluster, Cluster 23, along
+with the actions that are most likely to result in the agent moving into our target
+cluster. We can use this from an adversarial perspective to manipulate the agent into
+moving into our target cluster, resulting in mission failure.</p>
+<p>By using ARLIN to analyze the policy, we identify the potential paths to Cluster 23 as
+taking action 2 when in Cluster 7, action 3 when in Clusters 16, 0, and 8, and action 1
+when in Clusters 11 and 12. During the course of the episode, we monitor the current
+cluster of the agent. Once the agent reaches one of the identified clusters, we influence
+the agent to take the specified action. This results in an attack that follows the policy
+for majority of the episode, and only attacks when it results in a failure that is normal
+for the policy to find (Figure 3). In trials, this approach results in the agent reaching
+the target cluster 90% of the time.</p>
+<p align="center">
+  <img src="../../images/adversarial/gifs/arlin.gif" />
+</p>
+<p align="center">
+  <b>Figure 3.</b> ARLIN influenced attack, showing how the attack results in a reasonable
+   failure as opposed to an obvious one as seen in Figure 1.
+</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="explainable.html" class="btn btn-neutral float-right" title="Explainability Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, MITRE.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

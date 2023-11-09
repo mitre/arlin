@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing &mdash; ARLIN - Assured Reinforcement Learning Model Interrogation latest documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=c6e86fd7"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="autoapi/index.html" />
+    <link rel="prev" title="Explainability Tutorial" href="tutorials/explainable.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ARLIN - Assured Reinforcement Learning Model Interrogation
+              <img src="_static/arlin_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/adversarial.html">Adversarial Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/explainable.html">Explainability Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#docstrings">Docstrings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#issue-merge-request-creation">Issue &amp; Merge Request Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-pre-commit-highly-recommended">Using Pre-commit (<strong>Highly Recommended</strong>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-unit-tests">Running Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-packages-modules">Adding Packages &amp; Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ARLIN - Assured Reinforcement Learning Model Interrogation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Contributing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contributing.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h1>
+<p>Right now, submission of <a class="reference external" href="https://github.com/mitre/arlin/issues">issues</a> and
+<a class="reference external" href="https://github.com/mitre/arlin/pulls">pull requests</a> through GitHub is the best way to
+suggest changes, and those will have to be applied and merged on the internal MITRE
+GitLab and mirrored to GitHub. This process may change in the future.</p>
+<p><strong>Contributing Guidelines</strong>:</p>
+<ol class="arabic simple">
+<li><p>Nobody can commit directly to <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+<li><p>You must create a merge request in order to publish changes to <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+<li><p>Before merging, all stages of the GitLab CI pipeline must pass. This includes
+linting with <a class="reference external" href="https://flake8.pycqa.org/en/latest/"><code class="docutils literal notranslate"><span class="pre">flake8</span></code></a>, code-formatting with
+<a class="reference external" href="https://github.com/psf/black"><code class="docutils literal notranslate"><span class="pre">black</span></code></a>, passing the Python unit tests, and creating
+the documentation.</p></li>
+<li><p>Once all pipeline stages have passed, then the branch can be merged into main.</p></li>
+<li><p>These pipeline stages can be tested locally to ensure that they are passed on the
+remote side (explained in <a class="reference internal" href="#using-pre-commit"><span class="xref myst">Using Pre-commit</span></a>)</p></li>
+</ol>
+<section id="docstrings">
+<h2>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading"></a></h2>
+<p>Do your best to make sure that all docstrings adhere to the following Google format found
+in <code class="docutils literal notranslate"><span class="pre">xrl_dataset.py</span></code>
+<a class="reference external" href="https://github.com/mitre/arlin/-/blob/main/arlin/dataset/xrl_dataset.py">here</a>. The
+reasoning can be found
+<a class="reference external" href="https://www.sphinx-doc.org/en/main/usage/extensions/napoleon.html">here</a>. We’re using
+double quotes for docstrings and strings per the formatting requirements of
+<a class="reference external" href="https://github.com/psf/black"><code class="docutils literal notranslate"><span class="pre">black</span></code></a>.</p>
+<p>If you are editing a file and see that a docstring doesn’t adhere to the Python3 Google
+Style Guide exemplified in <code class="docutils literal notranslate"><span class="pre">xrl_dataset.py</span></code>
+<a class="reference external" href="https://github.com/mitre/arlin/-/blob/main/arlin/dataset/xrl_dataset.py">here</a>, please
+be a good steward and fix it so that it does.</p>
+</section>
+<section id="issue-merge-request-creation">
+<h2>Issue &amp; Merge Request Creation<a class="headerlink" href="#issue-merge-request-creation" title="Link to this heading"></a></h2>
+<p>Create or assign an issue to yourself at the
+<a class="reference external" href="https://github.com/mitre/arlin/-/boards">Issue Board Page</a>, add the appropriate labels,
+and move the issue to “in progress”.</p>
+<p>Create a merge request based on that issue using the “Create Merge Request” button on the
+issue page.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p><em>Note: ARLIN has only been tested on Ubuntu 18.04 and Python 3.9.</em></p>
+<ol class="arabic">
+<li><p><strong>Clone the repository</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://gitlab.mitre.org/advxai/arlin.git
+</pre></div>
+</div>
+</li>
+<li><p><strong>Install poetry</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-sSL<span class="w"> </span>https://install.python-poetry.org<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-
+</pre></div>
+</div>
+<p><em>Note: Don’t forget to add <code class="docutils literal notranslate"><span class="pre">poetry</span></code> to your path.</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.local/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Install required packages</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>arlin
+poetry<span class="w"> </span>shell
+poetry<span class="w"> </span>install
+</pre></div>
+</div>
+<p><em>Note: To re-enter the environment after this step, run <code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">shell</span></code>.</em></p>
+</li>
+</ol>
+</section>
+<section id="using-pre-commit-highly-recommended">
+<h2>Using Pre-commit (<strong>Highly Recommended</strong>)<a class="headerlink" href="#using-pre-commit-highly-recommended" title="Link to this heading"></a></h2>
+<p>If you’d like, you can install <a class="reference external" href="https://pre-commit.com/">pre-commit</a> to run linting and
+code-formatting before you are able to commit. This will ensure that you pass this
+portion of the remote pipelines when you push to your merge request.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+<p>Now, every time you try to commit, your code that you have staged will be linted by
+<code class="docutils literal notranslate"><span class="pre">flake8</span></code> and auto-formatted by <code class="docutils literal notranslate"><span class="pre">black</span></code>. If the linting doesn’t pass pre-commit, it will
+tell you, and you’ll have to make those changes before committing those files.
+If <code class="docutils literal notranslate"><span class="pre">black</span></code> autoformats your code during pre-commit, you can view those changes and then
+you’ll have to stage them. Then you can commit and push.</p>
+<p>Pre-commit can also be run manually on all files without having to commit.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+</section>
+<section id="running-unit-tests">
+<h2>Running Unit Tests<a class="headerlink" href="#running-unit-tests" title="Link to this heading"></a></h2>
+<p>There are also unit tests that need to be passed, and to make sure you are passing those
+locally (before pushing to your remote branch and running the pipeline) you can run the
+following command in the root directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>tests/
+</pre></div>
+</div>
+<p>This will run all of the tests within the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory.</p>
+</section>
+<section id="adding-packages-modules">
+<h2>Adding Packages &amp; Modules<a class="headerlink" href="#adding-packages-modules" title="Link to this heading"></a></h2>
+<p>If you add a package or module, make sure to create a unit test for it and preferably all
+classes and functions within it. The tests are within the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory and should
+be named as <code class="docutils literal notranslate"><span class="pre">test_X.py</span></code> where <code class="docutils literal notranslate"><span class="pre">X</span></code> is the file you are testing. Try to adhere to this
+standard when creating new packages, modules, classes, and functions.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials/explainable.html" class="btn btn-neutral float-left" title="Explainability Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autoapi/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, MITRE.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

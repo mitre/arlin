@@ -1,0 +1,71 @@
+:py:mod:`arlin.dataset.collectors.base_collectors`
+==================================================
+
+.. py:module:: arlin.dataset.collectors.base_collectors
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.dataset.collectors.base_collectors.BaseDataCollector
+   arlin.dataset.collectors.base_collectors.RandomDataCollector
+
+
+
+
+.. py:class:: BaseDataCollector(datapoint_cls)
+
+
+   Bases: :py:obj:`abc.ABC`
+
+   Base class for data collection.
+
+   Initialize a BaseDataCollector object.
+
+   :param datapoint_cls: Class of datapoint we are collecting.
+   :type datapoint_cls: Type[BaseDatapoint]
+
+   .. py:method:: collect_internal_data(observation)
+      :abstractmethod:
+
+      Collect internal model-specific data.
+
+      :param observation: Input observation to the model
+      :type observation: np.ndarray
+
+      :returns: Internal data and action to take
+      :rtype: Tuple[Type[BaseDatapoint], int]
+
+
+
+.. py:class:: RandomDataCollector(datapoint_cls, environment)
+
+
+   Bases: :py:obj:`BaseDataCollector`
+
+   Data collection when the agent is taking random actions.
+
+   Initialize a RandomDataCollector object.
+
+   :param datapoint_cls: Class of datapoint we are collecting.
+   :type datapoint_cls: Type[BaseDatapoint]
+   :param environment: Environment the policy is interacting with.
+   :type environment: gym.Env
+
+   .. py:method:: collect_internal_data(observation)
+
+      Collect internal model-specific data.
+
+      :param observation: Input observation to the model
+      :type observation: np.ndarray
+
+      :returns: Internal data and action to take
+      :rtype: Tuple[Type[BaseDatapoint], int]
+
+
+

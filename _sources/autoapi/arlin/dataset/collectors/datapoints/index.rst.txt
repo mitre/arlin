@@ -1,0 +1,143 @@
+:py:mod:`arlin.dataset.collectors.datapoints`
+=============================================
+
+.. py:module:: arlin.dataset.collectors.datapoints
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   arlin.dataset.collectors.datapoints.BaseDatapoint
+   arlin.dataset.collectors.datapoints.SB3PPODatapoint
+   arlin.dataset.collectors.datapoints.SB3DQNDatapoint
+
+
+
+
+.. py:class:: BaseDatapoint
+
+
+   Base datapoint with traditional RL data that is common to all algorithms.
+
+   .. py:attribute:: observations
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: actions
+      :type: Optional[int]
+
+      
+
+   .. py:attribute:: rewards
+      :type: Optional[float]
+
+      
+
+   .. py:attribute:: terminateds
+      :type: Optional[bool]
+
+      
+
+   .. py:attribute:: truncateds
+      :type: Optional[bool]
+
+      
+
+   .. py:attribute:: steps
+      :type: Optional[float]
+
+      
+
+   .. py:attribute:: renders
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:method:: add_base_data(obs, action, reward, terminated, truncated, step, render)
+
+      Add the base RL data to this Datapoint object.
+
+      :param obs: Current observation
+      :type obs: np.ndarray
+      :param action: Action taken
+      :type action: int
+      :param reward: Reward received
+      :type reward: float
+      :param terminated: Did the episode end
+      :type terminated: bool
+      :param truncated: Did we run out of steps
+      :type truncated: bool
+      :param step: Current step of this data
+      :type step: float
+      :param render: Render of the environment state
+      :type render: np.ndarray
+
+
+
+.. py:class:: SB3PPODatapoint
+
+
+   Bases: :py:obj:`BaseDatapoint`
+
+   Datapoint for a PPO algorithm trained in stable-baselines3.
+
+   .. py:attribute:: latent_actors
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: latent_critics
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: dist_probs
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: critic_values
+      :type: Optional[float]
+
+      
+
+   .. py:attribute:: pi_features
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: vf_features
+      :type: Optional[numpy.ndarray]
+
+      
+
+
+.. py:class:: SB3DQNDatapoint
+
+
+   Bases: :py:obj:`BaseDatapoint`
+
+   Datapoint for a DQN algorithm trained in stable-baselines3.
+
+   .. py:attribute:: q_vals
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: latent_qs
+      :type: Optional[numpy.ndarray]
+
+      
+
+   .. py:attribute:: features
+      :type: Optional[numpy.ndarray]
+
+      
+
+
