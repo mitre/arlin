@@ -131,13 +131,13 @@ class SAMDP:
 
         G = nx.MultiDiGraph()
 
-        G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
+        G.add_nodes_from([f"Cluster \n{i}" for i in range(self.num_clusters)])
 
         for from_cluster_id in range(self.num_clusters):
-            from_cluster = f"Cluster {from_cluster_id}"
+            from_cluster = f"Cluster \n{from_cluster_id}"
             for action_id in range(self.num_actions):
                 for to_cluster_id in range(self.num_clusters):
-                    to_cluster = f"Cluster {to_cluster_id}"
+                    to_cluster = f"Cluster \n{to_cluster_id}"
 
                     prob = self.samdp[from_cluster_id, action_id, to_cluster_id]
 
@@ -164,12 +164,12 @@ class SAMDP:
             nx.Graph: Simplified version of the SAMDP with less informative connections.
         """
         G = nx.MultiDiGraph()
-        G.add_nodes_from([f"Cluster {i}" for i in range(self.num_clusters)])
+        G.add_nodes_from([f"Cluster \n{i}" for i in range(self.num_clusters)])
 
         for from_cluster_id in range(self.num_clusters):
-            from_cluster = f"Cluster {from_cluster_id}"
+            from_cluster = f"Cluster \n{from_cluster_id}"
             for to_cluster_id in range(self.num_clusters):
-                to_cluster = f"Cluster {to_cluster_id}"
+                to_cluster = f"Cluster \n{to_cluster_id}"
 
                 prob = np.sum(self.samdp[from_cluster_id, -1, to_cluster_id])
                 if not prob == 0 and not from_cluster_id == to_cluster_id:
@@ -201,7 +201,7 @@ class SAMDP:
         """
         node_colors = {}
         for i in range(self.num_clusters):
-            node_colors[f"Cluster {i}"] = COLORS[i]
+            node_colors[f"Cluster \n{i}"] = COLORS[i]
         nx.set_node_attributes(graph, node_colors, "color")
 
     def _set_node_edges(self, graph: nx.Graph):
@@ -218,7 +218,7 @@ class SAMDP:
 
         node_edges = {}
         for node_id in range(self.num_clusters):
-            node_name = f"Cluster {node_id}"
+            node_name = f"Cluster \n{node_id}"
             if node_id in start_clusters:
                 node_edges[node_name] = "g"
             elif node_id in term_clusters:
@@ -240,8 +240,8 @@ class SAMDP:
         pos = {}
         start_clusters = set(self.clusters[self.dataset.start_indices])
         term_clusters = set(self.clusters[self.dataset.term_indices])
-        initial_nodes = [f"Cluster {i}" for i in start_clusters]
-        terminal_nodes = [f"Cluster {i}" for i in term_clusters]
+        initial_nodes = [f"Cluster \n{i}" for i in start_clusters]
+        terminal_nodes = [f"Cluster \n{i}" for i in term_clusters]
 
         bfs_layers = list(nx.bfs_layers(self.graph, initial_nodes))
 
@@ -297,7 +297,7 @@ class SAMDP:
         Returns:
             nx.Graph: Complete SAMDP graph
         """
-        _ = plt.figure(figsize=(40, 20))
+        _ = plt.figure(figsize=(30, 15))
         plt.title("Complete SAMDP")
 
         pos = self._generate_bfs_pos()
@@ -309,7 +309,7 @@ class SAMDP:
         nx.draw_networkx_nodes(
             self.graph,
             pos,
-            node_size=4100,
+            node_size=3500,
             node_color=colors,
             edgecolors=node_edges,
             linewidths=5,
@@ -325,7 +325,7 @@ class SAMDP:
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[2]["color"],
                 alpha=max(0, min(edge[2]["weight"] + 0.1, 1)),
-                node_size=4000,
+                node_size=3500,
                 arrowsize=25,
             )
 
@@ -333,7 +333,9 @@ class SAMDP:
         labels = [f"Action {i}" for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": "upper left"})
+        legend.update(
+            {"bbox_to_anchor": (1.0, 1.0), "loc": "upper left", "fontsize": "xx-large"}
+        )
         plt.legend(**legend)
 
         plt.tight_layout()
@@ -355,7 +357,7 @@ class SAMDP:
         Returns:
             nx.Graph: Simplified SAMDP graph
         """
-        _ = plt.figure(figsize=(40, 20))
+        _ = plt.figure(figsize=(20, 10))
         plt.title("Simplified SAMDP")
 
         G = self._generate_simplified_graph()
@@ -367,7 +369,7 @@ class SAMDP:
         nx.draw_networkx_nodes(
             G,
             pos,
-            node_size=4100,
+            node_size=3500,
             node_color=colors,
             edgecolors=node_edges,
             linewidths=5,
@@ -386,7 +388,7 @@ class SAMDP:
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[3]["color"],
                 alpha=max(0, min(edge[3]["weight"] + 0.1, 1)),
-                node_size=4000,
+                node_size=3500,
                 arrowsize=25,
             )
 
@@ -407,7 +409,7 @@ class SAMDP:
         Returns:
             nx.Graph: Graph object with only most likely edges
         """
-        _ = plt.figure(figsize=(40, 20))
+        _ = plt.figure(figsize=(30, 15))
         plt.title("Most Probable SAMDP")
 
         pos = self._generate_bfs_pos()
@@ -418,7 +420,7 @@ class SAMDP:
         nx.draw_networkx_nodes(
             self.graph,
             pos,
-            node_size=4100,
+            node_size=3500,
             node_color=colors,
             edgecolors=node_edges,
             linewidths=5,
@@ -448,7 +450,7 @@ class SAMDP:
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[3]["color"],
                 alpha=max(0, min(edge[3]["weight"] + 0.1, 1)),
-                node_size=4000,
+                node_size=3500,
                 arrowsize=25,
             )
 
@@ -456,7 +458,9 @@ class SAMDP:
         labels = [f"Action {i}" for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": "upper left"})
+        legend.update(
+            {"bbox_to_anchor": (1.0, 1.0), "loc": "upper left", "fontsize": "xx-large"}
+        )
         plt.legend(**legend)
 
         plt.tight_layout()
@@ -566,8 +570,8 @@ class SAMDP:
             verbose (bool, optional): Do we want to show the complete edges instead of the
                 simplified. Defaults to False.
         """
-        from_cluster = f"Cluster {from_cluster_id}"
-        to_cluster = f"Cluster {to_cluster_id}"
+        from_cluster = f"Cluster \n{from_cluster_id}"
+        to_cluster = f"Cluster \n{to_cluster_id}"
 
         if from_cluster not in self.graph.nodes():
             logging.warning(f"{from_cluster} is not a valid cluster.")
@@ -577,7 +581,10 @@ class SAMDP:
             logging.warning(f"{to_cluster} is not a valid cluster.")
             return
 
-        _ = plt.figure(figsize=(40, 20))
+        if verbose:
+            _ = plt.figure(figsize=(30, 15))
+        else:
+            _ = plt.figure(figsize=(20, 10))
         plt.title(f"SAMDP Paths from {from_cluster} to {to_cluster}")
 
         logging.info(f"Finding paths from {from_cluster} to {to_cluster}...")
@@ -636,7 +643,7 @@ class SAMDP:
         nx.draw_networkx_nodes(
             subgraph,
             pos,
-            node_size=4100,
+            node_size=3500,
             node_color=colors,
             edgecolors=node_edges,
             linewidths=5,
@@ -652,7 +659,7 @@ class SAMDP:
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[3]["color"],
                 alpha=max(0, min(edge[3]["weight"] + 0.1, 1)),
-                node_size=4000,
+                node_size=3500,
                 arrowsize=25,
             )
 
@@ -660,7 +667,9 @@ class SAMDP:
         labels = [f"Action {i}" for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": "upper left"})
+        legend.update(
+            {"bbox_to_anchor": (1.0, 1.0), "loc": "upper left", "fontsize": "xx-large"}
+        )
         plt.legend(**legend)
 
         plt.tight_layout()
@@ -694,7 +703,7 @@ class SAMDP:
                 term_nodes.append(node[0])
 
         if term_cluster_id is not None:
-            cluster_node = f"Cluster {term_cluster_id}"
+            cluster_node = f"Cluster \n{term_cluster_id}"
 
             if cluster_node not in term_nodes:
                 logging.info(f"Cluster {term_cluster_id} is not a terminal cluster.")
@@ -702,7 +711,7 @@ class SAMDP:
 
             term_nodes = [cluster_node]
 
-        _ = plt.figure(figsize=(40, 20))
+        _ = plt.figure(figsize=(20, 10))
         plt.title(f"All SAMDP connections to terminal cluster {term_cluster_id}")
         logging.info(f"Finding connections to terminal cluster {term_cluster_id}...")
 
@@ -739,7 +748,7 @@ class SAMDP:
         nx.draw_networkx_nodes(
             subgraph,
             pos,
-            node_size=4100,
+            node_size=3500,
             node_color=colors,
             edgecolors=node_edges,
             linewidths=5,
@@ -754,7 +763,7 @@ class SAMDP:
                 edgelist=[edge],
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[3]["color"],
-                node_size=4000,
+                node_size=3500,
                 arrowsize=25,
             )
 
@@ -762,7 +771,9 @@ class SAMDP:
         labels = [f"Action {i}" for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": "upper left"})
+        legend.update(
+            {"bbox_to_anchor": (1.0, 1.0), "loc": "upper left", "fontsize": "xx-large"}
+        )
         plt.legend(**legend)
 
         plt.tight_layout()
@@ -782,13 +793,16 @@ class SAMDP:
             verbose (bool, optional): Do we want to show complete graph edges instead of
                 simplified. Defaults to False.
         """
-        to_cluster = f"Cluster {to_cluster_id}"
+        to_cluster = f"Cluster \n{to_cluster_id}"
 
         if to_cluster not in self.graph.nodes():
             logging.warning(f"{to_cluster} is not a valid cluster.")
             return
 
-        _ = plt.figure(figsize=(40, 20))
+        if verbose:
+            _ = plt.figure(figsize=(30, 15))
+        else:
+            _ = plt.figure(figsize=(20, 10))
         plt.title(f"All SAMDP Paths to {to_cluster}")
 
         logging.info(f"Finding paths to {to_cluster}...")
@@ -845,7 +859,7 @@ class SAMDP:
         nx.draw_networkx_nodes(
             subgraph,
             pos,
-            node_size=4100,
+            node_size=3500,
             node_color=colors,
             edgecolors=node_edges,
             linewidths=5,
@@ -861,7 +875,7 @@ class SAMDP:
                 connectionstyle=f"arc3,rad={edge_arcs[i]}",
                 edge_color=edge[3]["color"],
                 alpha=max(0, min(edge[3]["weight"] + 0.1, 1)),
-                node_size=4000,
+                node_size=3500,
                 arrowsize=25,
             )
 
@@ -869,7 +883,9 @@ class SAMDP:
         labels = [f"Action {i}" for i in range(self.num_actions)]
         leg_title = "Actions"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
-        legend.update({"bbox_to_anchor": (1.0, 1.0), "loc": "upper left"})
+        legend.update(
+            {"bbox_to_anchor": (1.0, 1.0), "loc": "upper left", "fontsize": "xx-large"}
+        )
         plt.legend(**legend)
 
         plt.tight_layout()
