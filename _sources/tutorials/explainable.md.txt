@@ -58,8 +58,8 @@ embeddings = generate_embeddings(dataset=dataset,
 clusters, _, _, _ = generate_clusters(dataset=dataset,
                                       num_clusters=20)
 
-# Create a grapher to generate data used for analysis.
-grapher = LatentAnalyzer(embeddings, dataset)
+# Create a grapher to generate latent data used for analysis.
+grapher = LatentAnalyzer(dataset, embeddings)
 
 # Generate latent analysis data for visualization
 ep_prog_data = grapher.episode_prog_graph_data()
@@ -72,6 +72,9 @@ viz.graph_multiple_data(file_path='./latent_analysis.png',
                         graph_datas=[ep_prog_data,
                                       conf_data,
                                       decision_boundaries])
+
+# Create a grapher to generate cluster data used for analysis.
+grapher = ClusterAnalyzer(dataset, clusters)
 
 # Generate cluster analysis data for visualization
 cluster_conf = grapher.cluster_confidence()

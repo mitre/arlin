@@ -138,8 +138,8 @@ identify potential vulnerabilities within a trained model prior to deployment.</
 <span class="n">clusters</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_clusters</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
                                       <span class="n">num_clusters</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
-<span class="c1"># Create a grapher to generate data used for analysis.</span>
-<span class="n">grapher</span> <span class="o">=</span> <span class="n">LatentAnalyzer</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+<span class="c1"># Create a grapher to generate latent data used for analysis.</span>
+<span class="n">grapher</span> <span class="o">=</span> <span class="n">LatentAnalyzer</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
 
 <span class="c1"># Generate latent analysis data for visualization</span>
 <span class="n">ep_prog_data</span> <span class="o">=</span> <span class="n">grapher</span><span class="o">.</span><span class="n">episode_prog_graph_data</span><span class="p">()</span>
@@ -152,6 +152,9 @@ identify potential vulnerabilities within a trained model prior to deployment.</
                         <span class="n">graph_datas</span><span class="o">=</span><span class="p">[</span><span class="n">ep_prog_data</span><span class="p">,</span>
                                       <span class="n">conf_data</span><span class="p">,</span>
                                       <span class="n">decision_boundaries</span><span class="p">])</span>
+
+<span class="c1"># Create a grapher to generate cluster data used for analysis.</span>
+<span class="n">grapher</span> <span class="o">=</span> <span class="n">ClusterAnalyzer</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">clusters</span><span class="p">)</span>
 
 <span class="c1"># Generate cluster analysis data for visualization</span>
 <span class="n">cluster_conf</span> <span class="o">=</span> <span class="n">grapher</span><span class="o">.</span><span class="n">cluster_confidence</span><span class="p">()</span>

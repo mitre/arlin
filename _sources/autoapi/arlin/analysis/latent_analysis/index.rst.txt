@@ -17,7 +17,7 @@ Classes
 
 
 
-.. py:class:: LatentAnalyzer(embeddings, dataset)
+.. py:class:: LatentAnalyzer(dataset, embeddings)
 
 
    Class to analyze latent embeddings and generate data to visualize.
