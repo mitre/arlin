@@ -76,7 +76,7 @@ class TestSAMDP:
             else:
                 edge_color = "k"
 
-            node = (f"Cluster {i}", {"edge_color": edge_color, "color": COLORS[i]})
+            node = (f"Cluster \n{i}", {"edge_color": edge_color, "color": COLORS[i]})
 
             assert node in nodes
 
@@ -93,8 +93,8 @@ class TestSAMDP:
 
             prob = samdp.samdp[from_cluster, action, to_cluster]
             edge = (
-                f"Cluster {from_cluster}",
-                f"Cluster {to_cluster}",
+                f"Cluster \n{from_cluster}",
+                f"Cluster \n{to_cluster}",
                 {"weight": prob, "action": action, "color": COLORS[action]},
             )
 
@@ -118,7 +118,7 @@ class TestSAMDP:
             else:
                 edge_color = "k"
 
-            node = (f"Cluster {i}", {"edge_color": edge_color, "color": COLORS[i]})
+            node = (f"Cluster \n{i}", {"edge_color": edge_color, "color": COLORS[i]})
 
             assert node in nodes
 
@@ -134,8 +134,8 @@ class TestSAMDP:
 
             prob = np.sum(samdp.samdp[from_cluster, -1, to_cluster])
             edge = (
-                f"Cluster {from_cluster}",
-                f"Cluster {to_cluster}",
+                f"Cluster \n{from_cluster}",
+                f"Cluster \n{to_cluster}",
                 {"weight": prob, "action": -1, "color": "#000000"},
             )
 
@@ -150,8 +150,8 @@ class TestSAMDP:
         num_clusters = max(samdp.clusters) + 1
         start_clusters = set(samdp.clusters[samdp.dataset.start_indices])
         term_clusters = set(samdp.clusters[samdp.dataset.term_indices])
-        initial_nodes = [f"Cluster {i}" for i in start_clusters]
-        terminal_nodes = [f"Cluster {i}" for i in term_clusters]
+        initial_nodes = [f"Cluster \n{i}" for i in start_clusters]
+        terminal_nodes = [f"Cluster \n{i}" for i in term_clusters]
 
         init_y = set()
         for node in initial_nodes:
@@ -243,7 +243,7 @@ class TestSAMDP:
             else:
                 edge_color = "k"
 
-            node = (f"Cluster {i}", {"edge_color": edge_color, "color": COLORS[i]})
+            node = (f"Cluster \n{i}", {"edge_color": edge_color, "color": COLORS[i]})
 
             assert node in nodes
 
@@ -255,12 +255,12 @@ class TestSAMDP:
 
             to_cluster = np.argmax(samdp.samdp[from_cluster_id, action, :])
 
-            assert edge[1] == f"Cluster {to_cluster}"
+            assert edge[1] == f"Cluster \n{to_cluster}"
             assert edge[3]["weight"] == samdp.samdp[from_cluster_id, action, to_cluster]
 
     def test_find_best_path(self, samdp):
-        from_cluster = "Cluster 9"
-        to_cluster = "Cluster 11"
+        from_cluster = "Cluster \n9"
+        to_cluster = "Cluster \n11"
 
         best_path = samdp._find_best_path(9, 11, [])
         assert best_path == []
