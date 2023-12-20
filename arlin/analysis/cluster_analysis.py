@@ -200,7 +200,7 @@ class ClusterAnalyzer:
 
         title = "Cluster Confidence Analysis"
 
-        handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
+        handles = [Patch(color="g"), Patch(color="k"), Patch(color="r")]
         labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
@@ -244,7 +244,7 @@ class ClusterAnalyzer:
 
         title = "Cluster Reward Analysis"
 
-        handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
+        handles = [Patch(color="g"), Patch(color="k"), Patch(color="r")]
         labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
@@ -294,7 +294,7 @@ class ClusterAnalyzer:
 
         title = "Cluster Value Analysis"
 
-        handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
+        handles = [Patch(color="g"), Patch(color="k"), Patch(color="r")]
         labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
