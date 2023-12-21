@@ -10,14 +10,14 @@ from arlin.samdp import SAMDP
 
 @pytest.fixture
 def samdp(random_dataset, random_clusters):
-    samdp = SAMDP(random_clusters, random_dataset)
+    samdp = SAMDP(random_clusters[0], random_dataset)
     return samdp
 
 
 class TestSAMDP:
     def test_init(self, random_clusters, random_dataset):
-        samdp = SAMDP(random_clusters, random_dataset)
-        assert np.array_equal(samdp.clusters, random_clusters)
+        samdp = SAMDP(random_clusters[0], random_dataset)
+        assert np.array_equal(samdp.clusters, random_clusters[0])
         assert samdp.dataset == random_dataset
 
     def test_generate(self, samdp):

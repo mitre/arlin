@@ -36,7 +36,10 @@ def should_attack(
     model_type = model_type.lower().capitalize()
 
     if model_type == "Random" or model_type == "Adversarial":
-        return timestep % freq == 0
+        if freq == 0:
+            return False
+        else:
+            return timestep % freq == 0
     elif model_type == "Preference":
         return preference > threshold
     else:

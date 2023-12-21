@@ -42,7 +42,7 @@ def random_embeddings(random_dataset):
 
 @pytest.fixture
 def random_clusters(random_dataset):
-    clusters, _, _, _ = generate_clusters(
+    clusters, start_algo, mid_algo, term_algo = generate_clusters(
         random_dataset,
         ["observations", "rewards"],
         ["observations", "rewards"],
@@ -50,7 +50,7 @@ def random_clusters(random_dataset):
         10,
         seed=1234,
     )
-    return clusters
+    return (clusters, start_algo, mid_algo, term_algo)
 
 
 @pytest.fixture
@@ -61,15 +61,19 @@ def ppo_model(env):
 
 
 @pytest.fixture
-def ppo_dataset(env):
-    model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=int(100))
-
+def ppo_collector(ppo_model):
     # Create the datapoint collector for SB3 PPO Datapoints with the model's policy
-    collector = SB3PPODataCollector(datapoint_cls=SB3PPODatapoint, policy=model.policy)
+    collector = SB3PPODataCollector(
+        datapoint_cls=SB3PPODatapoint, policy=ppo_model.policy
+    )
 
+    return collector
+
+
+@pytest.fixture
+def ppo_dataset(env, ppo_collector):
     # Instantiate the XRL Dataset
-    dataset = XRLDataset(env, collector=collector)
+    dataset = XRLDataset(env, collector=ppo_collector)
     dataset.fill(num_datapoints=50, randomness=0.25)
 
     return dataset
@@ -91,7 +95,7 @@ def ppo_embeddings(ppo_dataset):
 
 @pytest.fixture
 def ppo_clusters(ppo_dataset):
-    clusters, _, _, _ = generate_clusters(
+    clusters, start_algo, mid_algo, term_algo = generate_clusters(
         ppo_dataset,
         ["observations", "rewards"],
         ["observations", "rewards"],
@@ -99,4 +103,4 @@ def ppo_clusters(ppo_dataset):
         10,
         seed=1234,
     )
-    return clusters
+    return (clusters, start_algo, mid_algo, term_algo)
