@@ -165,3 +165,4 @@ examples/data
 examples/models
 main.py
 .vscode
+.DS_Store

@@ -7,19 +7,19 @@ from arlin.analysis.visualization import COLORS, GraphData
 
 @pytest.fixture
 def analyzer(random_embeddings, random_dataset):
-    analyzer = LatentAnalyzer(random_embeddings, random_dataset)
+    analyzer = LatentAnalyzer(random_dataset, random_embeddings)
     return analyzer
 
 
 @pytest.fixture
 def ppo_analyzer(ppo_embeddings, ppo_dataset):
-    ppo_analyzer = LatentAnalyzer(ppo_embeddings, ppo_dataset)
+    ppo_analyzer = LatentAnalyzer(ppo_dataset, ppo_embeddings)
     return ppo_analyzer
 
 
 class TestLatentAnalyzer:
     def test_init(self, random_dataset, random_embeddings):
-        analyzer = LatentAnalyzer(random_embeddings, random_dataset)
+        analyzer = LatentAnalyzer(random_dataset, random_embeddings)
 
         assert analyzer.num_embeddings == len(random_embeddings)
         assert len(analyzer.x) == len(random_embeddings)

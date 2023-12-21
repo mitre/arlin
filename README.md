@@ -7,8 +7,10 @@ latent space, creates a semi-aggregated Markov decision process (SAMDP) to outli
 model’s path throughout an episode, and produces cluster analytics for each node within
 the SAMDP to identify potential failure points and vulnerabilities within the model.
 
+Documentation is available [here](https://mitre.github.io/arlin/).
+
 <p align="center">
-  <img src="./docs/images/readme_example.png" />
+  <img src="assets/readme_example.png" />
 </p>
 
 **Table of Contents**
@@ -44,7 +46,7 @@ analysis.
 # Main Features
 
 <p align="center">
-  <img src="./docs/images/arlin_structure.png" />
+  <img src="assets/arlin_structure.png" />
 </p>
 
 At a high-level, ARLIN has 4 main components: `dataset`, `generation`, `analysis`, and
@@ -110,7 +112,7 @@ agent's policy along with available paths between given clusters.
 # Getting Started
 
 ARLIN provides a number of example usage notebooks within the [examples](./examples/)
-directory. Documentation is available [here](TODO).
+directory. Documentation is available [here](https://mitre.github.io/arlin/).
 
 # License
 

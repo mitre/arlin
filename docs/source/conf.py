@@ -56,7 +56,7 @@ autoapi_options = [
 ]
 autoapi_python_class_content = "both"
 autoapi_type = "python"
-autoapi_dirs = ["../../arlin/"]
+autoapi_dirs = ["_staticarlin/"]
 
 templates_path = ["_templates"]
 exclude_patterns = ["**/_tests"]

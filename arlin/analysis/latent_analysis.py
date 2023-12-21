@@ -8,7 +8,7 @@ from arlin.dataset import XRLDataset
 class LatentAnalyzer:
     """Class to analyze latent embeddings and generate data to visualize."""
 
-    def __init__(self, embeddings: np.ndarray, dataset: XRLDataset):
+    def __init__(self, dataset: XRLDataset, embeddings: np.ndarray):
         """Initialize an instance of a LatentAnalyzer
 
         Args:

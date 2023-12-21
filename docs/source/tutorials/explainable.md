@@ -53,8 +53,8 @@ embeddings = generate_embeddings(dataset=dataset,
 clusters, _, _, _ = generate_clusters(dataset=dataset,
                                       num_clusters=20)
 
-# Create a grapher to generate data used for analysis.
-grapher = LatentAnalyzer(embeddings, dataset)
+# Create a grapher to generate data used for latent analysis.
+grapher = LatentAnalyzer(dataset, embeddings)
 
 # Generate latent analysis data for visualization
 ep_prog_data = grapher.episode_prog_graph_data()
@@ -67,6 +67,9 @@ viz.graph_multiple_data(file_path='./latent_analysis.png',
                         graph_datas=[ep_prog_data,
                                       conf_data,
                                       decision_boundaries])
+
+# Create a grapher to generate data used for cluster analysis.
+grapher = ClusterAnalyzer(dataset, embeddings)
 
 # Generate cluster analysis data for visualization
 cluster_conf = grapher.cluster_confidence()
@@ -89,7 +92,7 @@ simplified_graph = samdp.save_simplified_graph('./simplified_samdp.png')
 ```
 
 <p align="center">
-  <img src="../../images/explainable/latent_analytics.png" />
+  <img src="_staticimages/explainable/latent_analytics.png" />
   <b>Figure 1.</b> Analysis of the XRLDataset latent space.
 </p>
 
@@ -100,7 +103,7 @@ taking thecorrect action at a given point in the latent space), and decision bou
 (which actions are taken at a given point in the latent space).
 
 <p align="center">
-  <img src="../../images/explainable/cluster_analytics.png" />
+  <img src="_staticimages/explainable/cluster_analytics.png" />
   <b>Figure 2.</b> Analysis of the XRLDatset clusters.
 </p>
 
@@ -142,7 +145,7 @@ to get a higher reward and actually got a lower one. This tells us Cluster 24 re
 an unexpected failure.
 
 <p align="center">
-  <img src="../../images/explainable/state_analysis.png" />
+  <img src="_staticimages/explainable/state_analysis.png" />
   <b>Figure 3.</b> State analysis of Clusters 9, 23, and 24 (left to right).
 </p>
 
@@ -153,7 +156,7 @@ expected failure (hard landing), and Cluster 24 is an unexpected failure (moving
 bounds).
 
 <p align="center">
-  <img src="../../images/explainable/samdp_simplified.png" />
+  <img src="_staticimages/explainable/samdp_simplified.png" />
   <b>Figure 4.</b> SAMDP of the policy used to create the XRLDataset.
 </p>
 
