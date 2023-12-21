@@ -24,10 +24,10 @@ normally take. ARLIN aims to time an attack so that it is less noticeable than t
 but still effective.
 
 <div align="center">
- <img src="../../images/adversarial/gifs/baseline.gif" width=20%/>
- <img src="../../images/adversarial/gifs/worst_1.gif" width=20%/>
- <img src="../../images/adversarial/gifs/worst_10.gif" width=20%/>
- <img src="../../images/adversarial/gifs/preference75.gif" width=20%/>
+ <img src="_staticimages/adversarial/gifs/baseline.gif" width=20%/>
+ <img src="_staticimages/adversarial/gifs/worst_1.gif" width=20%/>
+ <img src="_staticimages/adversarial/gifs/worst_10.gif" width=20%/>
+ <img src="_staticimages/adversarial/gifs/preference75.gif" width=20%/>
 </div>
 <p align="center">
   <b>Figure 1.</b> Gifs created from baseline performance and traditional adversarial attacks.
@@ -46,7 +46,7 @@ samdp.save_terminal_paths('./paths_into_23.png`,
 ```
 
 <p align="center">
-  <img src="../../images/adversarial/samdp_terminals_23.png" />
+  <img src="_staticimages/adversarial/samdp_terminals_23.png" />
   <b>Figure 2.</b> Neighboring clusters and associated actions for moving into Cluster 23.
 </p>
 
@@ -65,7 +65,7 @@ for the policy to find (Figure 3). In trials, this approach results in the agent
 the target cluster 90% of the time.
 
 <p align="center">
-  <img src="../../images/adversarial/gifs/arlin.gif" />
+  <img src="_staticimages/adversarial/gifs/arlin.gif" />
 </p>
 <p align="center">
   <b>Figure 3.</b> ARLIN influenced attack, showing how the attack results in a reasonable

@@ -9,13 +9,13 @@ from arlin.analysis.visualization import GraphData
 
 @pytest.fixture
 def analyzer(random_clusters, random_dataset):
-    analyzer = ClusterAnalyzer(random_dataset, random_clusters)
+    analyzer = ClusterAnalyzer(random_dataset, random_clusters[0])
     return analyzer
 
 
 @pytest.fixture
 def ppo_analyzer(ppo_clusters, ppo_dataset):
-    analyzer = ClusterAnalyzer(ppo_dataset, ppo_clusters)
+    analyzer = ClusterAnalyzer(ppo_dataset, ppo_clusters[0])
     return analyzer
 
 
@@ -33,10 +33,10 @@ class TestClusterAnalyzer:
             else:
                 assert cluster_color == "k"
 
-        random_clusters[random_dataset.start_indices[0]] = 0
-        random_clusters[random_dataset.term_indices[0]] = 0
+        random_clusters[0][random_dataset.start_indices[0]] = 0
+        random_clusters[0][random_dataset.term_indices[0]] = 0
         with pytest.raises(ValueError):
-            _ = ClusterAnalyzer(random_dataset, random_clusters)
+            _ = ClusterAnalyzer(random_dataset, random_clusters[0])
 
     def test_cluster_state_img_analysis(self, analyzer, env, tmpdir):
         _, _ = env.reset()

@@ -151,7 +151,7 @@ def graph_multiple_data(
                 axis.set_xlabel(data.xlabel)
                 axis.set_ylabel(data.ylabel)
 
-            if data.legend is not None and len(data.legend["labels"]) < 4:
+            if data.legend is not None:  # and len(data.legend["labels"]) < 4:
                 extra_legends = {"bbox_to_anchor": (1.05, 1.0), "loc": "upper left"}
                 data.legend.update(extra_legends)
                 axis.legend(**data.legend)

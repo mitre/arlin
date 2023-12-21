@@ -141,9 +141,6 @@ class ClusterAnalyzer:
         with open(text_file_path, "w") as f:
             f.write(txt_data)
 
-        logging.info(text_file_path)
-        logging.info(os.path.isfile(text_file_path))
-
     def cluster_state_analysis(
         self,
         cluster_id: int,
@@ -203,7 +200,7 @@ class ClusterAnalyzer:
 
         title = "Cluster Confidence Analysis"
 
-        handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
+        handles = [Patch(color="g"), Patch(color="k"), Patch(color="r")]
         labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
@@ -247,7 +244,7 @@ class ClusterAnalyzer:
 
         title = "Cluster Reward Analysis"
 
-        handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
+        handles = [Patch(color="g"), Patch(color="k"), Patch(color="r")]
         labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}
@@ -297,7 +294,7 @@ class ClusterAnalyzer:
 
         title = "Cluster Value Analysis"
 
-        handles = [Patch(color="g"), Patch(color="r"), Patch(color="k")]
+        handles = [Patch(color="g"), Patch(color="k"), Patch(color="r")]
         labels = ["Initial", "Intermediate", "Terminal"]
         leg_title = "Cluster Stage"
         legend = {"handles": handles, "labels": labels, "title": leg_title}

@@ -7,19 +7,19 @@ from arlin.analysis.visualization import COLORS, GraphData
 
 @pytest.fixture
 def analyzer(random_embeddings, random_dataset):
-    analyzer = LatentAnalyzer(random_embeddings, random_dataset)
+    analyzer = LatentAnalyzer(random_dataset, random_embeddings)
     return analyzer
 
 
 @pytest.fixture
 def ppo_analyzer(ppo_embeddings, ppo_dataset):
-    ppo_analyzer = LatentAnalyzer(ppo_embeddings, ppo_dataset)
+    ppo_analyzer = LatentAnalyzer(ppo_dataset, ppo_embeddings)
     return ppo_analyzer
 
 
 class TestLatentAnalyzer:
     def test_init(self, random_dataset, random_embeddings):
-        analyzer = LatentAnalyzer(random_embeddings, random_dataset)
+        analyzer = LatentAnalyzer(random_dataset, random_embeddings)
 
         assert analyzer.num_embeddings == len(random_embeddings)
         assert len(analyzer.x) == len(random_embeddings)
@@ -38,14 +38,14 @@ class TestLatentAnalyzer:
         assert not embeddings_data.showall
 
     def test_clusters_graph_data(self, analyzer, random_clusters, random_embeddings):
-        cluster_data = analyzer.clusters_graph_data(random_clusters)
+        cluster_data = analyzer.clusters_graph_data(random_clusters[0])
         assert isinstance(cluster_data, GraphData)
 
         assert len(cluster_data.colors) == len(random_embeddings)
-        for i, cluster_id in enumerate(random_clusters):
+        for i, cluster_id in enumerate(random_clusters[0]):
             assert cluster_data.colors[i] == COLORS[cluster_id]
 
-        n_clusters = len(np.unique(random_clusters))
+        n_clusters = len(np.unique(random_clusters[0]))
         assert cluster_data.title == f"{n_clusters} Clusters"
 
         assert cluster_data.legend["title"] == "Cluster Groups"

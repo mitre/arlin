@@ -8,7 +8,7 @@ from arlin.dataset import XRLDataset
 class LatentAnalyzer:
     """Class to analyze latent embeddings and generate data to visualize."""
 
-    def __init__(self, embeddings: np.ndarray, dataset: XRLDataset):
+    def __init__(self, dataset: XRLDataset, embeddings: np.ndarray):
         """Initialize an instance of a LatentAnalyzer
 
         Args:
@@ -50,7 +50,12 @@ class LatentAnalyzer:
         handles = [Patch(color=COLORS[i], label=str(i)) for i in range(num_clusters)]
         labels = [f"Cluster {i}" for i in range(num_clusters)]
         leg_title = "Cluster Groups"
-        legend = {"handles": handles, "labels": labels, "title": leg_title}
+        legend = {
+            "handles": handles,
+            "labels": labels,
+            "title": leg_title,
+            "fontsize": "xx-small",
+        }
 
         cluster_data = GraphData(
             x=self.x, y=self.y, title=title, colors=colors, legend=legend
