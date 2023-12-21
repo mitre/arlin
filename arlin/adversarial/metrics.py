@@ -159,6 +159,6 @@ def get_average_metrics(
 
     avg_reward = sum(trimmed_rewards) / num_episodes
     avg_attacks = sum(trimmed_num_attacks) / num_episodes
-    avg_perc_attack = (sum(trimmed_attack_pct) / num_episodes) * 100
+    avg_perc_attack = round((sum(trimmed_attack_pct) / num_episodes) * 100, 2)
 
     return avg_reward, avg_attacks, avg_perc_attack

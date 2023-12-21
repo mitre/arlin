@@ -31,7 +31,9 @@ def create_dirs(base_dir_path: str, model_names: List[str] = []) -> None:
 
 
 def save_gifs(
-    gif_lists: List[Image.Image], episode_rewards: List[Union[int, float]], dir_name: str
+    gif_lists: List[List[Image.Image]],
+    episode_rewards: List[Union[int, float]],
+    dir_name: str,
 ):
     idx = episode_rewards.index(max(episode_rewards))
     save_path = os.path.join(dir_name, f"episode_{idx}-max.gif")

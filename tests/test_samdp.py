@@ -53,10 +53,8 @@ class TestSAMDP:
                 assert samdp_obj[from_cluster][-1][to_cluster] == total_prob
 
     def test_save_txt(self, samdp, tmpdir):
-        path = os.path.join(tmpdir)
-        samdp.save_txt(path)
-
-        assert os.path.isfile(os.path.join(path, "samdp.txt"))
+        samdp.save_txt(tmpdir)
+        assert os.path.isfile(os.path.join(tmpdir, "samdp.txt"))
 
     def test_generate_graph(self, samdp):
         graph = samdp._generate_graph()
